@@ -51,7 +51,7 @@ public class LoginActivity extends Activity {
 
         authStepOne.execute();
     }
-    
+
 
     // When redirected, make next query
     WebViewClient authWebViewClient = new WebViewClient() {
