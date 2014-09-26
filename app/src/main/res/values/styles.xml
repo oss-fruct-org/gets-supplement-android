@@ -1,8 +1,75 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Theme.Getssupply" parent="@android:style/Theme.Holo.Light">
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_getssupply</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Getssupply</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Getssupply</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Getssupply</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Getssupply</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Getssupply</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top_getssupply</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_getssupply</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Getssupply</item>
+
+
+    </style>
+
+    <style name="ActionBar.Solid.Getssupply" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+        <item name="android:background">@drawable/ab_solid_getssupply</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_getssupply</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_getssupply</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Getssupply</item>
+    </style>
+
+    <style name="ActionBar.Transparent.Getssupply" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@drawable/ab_transparent_getssupply</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Getssupply</item>
+    </style>
+
+    <style name="PopupMenu.Getssupply" parent="@android:style/Widget.Holo.Light.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_getssupply</item>
+    </style>
+
+    <style name="DropDownListView.Getssupply" parent="@android:style/Widget.Holo.Light.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background_getssupply</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Getssupply" parent="@android:style/Widget.Holo.Light.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_getssupply</item>
+    </style>
+
+    <style name="DropDownNav.Getssupply" parent="@android:style/Widget.Holo.Light.Spinner">
+        <item name="android:background">@drawable/spinner_background_ab_getssupply</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_getssupply</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_getssupply</item>
+    </style>
+
+    <style name="ProgressBar.Getssupply" parent="@android:style/Widget.Holo.Light.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal_getssupply</item>
+    </style>
+
+    <style name="ActionButton.CloseMode.Getssupply" parent="@android:style/Widget.Holo.Light.ActionButton.CloseMode">
+        <item name="android:background">@drawable/btn_cab_done_getssupply</item>
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.Getssupply.Widget" parent="@android:style/Theme.Holo">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Getssupply</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Getssupply</item>
+    </style>
+
+    <style name="ShortTextEntry">
+        <item name="android:maxLength">150</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:lines">1</item>
+    </style>
+
+    <style name="ImageButtonNoBackground">
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="ImageButtonNoBackgroundPadding" parent="ImageButtonNoBackground">
+        <item name="android:padding">10dp</item>
     </style>
 
 </resources>

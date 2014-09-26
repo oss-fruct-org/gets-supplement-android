@@ -10,14 +10,28 @@ import java.util.ArrayList;
 
 import oss.fruct.org.getssupplement.Const;
 import oss.fruct.org.getssupplement.Model.Category;
+import oss.fruct.org.getssupplement.Model.DatabaseType;
 import oss.fruct.org.getssupplement.Model.Point;
 
 /**
  * Created by alexander on 05.09.14.
  */
 public class GetsDbHelper extends SQLiteOpenHelper {
-    public GetsDbHelper(Context context) {
-        super(context, Const.DB_INTERNAL_NAME, null ,1);
+
+    // Prefix is used to define Db type: internal Db for storing GeTS data or
+    // internal Db for storing temporary data that should be uploaded to remote server
+    private DatabaseType databaseType;
+
+    public GetsDbHelper(Context context, DatabaseType _databaseType) {
+        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 1);
+        this.databaseType = databaseType;
+    }
+
+    private static String getDatabasePrefix(DatabaseType databaseType) {
+        if (databaseType == DatabaseType.DATA_FROM_API)
+            return "api_";
+
+        return "user_";
     }
 
     @Override
@@ -27,7 +41,8 @@ public class GetsDbHelper extends SQLiteOpenHelper {
                         "_id integer primary key autoincrement," + // Internal id, not connected with API
                         "name text," +
                         "url text," +
-                        "access text," +
+                        // FIXME: no description?
+                        "access text," + // TODO: how to use?
                         "time text," +
                         "latitude real," +
                         "longitude real" +

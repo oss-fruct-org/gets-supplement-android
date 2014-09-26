@@ -6,5 +6,17 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">Authorization</string>
     <string name="error_authorization">Authorization error</string>
+    <string name="action_catalogue">Points catalogue</string>
+    <string name="title_activity_add_new_point">Add a point</string>
+    <string name="activity_addnewpoint_mapview_info">Map is showing your location. To change, drag, move and drop marker to a desirable location</string>
+    <string name="str_point_name">Point name</string>
+    <string name="str_description">Description (optional)</string>
+    <string name="str_url">URL (optional)</string>
+    <string name="str_user_my_location">Use my location</string>
+    <string name="plus">+</string>
+    <string name="action_add_new_point">Add new point</string>
+    <string name="done">Done</string>
+
+    <string name="mapbox_id_street">alexander1.gdaod0en</string>
 
 </resources>

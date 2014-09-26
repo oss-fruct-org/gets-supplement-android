@@ -20,7 +20,10 @@ android {
 }
 
 dependencies {
-    compile "org.osmdroid:osmdroid-android:4.2"
-    compile "org.slf4j:slf4j-android:1.6.1-RC1"
+    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:0.4.0@aar') {transitive=true}
+    compile ('com.cocoahero.android:geojson:1.0.0@aar') {transitive=true}
+
+    //compile "org.osmdroid:osmdroid-android:4.2"
+    //compile "org.slf4j:slf4j-android:1.6.1-RC1"
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
