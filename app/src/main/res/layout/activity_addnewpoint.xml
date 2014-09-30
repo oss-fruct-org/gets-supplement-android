@@ -14,6 +14,59 @@
         tools:context="oss.fruct.org.getssupplement.AddNewPointActivity"
         android:orientation="vertical">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.mapbox.mapboxsdk.views.MapView
+                android:id="@+id/activity_addpoint_mapview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:minHeight="250dp"
+                android:clickable="true"
+                mapbox:mapid="@string/mapbox_id_street"/>
+
+            <ImageButton
+                android:id="@+id/activity_addpoint_location"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_location"
+                style="@style/ImageButtonNoBackgroundPadding"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:paddingBottom="10dp">
+
+                <ImageButton
+                    android:id="@+id/activity_addpoint_zoom_in"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_zoom_in"
+                    style="@style/ImageButtonNoBackground"/>
+
+
+                <ImageButton
+                    android:id="@+id/activity_addpoint_zoom_out"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_zoom_out"
+                    style="@style/ImageButtonNoBackground"/>
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
         <EditText
             android:id="@+id/activity_addpoint_name"
             android:layout_width="match_parent"
@@ -67,58 +120,15 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"/>
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/activity_addpoint_no_network"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+            android:layout_height="wrap_content"
+            android:text="@string/no_network"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:visibility="gone"/>
 
-            <com.mapbox.mapboxsdk.views.MapView
-                android:id="@+id/activity_addpoint_mapview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:minHeight="250dp"
-                android:clickable="true"
-                mapbox:mapid="@string/mapbox_id_street"/>
-
-            <ImageButton
-                android:id="@+id/activity_addpoint_location"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_location"
-                style="@style/ImageButtonNoBackgroundPadding"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:gravity="center"
-                android:paddingRight="10dp"
-                android:paddingLeft="10dp"
-                android:paddingBottom="10dp">
-
-                <ImageButton
-                    android:id="@+id/activity_addpoint_zoom_in"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_zoom_in"
-                    style="@style/ImageButtonNoBackground"/>
-
-
-                <ImageButton
-                    android:id="@+id/activity_addpoint_zoom_out"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_zoom_out"
-                    style="@style/ImageButtonNoBackground"/>
-
-
-            </LinearLayout>
-
-        </RelativeLayout>
 
     </LinearLayout>
 

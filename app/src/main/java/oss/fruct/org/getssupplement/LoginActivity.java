@@ -58,9 +58,12 @@ public class LoginActivity extends Activity {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
+            Log.d(Const.TAG, url + " ");
+
             AuthStepTwo authStepTwo = new AuthStepTwo(getResponseId()) {
                 @Override
                 public void onPostExecute(LoginResponse loginResponse) {
+                    Log.d(Const.TAG, "Login response: " + loginResponse);
                     if (loginResponse == null) {
                         Toast.makeText(getApplicationContext(), getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
                         finish();
@@ -76,7 +79,8 @@ public class LoginActivity extends Activity {
 
             };
 
-            authStepTwo.execute();
+            if (!url.startsWith("https://accounts.google.com/"))
+                authStepTwo.execute();
 
             //finish();
             // return true; //Indicates WebView to NOT load the url;

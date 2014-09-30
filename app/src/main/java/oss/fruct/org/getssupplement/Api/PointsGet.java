@@ -33,13 +33,13 @@ import oss.fruct.org.getssupplement.Model.PointsResponse;
 public class PointsGet extends AsyncTask<String, String, PointsResponse> {
 
     private String authToken;
-    private float latitude;
-    private float longitude;
+    private double latitude;
+    private double longitude;
     private int radius;
     private int categoryId;
 
     // TODO: implement 'space' parameter
-    public PointsGet(String token, float latitude, float longitude, int radius, int categoryId) {
+    public PointsGet(String token, double latitude, double longitude, int radius, int categoryId) {
         authToken = token;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -52,7 +52,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
         this.categoryId = categoryId;
     }
 
-    public PointsGet(String token, float latitude, float longitude, int radius) {
+    public PointsGet(String token, double latitude, double longitude, int radius) {
         authToken = token;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -144,14 +144,14 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                         }
 
                         String coordinates = element.getElementsByTagName("Point").item(0).getTextContent();
-                        point.latitude = Float.parseFloat(coordinates.split(",")[0]);
-                        point.longitude = Float.parseFloat(coordinates.split(",")[1]);
+                        point.longitude = Float.parseFloat(coordinates.split(",")[0]);
+                        point.latitude = Float.parseFloat(coordinates.split(",")[1]);
 
                     }catch (Exception e) {
                         Log.d(Const.TAG + "xml", "Error parsing XML " + e.toString());
                     }
 
-                    Log.d(Const.TAG, point.id + "login response " + point.name + " " + point.url);
+                    //Log.d(Const.TAG, point.id + "login response " + point.name + " " + point.url);
 
                     list.add(point);
                 }

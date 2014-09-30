@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -64,6 +65,8 @@ public class GetsDbHelper extends SQLiteOpenHelper {
     }
 
 
+
+
     /**
      *
      *
@@ -93,13 +96,15 @@ public class GetsDbHelper extends SQLiteOpenHelper {
             Category category = categories.get(i);
             this.addCategory(category.id, category.name, category.description, category.url);
         }
-
     }
 
     public ArrayList<Category> getCategories() {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.query(true, Const.DB_INTERNAL_CATEGORIES, null, null, null, null, null, null, null);
+        Log.d(Const.TAG, "Db categories cursor count:" + cursor.getCount());
+
+
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");
             int indexName = cursor.getColumnIndex("name");
@@ -113,6 +118,9 @@ public class GetsDbHelper extends SQLiteOpenHelper {
                 category.name = cursor.getString(indexName);
                 category.description = cursor.getString(indexDescription);
                 category.url = cursor.getString(indexUrl);
+
+                list.add(category);
+
             } while (cursor.moveToNext());
 
             db.close();
@@ -139,11 +147,11 @@ public class GetsDbHelper extends SQLiteOpenHelper {
      *
      *
      */
-    public void addPoint(String name, String url, String access, String time, String latitude, String longitude) {
+    public void addPoint(String name, String url, String access, long time, String latitude, String longitude) {
         addPoint(name, url, access, time, Float.parseFloat(latitude), Float.parseFloat(longitude));
     }
 
-    public void addPoint(String name, String url, String access, String time, float latitude, float longitude) {
+    public void addPoint(String name, String url, String access, long time, double latitude, double longitude) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -162,7 +170,9 @@ public class GetsDbHelper extends SQLiteOpenHelper {
     public void addPoints(ArrayList<Point> points) {
         for (int i = 0; i < points.size(); i++) {
             Point point = points.get(i);
-            this.addPoint(point.name, point.url, point.access, point.time, point.latitude, point.longitude);
+
+            // TODO: convert time
+            this.addPoint(point.name, point.url, point.access, 0, point.latitude, point.longitude);
         }
 
     }

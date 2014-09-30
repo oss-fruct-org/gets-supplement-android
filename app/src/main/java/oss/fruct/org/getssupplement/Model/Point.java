@@ -9,6 +9,6 @@ public class Point {
     public String url;
     public String access;
     public String time;
-    public float latitude;
-    public float longitude;
+    public double latitude;
+    public double longitude;
 }

@@ -59,6 +59,7 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
             HttpPost httppost = new HttpPost(Const.URL_AUTH);
 
             String postData = "<request><params><id>" + id + "</id></params></request>";
+            Log.d(Const.TAG, "AuthStepTwo postData: " + postData);
 
             // Server can't work this fast
             for (int attempts = 0; attempts  < 5; attempts++) {
@@ -70,6 +71,7 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
 
                 // Parse
                 String strResponse = EntityUtils.toString(responseEntity);
+                Log.d(Const.TAG, "AuthStepTwo response: " + strResponse);
 
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -94,7 +96,7 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
 
 
                     loginResponse.token = element.getElementsByTagName("auth_token").item(0).getTextContent();
-                    Log.d(Const.TAG, loginResponse.token + "login respone " + loginResponse.message);
+                    Log.d(Const.TAG, loginResponse.token + "login response " + loginResponse.message);
 
                     // Return if aith_token found (else next attemp)
                     return loginResponse;

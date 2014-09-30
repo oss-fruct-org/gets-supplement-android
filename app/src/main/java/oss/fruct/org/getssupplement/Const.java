@@ -39,4 +39,9 @@ public class Const {
     public static final String DB_INTERNAL_CATEGORIES = "internal_categories";
 
 
+    /**
+     * API constants
+     */
+    public static int API_POINTS_RADIUS = 10;// in km
+
 }

@@ -14,16 +14,27 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
+import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.overlay.Icon;
+import com.mapbox.mapboxsdk.overlay.ItemizedIconOverlay;
+import com.mapbox.mapboxsdk.overlay.Marker;
+import com.mapbox.mapboxsdk.overlay.Overlay;
 import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.mapboxsdk.views.MapViewListener;
 
 import oss.fruct.org.getssupplement.Api.CategoriesGet;
+import oss.fruct.org.getssupplement.Api.PointsGet;
 import oss.fruct.org.getssupplement.Database.GetsDbHelper;
 import oss.fruct.org.getssupplement.Model.CategoriesResponse;
 import oss.fruct.org.getssupplement.Model.DatabaseType;
+import oss.fruct.org.getssupplement.Model.Point;
+import oss.fruct.org.getssupplement.Model.PointsResponse;
 
 
 public class MapActivity extends Activity implements LocationListener {
@@ -55,15 +66,44 @@ public class MapActivity extends Activity implements LocationListener {
         if (!isAutuhorized()) {
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
+
+            // TODO: make intent for result (load points after authorization)
         } else {
+            Log.d(Const.TAG, "Authorized, downloading categories");
+
+            final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
+                    getLocation().getLatitude(), getLocation().getLongitude(), Const.API_POINTS_RADIUS) {
+
+                @Override
+                public void onPostExecute(PointsResponse response) {
+                    // TODO: check for response code
+                    Log.d(Const.TAG, "Categories has been downloaded");
+                    GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+                    dbHelper.addPoints(response.points);
+
+                    Log.d(Const.TAG, "Points array size: " + response.points.size());
+
+                    for (Point point : response.points) {
+                        addMarker(new LatLng(point.latitude, point.longitude), point.name);
+                    }
+
+                }
+
+            };
+
+
             CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext())) {
                 @Override
                 public void onPostExecute(CategoriesResponse response) {
                     GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                     dbHelper.addCategories(response.categories);
+                    Log.d(Const.TAG, "Categories has been downloaded");
+
+                    pointsGet.execute();
                 }
             };
-            //categoriesGet.execute();
+
+            categoriesGet.execute();
         }
 
         mMapView = (MapView) findViewById(R.id.acitivity_map_mapview);
@@ -81,6 +121,46 @@ public class MapActivity extends Activity implements LocationListener {
         else
             mMapView.getController().setZoom(3);
 
+
+        mMapView.setMapViewListener(new MapViewListener() {
+            @Override
+            public void onShowMarker(MapView mapView, Marker marker) {
+
+            }
+
+            @Override
+            public void onHidemarker(MapView mapView, Marker marker) {
+
+            }
+
+            @Override
+            public void onTapMarker(MapView mapView, Marker marker) {
+                Log.d(Const.TAG, "Marker clicked: " + marker.getTitle());
+            }
+
+            @Override
+            public void onLongPressMarker(MapView mapView, Marker marker) {
+
+            }
+
+            @Override
+            public void onTapMap(MapView mapView, ILatLng iLatLng) {
+            }
+
+            @Override
+            public void onLongPressMap(MapView mapView, ILatLng iLatLng) {
+
+            }
+        });
+
+    }
+
+
+    private void addMarker(LatLng position, String title) {
+        //Log.d(Const.TAG, "addMarker");
+        Marker marker = new Marker(mMapView, title, "", position);
+        marker.setIcon(new Icon(getApplicationContext(), Icon.Size.MEDIUM, "marker-stroked", "000000")); // TODO: marker appearance
+        mMapView.addMarker(marker);
     }
 
     /**

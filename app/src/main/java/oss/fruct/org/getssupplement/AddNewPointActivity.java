@@ -1,7 +1,10 @@
 package oss.fruct.org.getssupplement;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import oss.fruct.org.getssupplement.Api.PointsAdd;
 import oss.fruct.org.getssupplement.Database.GetsDbHelper;
 import oss.fruct.org.getssupplement.Model.Category;
 import oss.fruct.org.getssupplement.Model.DatabaseType;
@@ -50,6 +54,14 @@ public class AddNewPointActivity extends Activity {
     ImageButton btZoomOut;
 
     GetsDbHelper mDbHelper;
+
+    public Marker getChoosedLocation() {
+        return choosedLocation;
+    }
+
+    public void setChoosedLocation(Marker _choosedLocation) {
+        this.choosedLocation = _choosedLocation;
+    }
 
     Marker choosedLocation = null;
 
@@ -98,10 +110,18 @@ public class AddNewPointActivity extends Activity {
         prepareSpinner();
 
         prepareMap();
+
+        // Check for Internet connection, show warning
+        if (!isInternetConnectionAvailable()) {
+            findViewById(R.id.activity_addpoint_no_network).setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void prepareSpinner() {
         ArrayList<Category> categories = mDbHelper.getCategories();
+        Log.d(Const.TAG, "Spinner length: " + categories.size());
+
         if (categories == null)
             return;
 
@@ -110,14 +130,16 @@ public class AddNewPointActivity extends Activity {
             spinnerItems.add(category.name);
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerItems);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerItems);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spPointCategory.setAdapter(adapter);
     }
 
+    ArrayAdapter<String> adapter;
+
     private int findCategoryIdByName(String categoryName) {
 
-        return -1;
+        return 1;
     }
 
     private void prepareMap() {
@@ -164,12 +186,25 @@ public class AddNewPointActivity extends Activity {
 
     private void addMaker(LatLng position) {
 
+        //if (getChoosedLocation() != null)
+        //    setChoosedLocation(null);
         if (choosedLocation != null)
-            mMap.getOverlays().remove(1); // FIXME: doesn' work
+            choosedLocation.setPoint(position);
+        else {
+            setChoosedLocation(new Marker(mMap, "", "", position));
+            getChoosedLocation().setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000"));
+            mMap.addMarker(getChoosedLocation());
+        }
+    }
 
-        Marker choosedLocation = new Marker(mMap, "Ala", "lala", position);
-        choosedLocation.setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000"));
-        mMap.addMarker(choosedLocation);
+    private boolean isInternetConnectionAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+
+        return false;
     }
 
 
@@ -194,7 +229,7 @@ public class AddNewPointActivity extends Activity {
             String pointName = etPointName.getText().toString();
 
             if (isStringEmpty(pointName)) {
-                // TODO animations, whistles and so on
+                // TODO animations, bells, whistles etc
                 return false;
             }
 
@@ -202,8 +237,30 @@ public class AddNewPointActivity extends Activity {
             String pointUrl = etPointUrl.getText().toString();
             int categoryId = findCategoryIdByName(spPointCategory.getSelectedItem().toString());
 
-            // Get texts
-            // Get location
+            Log.d(Const.TAG, "Choosed location: " + choosedLocation);
+            LatLng markerLocation = getChoosedLocation().getPoint();
+
+
+            // Save to local database when no Internet connection
+            if (isInternetConnectionAvailable()) {
+                GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
+                dbHelper.addPoint(pointName, pointUrl, "???", System.currentTimeMillis()/1000L, markerLocation.getLatitude(), markerLocation.getLongitude()); // FIXME
+                Toast.makeText(getApplicationContext(), getString(R.string.saved_to_local_db), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            PointsAdd pointsAdd = new PointsAdd(Settings.getToken(getApplicationContext()),
+                    categoryId,
+                    pointName,
+                    pointDescription,
+                    pointUrl,
+                    markerLocation.getLatitude(),
+                    markerLocation.getLongitude(),
+                    markerLocation.getAltitude(), // FIXME
+                    System.currentTimeMillis() / 1000L
+            );
+
+            pointsAdd.execute();
 
 
             return true;
