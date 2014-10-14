@@ -14,15 +14,17 @@ public class Const {
     /**
      * URLs
      */
-    public static final String URL_AUTH = "http://oss.fruct.org/projects/gets/service/userLogin.php";
+    private static final String GETS_SERVER_PREFIX = "http://gets.cs.petrsu.ru/gets/service/";
 
-    public static final String URL_POINTS_LOAD = "http://oss.fruct.org/projects/gets/service/loadPoints.php";
-    public static final String URL_POINTS_ADD = "http://oss.fruct.org/projects/gets/service/addPoint.php";
-    public static final String URL_POINTS_UPDATE = "http://oss.fruct.org/projects/gets/service/updatePoint.php";
-    public static final String URL_POINTS_DELETE = "http://oss.fruct.org/projects/gets/service/deletePoint.php";
+    public static final String URL_AUTH = GETS_SERVER_PREFIX + "userLogin.php";
 
-    public static final String URL_CATEGORIES_GET = "http://oss.fruct.org/projects/gets/service/getCategories.php";
-    public static final String URL_CATEGORIES_ADD = "http://oss.fruct.org/projects/gets/service/addCategory.php";
+    public static final String URL_POINTS_LOAD = GETS_SERVER_PREFIX + "loadPoints.php";
+    public static final String URL_POINTS_ADD = GETS_SERVER_PREFIX + "addPoint.php";
+    public static final String URL_POINTS_UPDATE = GETS_SERVER_PREFIX + "updatePoint.php";
+    public static final String URL_POINTS_DELETE = GETS_SERVER_PREFIX + "deletePoint.php";
+
+    public static final String URL_CATEGORIES_GET = GETS_SERVER_PREFIX + "getCategories.php";
+    public static final String URL_CATEGORIES_ADD = GETS_SERVER_PREFIX + "addCategory.php";
 
 
     /**
@@ -44,4 +46,15 @@ public class Const {
      */
     public static int API_POINTS_RADIUS = 10;// in km
 
+
+    /**
+     * Intents for result
+     */
+    public static final int INTENT_RESULT_NEW_POINT = 1;
+    public static final int INTENT_RESULT_TOKEN = 2;
+    public static final int INTENT_RESULT_CATEGORY = 3;
+
+
+    public static final int INTENT_RESULT_CODE_OK = 1;
+    public static final int INTENT_RESULT_CODE_NOT_OK = 2;
 }

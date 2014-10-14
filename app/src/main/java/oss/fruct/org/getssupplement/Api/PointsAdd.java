@@ -1,5 +1,6 @@
 package oss.fruct.org.getssupplement.Api;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -23,36 +24,43 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import oss.fruct.org.getssupplement.Const;
+import oss.fruct.org.getssupplement.Database.GetsDbHelper;
+import oss.fruct.org.getssupplement.Model.DatabaseType;
 import oss.fruct.org.getssupplement.Model.LoginResponse;
+import oss.fruct.org.getssupplement.Model.PointsResponse;
 
 /**
  * Created by alexander on 04.09.14.
  */
-public class PointsAdd extends AsyncTask<String, String, LoginResponse> {
+public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
 
     String params = "";
 
+    public PointsAdd(String token, int category, String title, float rating,
+        double latitude, double longitude, long unixTime) {
+        /*
     public PointsAdd(String token, int category, String title, String description,
-        String link, double latitude, double longitude, double altitude, long unixTime) {
+        String link, double latitude, double longitude, double altitude, long unixTime) {*/
 
         params = "<request><params>";
         params += "<auth_token>" + token + "</auth_token>";
-        params += "<channel>" + category + "</channel>"; // FIXME: is this a category?
-        params += "<title>" + title + "</title>";
 
-        if (description != null)
-            params += "<description>" + description + "</description>";
+        params += "<category_id>" + category + "</category_id>";
+        params += "<title><![CDATA[" + title + "]]></title>";
 
-        if (link != null)
-            params += "<link>" + link + "</link>";
+        // Put rating // TODO: put description
+        String ratingField = "{\"description\":\"" + title + "\",\"rating\":" + rating + "}";
+        params += "<description><![CDATA[" + ratingField + "]]></description>";
+
+        params += "<link><![CDATA[" + "http://gets.cs.petrsu.ru" + "]]></link>";
 
         params += "<latitude>" + latitude + "</latitude>";
-        params += "<longitude>" + latitude + "</longitude>";
-        params += "<altitude>" + altitude + "</altitude>";
+        params += "<longitude>" + longitude + "</longitude>";
+        params += "<altitude>" + 0.0 + "</altitude>";
 
         // Convert unixTime to a desirable format 'dd MM yyyy HH:mm:ss.SSS"
         Date date = new Date(unixTime);
-        String formatedDate = new SimpleDateFormat("dd MM yyyy HH:mm:ss.SSS").format(date);
+        String formatedDate = new SimpleDateFormat("dd MM yyyy HH:mm:s.000").format(date);
         params += "<time>" + formatedDate + "</time>";
 
         params += "</params></request>";
@@ -60,9 +68,9 @@ public class PointsAdd extends AsyncTask<String, String, LoginResponse> {
     }
 
     @Override
-    protected LoginResponse doInBackground(String... params) {
+    protected PointsResponse doInBackground(String... params) {
 
-        LoginResponse loginResponse = new LoginResponse();
+        PointsResponse loginResponse = new PointsResponse();
 
         if (isCancelled()) {
             return null;

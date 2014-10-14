@@ -11,4 +11,5 @@ public class Point {
     public String time;
     public double latitude;
     public double longitude;
+    public float rating;
 }

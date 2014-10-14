@@ -12,7 +12,37 @@
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Getssupply</item>
 
 
+        <item name="android:editTextBackground">@drawable/getssupply_edit_text_holo_light</item>
+        <item name="android:textColorHighlight">#99ffeb3b</item>
+        <item name="android:textSelectHandleLeft">@drawable/getssupply_text_select_handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/getssupply_text_select_handle_right</item>
+        <item name="android:textSelectHandle">@drawable/getssupply_text_select_handle_middle</item>
+        <item name="android:ratingBarStyle">@style/RatingBarGetssupply</item>
+
     </style>
+
+
+    <style name="ButtonGetssupply" parent="android:Widget.Holo.Light.Button">
+        <item name="android:background">@drawable/getssupply_btn_default_holo_light</item>
+    </style>
+
+    <style name="ImageButtonGetssupply" parent="android:Widget.Holo.Light.ImageButton">
+        <item name="android:background">@drawable/getssupply_btn_default_holo_light</item>
+    </style>
+
+    <style name="SpinnerGetssupply" parent="android:Widget.Holo.Light.Spinner">
+        <item name="android:background">@drawable/getssupply_spinner_background_holo_light</item>
+        <item name="android:dropDownSelector">@drawable/getssupply_list_selector_holo_light</item>
+    </style>
+
+    <style name="RatingBarGetssupply" parent="android:Widget.Holo.Light.RatingBar">
+        <item name="android:progressDrawable">@drawable/getssupply_ratingbar_full_holo_light</item>
+        <item name="android:indeterminateDrawable">@drawable/getssupply_ratingbar_full_holo_light</item>
+    </style>
+
+
+
+
 
     <style name="ActionBar.Solid.Getssupply" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
         <item name="android:background">@drawable/ab_solid_getssupply</item>
@@ -57,6 +87,7 @@
         <item name="android:popupMenuStyle">@style/PopupMenu.Getssupply</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Getssupply</item>
     </style>
+
 
     <style name="ShortTextEntry">
         <item name="android:maxLength">150</item>

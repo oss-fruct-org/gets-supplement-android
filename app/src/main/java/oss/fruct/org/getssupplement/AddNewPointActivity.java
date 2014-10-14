@@ -2,20 +2,25 @@ package oss.fruct.org.getssupplement;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -42,18 +47,31 @@ import oss.fruct.org.getssupplement.Model.DatabaseType;
 public class AddNewPointActivity extends Activity {
 
     EditText etPointName;
-    EditText etPointDescription;
-    EditText etPointUrl;
+    //EditText etPointDescription;
+    //EditText etPointUrl;
+    RatingBar rbRating;
 
-    Spinner spPointCategory;
-    ImageButton btAddNewCategory;
+    //Spinner spPointCategory;
+    //ImageButton btAddNewCategory;
 
     private MapView mMap;
     ImageButton btLocation;
     ImageButton btZoomIn;
     ImageButton btZoomOut;
 
+    Button btCategory;
+
     GetsDbHelper mDbHelper;
+
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
+
+    private int category = -1;
 
     public Marker getChoosedLocation() {
         return choosedLocation;
@@ -71,11 +89,22 @@ public class AddNewPointActivity extends Activity {
         setContentView(R.layout.activity_addnewpoint);
 
         etPointName = (EditText) findViewById(R.id.activity_addpoint_name);
-        etPointDescription = (EditText) findViewById(R.id.activity_addpoint_description);
-        etPointUrl = (EditText) findViewById(R.id.activity_addpoint_url);
+        //etPointDescription = (EditText) findViewById(R.id.activity_addpoint_description);
+        //etPointUrl = (EditText) findViewById(R.id.activity_addpoint_url);
 
-        spPointCategory = (Spinner) findViewById(R.id.activity_addpoint_category_spinner);
-        btAddNewCategory = (ImageButton) findViewById(R.id.activity_addpoint_category_new);
+
+        //spPointCategory = (Spinner) findViewById(R.id.activity_addpoint_category_spinner);
+        //btAddNewCategory = (ImageButton) findViewById(R.id.activity_addpoint_category_new); // TODO
+        btCategory = (Button) findViewById(R.id.activity_addpoint_category);
+        btCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), CategoryActivity.class);
+                startActivityForResult(i, Const.INTENT_RESULT_CATEGORY);
+            }
+        });
+
+        rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
 
         mMap = (MapView) findViewById(R.id.activity_addpoint_mapview);
         btLocation = (ImageButton) findViewById(R.id.activity_addpoint_location);
@@ -107,16 +136,20 @@ public class AddNewPointActivity extends Activity {
 
         mDbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
 
-        prepareSpinner();
+
+        hideKeyboard();
+
+        //prepareSpinner();
 
         prepareMap();
 
         // Check for Internet connection, show warning
-        if (!isInternetConnectionAvailable()) {
+        if (!MapActivity.isInternetConnectionAvailable()) {
             findViewById(R.id.activity_addpoint_no_network).setVisibility(View.VISIBLE);
         }
 
     }
+/*
 
     private void prepareSpinner() {
         ArrayList<Category> categories = mDbHelper.getCategories();
@@ -134,6 +167,7 @@ public class AddNewPointActivity extends Activity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spPointCategory.setAdapter(adapter);
     }
+*/
 
     ArrayAdapter<String> adapter;
 
@@ -148,7 +182,7 @@ public class AddNewPointActivity extends Activity {
         mMap.setClickable(true);
         mMap.setUserLocationEnabled(true);
 
-        mMap.getController().setZoom(15);
+        mMap.getController().setZoom(mMap.getMaxZoomLevel());
         mMap.setUseDataConnection(true);
 
         if (MapActivity.getLocation() != null) {
@@ -158,7 +192,7 @@ public class AddNewPointActivity extends Activity {
             LatLng myLocation = new LatLng(latitude, longitude);
 
             mMap.setCenter(myLocation);
-            mMap.setZoom(17);
+            mMap.setZoom(mMap.getMaxZoomLevel());
 
             addMaker(myLocation);
         }
@@ -173,7 +207,7 @@ public class AddNewPointActivity extends Activity {
 
             @Override
             public boolean longPressHelper(ILatLng iLatLng) {
-                Toast.makeText(getApplicationContext(), "Long press", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Long press", Toast.LENGTH_SHORT).show();
                 return false;
             }
         };
@@ -197,17 +231,6 @@ public class AddNewPointActivity extends Activity {
         }
     }
 
-    private boolean isInternetConnectionAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-
-        return false;
-    }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -222,49 +245,87 @@ public class AddNewPointActivity extends Activity {
             return false;
     }
 
+    private boolean isUrl(String text) {
+        return Patterns.WEB_URL.matcher(text).matches();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            Intent intent = new Intent();
+            setResult(Const.INTENT_RESULT_CODE_NOT_OK, intent);
+            finish();
+        }
+
         if (id == R.id.action_done) {
             String pointName = etPointName.getText().toString();
 
-            if (isStringEmpty(pointName)) {
-                // TODO animations, bells, whistles etc
+            float ratingValue = rbRating.getRating();
+
+            if (isStringEmpty(pointName) || ratingValue == 0f || getCategory() == -1) {
+                Toast.makeText(getApplicationContext(), getString(R.string.enter_name_description_url), Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            String pointDescription = etPointDescription.getText().toString();
-            String pointUrl = etPointUrl.getText().toString();
-            int categoryId = findCategoryIdByName(spPointCategory.getSelectedItem().toString());
 
-            Log.d(Const.TAG, "Choosed location: " + choosedLocation);
+            //String pointDescription = etPointDescription.getText().toString();
+            //String pointUrl = etPointUrl.getText().toString();
+            /*if (pointUrl == null || pointUrl.equals("") || !isUrl(pointUrl)) {
+                Toast.makeText(getApplicationContext(), getString(R.string.enter_valid_url), Toast.LENGTH_SHORT).show();
+                return false;
+            }*/
+
+
+            //int categoryId = findCategoryIdByName(spPointCategory.getSelectedItem().toString());
+
             LatLng markerLocation = getChoosedLocation().getPoint();
 
+            Intent intent = new Intent();
+            intent.putExtra("name", pointName);
+            //intent.putExtra("description", pointDescription);
+            //intent.putExtra("url", pointUrl);
+            intent.putExtra("latitude", markerLocation.getLatitude());
+            intent.putExtra("longitude", markerLocation.getLongitude());
+            //intent.putExtra("altitude", markerLocation.getAltitude());
+            intent.putExtra("category", getCategory());
+            intent.putExtra("rating", ratingValue);
 
-            // Save to local database when no Internet connection
-            if (isInternetConnectionAvailable()) {
-                GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
-                dbHelper.addPoint(pointName, pointUrl, "???", System.currentTimeMillis()/1000L, markerLocation.getLatitude(), markerLocation.getLongitude()); // FIXME
-                Toast.makeText(getApplicationContext(), getString(R.string.saved_to_local_db), Toast.LENGTH_SHORT).show();
-                return true;
-            }
-
-            PointsAdd pointsAdd = new PointsAdd(Settings.getToken(getApplicationContext()),
-                    categoryId,
-                    pointName,
-                    pointDescription,
-                    pointUrl,
-                    markerLocation.getLatitude(),
-                    markerLocation.getLongitude(),
-                    markerLocation.getAltitude(), // FIXME
-                    System.currentTimeMillis() / 1000L
-            );
-
-            pointsAdd.execute();
-
+            setResult(Const.INTENT_RESULT_CODE_OK, intent);
+            finish();
 
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        etPointName.clearFocus();
+        imm.hideSoftInputFromWindow(etPointName.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode != Const.INTENT_RESULT_CODE_OK) {
+            // TODO
+            return;
+        }
+
+        int categoryId = data.getIntExtra("category", -1);
+        String name = data.getStringExtra("name");
+        setCategory(categoryId);
+
+        btCategory.setText("Category: " + name);
+
+    }
+
+
+
 }

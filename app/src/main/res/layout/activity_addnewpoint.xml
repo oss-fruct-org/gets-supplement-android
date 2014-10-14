@@ -72,6 +72,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/str_point_name"
+            android:inputType="textCapSentences"
+            android:maxLength="150"
+            android:maxLines="1"
             style="@style/ShortTextEntry"/>
 
         <LinearLayout
@@ -81,11 +84,18 @@
             android:weightSum="5"
             android:gravity="center">
 
+            <Button
+                android:id="@+id/activity_addpoint_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/choose_category"/>
+            <!--
             <Spinner
                 android:id="@+id/activity_addpoint_category_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"/>
+                android:layout_weight="4"/>-->
+<!--
 
             <ImageButton
                 android:id="@+id/activity_addpoint_category_new"
@@ -94,24 +104,41 @@
                 android:layout_weight="1"
                 android:src="@drawable/ic_plus"
                 style="@style/ImageButtonNoBackgroundPadding"/>
+-->
 
         </LinearLayout>
+
+        <RatingBar
+            android:id="@+id/activity_addpoint_ratingbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:rating="5"
+            android:layout_gravity="center"/>
+<!--
 
         <EditText
             android:id="@+id/activity_addpoint_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/str_description"
+            android:inputType="textCapSentences"
+            android:maxLength="250"
+            android:maxLines="1"
             style="@style/ShortTextEntry"/>
 
         <EditText
             android:id="@+id/activity_addpoint_url"
-            android:inputType="textUri"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/str_url"
+            android:inputType="textUri"
+            android:maxLength="150"
+            android:maxLines="1"
             style="@style/ShortTextEntry"/>
 
+-->
         <!-- Location block -->
         <TextView
             android:layout_width="match_parent"

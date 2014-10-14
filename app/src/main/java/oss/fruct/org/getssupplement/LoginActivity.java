@@ -1,6 +1,7 @@
 package oss.fruct.org.getssupplement;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -66,14 +67,19 @@ public class LoginActivity extends Activity {
                     Log.d(Const.TAG, "Login response: " + loginResponse);
                     if (loginResponse == null) {
                         Toast.makeText(getApplicationContext(), getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        setResult(Const.INTENT_RESULT_CODE_NOT_OK, intent);
                         finish();
                     }
 
                     // Save token
                     Log.d(Const.TAG, "Login response token: " + loginResponse.token);
-                    Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, loginResponse.token);
+                    //Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, loginResponse.token);
 
                     // Close activity after obtaining token
+                    Intent intent = new Intent();
+                    intent.putExtra("token", loginResponse.token);
+                    setResult(Const.INTENT_RESULT_CODE_OK, intent);
                     finish();
                 }
 

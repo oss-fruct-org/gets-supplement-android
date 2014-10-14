@@ -129,15 +129,21 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                     try {
                         point.name = element.getElementsByTagName("name").item(0).getTextContent();
 
-                        NodeList extendedData = element.getElementsByTagName("ExtendedData");
-                        for (int k = 0; k < extendedData.getLength(); k ++) {
+                        NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();
+                        for (int k = 0; k < extendedData.getLength(); k++) {
                             Element dataNode = (Element) extendedData.item(0);
 
-                            if (dataNode.getAttribute("name").equals("link"))
-                                point.url = dataNode.getChildNodes().item(0).getTextContent();
+                            if (dataNode.getAttribute("name").equals("link")) {
+                                String url = dataNode.getChildNodes().item(0).getTextContent();
+
+                                // Check for empty url
+                                if (url.replace(" ", "").equals(""))
+                                    point.url = null;
+                                else point.url = url;
+                            }
 
                             if (dataNode.getAttribute("name").equals("time"))
-                                point.time = dataNode.getChildNodes().item(0).getTextContent(); // TODO: normalize time
+                                point.time = dataNode.getChildNodes().item(0).getTextContent();
 
                             if (dataNode.getAttribute("name").equals("access"))
                                 point.access = dataNode.getChildNodes().item(0).getTextContent();

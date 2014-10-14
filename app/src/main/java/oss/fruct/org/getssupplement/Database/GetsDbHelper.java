@@ -46,7 +46,8 @@ public class GetsDbHelper extends SQLiteOpenHelper {
                         "access text," + // TODO: how to use?
                         "time text," +
                         "latitude real," +
-                        "longitude real" +
+                        "longitude real," +
+                        "rating real" +
                         ");"
         );
 
@@ -77,6 +78,23 @@ public class GetsDbHelper extends SQLiteOpenHelper {
      *
      *
      */
+    public String getCategoryName(int categoryId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(true, Const.DB_INTERNAL_CATEGORIES, null, "_id="+categoryId, null, null, null, null, null);
+        String categoryName = null;
+
+        if (cursor.moveToNext()) {
+            int indexName = cursor.getColumnIndex("name");
+
+            categoryName = cursor.getString(indexName);
+        }
+
+        cursor.close();
+        db.close();
+
+        return categoryName;
+    }
+
     public void addCategory(int id, String name, String description, String url) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -147,11 +165,11 @@ public class GetsDbHelper extends SQLiteOpenHelper {
      *
      *
      */
-    public void addPoint(String name, String url, String access, long time, String latitude, String longitude) {
-        addPoint(name, url, access, time, Float.parseFloat(latitude), Float.parseFloat(longitude));
+    public void addPoint(String name, String url, String access, long time, String latitude, String longitude, float rating) {
+        addPoint(name, url, access, time, Float.parseFloat(latitude), Float.parseFloat(longitude), rating);
     }
 
-    public void addPoint(String name, String url, String access, long time, double latitude, double longitude) {
+    public void addPoint(String name, String url, String access, long time, double latitude, double longitude, float rating) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -161,6 +179,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
         cv.put("time", time); // TODO: normalize time
         cv.put("latitude", latitude);
         cv.put("longitude", longitude);
+        cv.put("rating", rating);
 
         db.insert(Const.DB_INTERNAL_POINTS, null, cv);
 
@@ -172,7 +191,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
             Point point = points.get(i);
 
             // TODO: convert time
-            this.addPoint(point.name, point.url, point.access, 0, point.latitude, point.longitude);
+            this.addPoint(point.name, point.url, point.access, 0, point.latitude, point.longitude, point.rating);
         }
 
     }
