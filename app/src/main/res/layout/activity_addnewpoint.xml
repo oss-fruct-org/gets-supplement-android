@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             android:numStars="5"
             android:stepSize="0.5"
-            android:rating="5"
+            android:rating="2.5"
             android:layout_gravity="center"/>
 <!--
 

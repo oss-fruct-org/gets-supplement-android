@@ -25,5 +25,6 @@
     <string name="choose_category">Choose category</string>
     <string name="title_activity_category">Categories</string>
     <string name="change_view">Change view</string>
+    <string name="rating">Rating:&#160;</string>
 
 </resources>

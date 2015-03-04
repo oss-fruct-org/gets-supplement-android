@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build.gradle:1.0.0-rc2'
+    }
+}
+
 apply plugin: 'com.android.application'
 
 android {
@@ -5,10 +14,10 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "oss.fruct.org.getssupplement"
+        applicationId "org.fruct.oss.getssupplement"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 1
+        versionCode 3
         versionName "1.0"
     }
     buildTypes {
