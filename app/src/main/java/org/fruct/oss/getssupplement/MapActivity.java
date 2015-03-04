@@ -31,7 +31,6 @@ import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.MapViewListener;
-import com.squareup.okhttp.internal.http.Response;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
@@ -86,6 +85,9 @@ public class MapActivity extends Activity implements LocationListener {
 
         Log.d(Const.TAG + "token", "_" + Settings.getToken(getApplicationContext()) + "_");
 
+        mMapView = (MapView) findViewById(R.id.acitivity_map_mapview);
+        setUpMapView();
+
         if (!isAutuhorized()) {
             Intent i = new Intent(this, LoginActivity.class);
             startActivityForResult(i, Const.INTENT_RESULT_TOKEN);
@@ -95,15 +97,13 @@ public class MapActivity extends Activity implements LocationListener {
             loadPoints();
         }
 
-        mMapView = (MapView) findViewById(R.id.acitivity_map_mapview);
-        setUpMapView();
     }
 
     private void loadPoints() {
 
         if (getLocation() == null) {
             Log.e(Const.TAG, "Locations is null");
-            Toast.makeText(this, "Can;t determine location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.cant_determine_location), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -115,6 +115,7 @@ public class MapActivity extends Activity implements LocationListener {
                 // TODO: check for response code
                 Log.d(Const.TAG, "Categories has been downloaded");
 
+                /*
                 new Thread (new Runnable() {
                     @Override
                     public void run() {
@@ -122,26 +123,19 @@ public class MapActivity extends Activity implements LocationListener {
                         dbHelper.addPoints(response.points);
                     }
                 }).run();
+                */
 
                 Log.d(Const.TAG, "Points array size: " + response.points.size());
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //ArrayList<Marker> markers = new ArrayList<Marker>();
 
-                        // Add marker through 'low level' style
-                        for (Point point : response.points) {
-                            Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
-                            marker.setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000")); // TODO: marker appearance
-                            marker.setRelatedObject(point);
-                            //markers.add(marker);
-                            mMapView.addMarker(marker);
-                        }
-
-                    }
-                }).run();
-
+                // Add marker through 'low level' style
+                for (Point point : response.points) {
+                    Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
+                    marker.setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000")); // TODO: marker appearance
+                    marker.setRelatedObject(point);
+                    //markers.add(marker);
+                    mMapView.addMarker(marker);
+                }
             }
 
         };
@@ -196,7 +190,7 @@ public class MapActivity extends Activity implements LocationListener {
             }
 
             @Override
-            public void onHidemarker(MapView mapView, Marker marker) {
+            public void onHideMarker(MapView mapView, Marker marker) {
 
             }
 
@@ -316,7 +310,7 @@ public class MapActivity extends Activity implements LocationListener {
                     public void onPostExecute(BasicResponse response) {
                         //if (response.code == 0) // TODO
                         deleteMarker(getCurrentSelectedMarker());
-                        Toast.makeText(getApplicationContext(), "TODO: delete marker from API", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "TODO: delete marker from API", Toast.LENGTH_SHORT).show(); // TODO
                     }
                 };
 
@@ -535,7 +529,7 @@ public class MapActivity extends Activity implements LocationListener {
                     @Override
                     public void onPostExecute(PointsResponse response) {
                         if (response.code == 0) { // FIXME: codes
-                            Toast.makeText(getApplicationContext(), "Successfully sent to server", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.successuflly_sent), Toast.LENGTH_SHORT).show();
                         } else {
                             // TODO
                         }

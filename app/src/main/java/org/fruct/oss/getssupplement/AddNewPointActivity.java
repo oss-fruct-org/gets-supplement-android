@@ -183,7 +183,12 @@ public class AddNewPointActivity extends Activity {
         mMap.setClickable(true);
         mMap.setUserLocationEnabled(true);
 
-        mMap.getController().setZoom(mMap.getMaxZoomLevel());
+        int optimalZoom = 21;
+        if (mMap.getMaxZoomLevel() < optimalZoom)
+            mMap.getController().setZoom(mMap.getMaxZoomLevel());
+        else
+            mMap.getController().setZoom(optimalZoom);
+
         mMap.setUseDataConnection(true);
 
         if (MapActivity.getLocation() != null) {
@@ -193,7 +198,6 @@ public class AddNewPointActivity extends Activity {
             LatLng myLocation = new LatLng(latitude, longitude);
 
             mMap.setCenter(myLocation);
-            mMap.setZoom(mMap.getMaxZoomLevel());
 
             addMaker(myLocation);
         }
