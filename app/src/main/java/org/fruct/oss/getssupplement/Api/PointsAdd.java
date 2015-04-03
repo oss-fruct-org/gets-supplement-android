@@ -44,11 +44,11 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
         params += "<auth_token>" + token + "</auth_token>";
 
         params += "<category_id>" + category + "</category_id>";
-        params += "<title><![CDATA[" + title + "]]></title>";
+        params += "<title>" + title + "</title>";
 
         // Put rating //
         String ratingField = "{\"description\":\"" + "{}" + "\",\"rating\":" + rating + "}";
-        params += "<description><![CDATA[" + ratingField + "]]></description>";
+        params += "<description>" + ratingField + "</description>";
 
         /*params += "<link><![CDATA[" + "{}" + "]]></link>";*/
 

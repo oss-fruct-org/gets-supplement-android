@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
@@ -131,7 +132,7 @@ public class MapActivity extends Activity implements LocationListener {
                 // Add marker through 'low level' style
                 for (Point point : response.points) {
                     Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
-                    marker.setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000")); // TODO: marker appearance
+                    marker.setIcon(new Icon(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId)));
                     marker.setRelatedObject(point);
                     //markers.add(marker);
                     mMapView.addMarker(marker);
@@ -144,6 +145,9 @@ public class MapActivity extends Activity implements LocationListener {
         CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext())) {
             @Override
             public void onPostExecute(CategoriesResponse response) {
+                if (response == null)
+                    return;
+
                 GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                 dbHelper.addCategories(response.categories);
                 Log.d(Const.TAG, "Categories has been downloaded");
@@ -160,6 +164,8 @@ public class MapActivity extends Activity implements LocationListener {
         mMapView.getController().setZoom(17);
         mMapView.setUseDataConnection(true);
         mMapView.setUserLocationEnabled(true);
+        mMapView.setDiskCacheEnabled(true);
+
 
         findViewById(R.id.acitivity_map_my_location).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,6 +236,7 @@ public class MapActivity extends Activity implements LocationListener {
     TextView tvBottomPanelDescription = null;
     ImageButton ibBottomPanelUrl = null;
     ImageButton ibBottomPanelMore = null;
+    ImageView ivBottomPanelIcon = null;
     View viGradient = null;
 
     private void initBottomPanel(){
@@ -250,6 +257,9 @@ public class MapActivity extends Activity implements LocationListener {
         if (ibBottomPanelMore == null)
             ibBottomPanelMore = (ImageButton) findViewById(R.id.activity_map_point_more);
 
+        if (ivBottomPanelIcon == null)
+            ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
+
         if (viGradient == null)
             viGradient = findViewById(R.id.activity_map_bottom_panel_gradient);
     }
@@ -266,12 +276,30 @@ public class MapActivity extends Activity implements LocationListener {
 
         tvBottomPanelName.setText(point.name);
 
+        String descriptionText = "";
+
+        if (point.description != null && !point.description.equals(""))
+            descriptionText += point.description + "\n";
+
+        if (point.rating != 0)
+            descriptionText += getString(R.string.rating) + point.rating;
+
+        if (!descriptionText.equals("")) {
+            tvBottomPanelDescription.setText(descriptionText.trim());
+            tvBottomPanelDescription.setVisibility(View.VISIBLE);
+        } else {
+            tvBottomPanelDescription.setVisibility(View.INVISIBLE);
+        }
+
+        if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
+            ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
+/*
         if (point.rating != 0) {
             tvBottomPanelDescription.setText(getString(R.string.rating) + point.rating);
             tvBottomPanelDescription.setVisibility(View.VISIBLE);
         } else {
             tvBottomPanelDescription.setVisibility(View.GONE);
-        }
+        }*/
 
         Log.d(Const.TAG + " marker clicked ", point.url + " ");
         if (point.url != null && !point.url.replace(" ", "").equals("")) {
@@ -302,15 +330,13 @@ public class MapActivity extends Activity implements LocationListener {
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()),
-                        0, // FIXME: point has no categoryId
-                        point.uuid
-                        ) {
+                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
                     @Override
                     public void onPostExecute(BasicResponse response) {
-                        //if (response.code == 0) // TODO
-                        deleteMarker(getCurrentSelectedMarker());
-                        //Toast.makeText(getApplicationContext(), "TODO: delete marker from API", Toast.LENGTH_SHORT).show(); // TODO
+                        if (response.code == 0)
+                            deleteMarker(getCurrentSelectedMarker());
+                        else
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_deleting_point), Toast.LENGTH_SHORT).show(); // TODO
                     }
                 };
 
@@ -405,7 +431,8 @@ public class MapActivity extends Activity implements LocationListener {
     private void addMarker(Point point){//(LatLng position, String title) {
         //Log.d(Const.TAG, "addMarker");
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
-        marker.setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000")); // TODO: marker appearance
+        //marker.setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000"));
+        //marker.setIcon(new Icon(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId))); // FIXME
         marker.setRelatedObject(point);
         addMarkerLowLevel(marker);
     }

@@ -1,5 +1,7 @@
 package org.fruct.oss.getssupplement.Api;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -10,6 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fruct.oss.getssupplement.IconHolder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -100,6 +103,11 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
                     category.description = getDescription(element.getElementsByTagName("description").item(0).getTextContent());
                     category.urlIcon = getIcon(element.getElementsByTagName("url").item(0).getTextContent());
 
+                    // Download and save bitmap for later usage
+                    if (category.urlIcon != null && !category.urlIcon.equals("")) {
+                        IconHolder.getInstance().addBitmap(category.id, downloadBitmap(category.urlIcon));
+                    }
+
                     Log.d(Const.TAG, category.description + " " + category.id);
 
                     //Log.d(Const.TAG, category.id + "login response " + category.name);
@@ -145,6 +153,20 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
         }
 
         return description;
+    }
+
+
+    protected Bitmap downloadBitmap(String url) {
+        Bitmap mIcon11 = null;
+        try {
+            InputStream in = new java.net.URL(url).openStream();
+            mIcon11 = BitmapFactory.decodeStream(in);
+        } catch (Exception e) {
+            Log.e("Error", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return mIcon11;
     }
 
     @Override

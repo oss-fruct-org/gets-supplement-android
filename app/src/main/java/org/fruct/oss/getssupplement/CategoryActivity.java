@@ -50,6 +50,7 @@ public class CategoryActivity extends Activity {
                 Intent i = new Intent();
                 i.putExtra("name", category.name);
                 i.putExtra("category", category.id);
+                i.putExtra("description", category.description);
                 setResult(Const.INTENT_RESULT_CODE_OK, i);
                 finish();
             }

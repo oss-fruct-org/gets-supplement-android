@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.api.ILatLng;
@@ -60,6 +61,8 @@ public class AddNewPointActivity extends Activity {
     ImageButton btZoomIn;
     ImageButton btZoomOut;
 
+    TextView mCategoryDescription;
+
     Button btCategory;
 
     GetsDbHelper mDbHelper;
@@ -92,6 +95,8 @@ public class AddNewPointActivity extends Activity {
         etPointName = (EditText) findViewById(R.id.activity_addpoint_name);
         //etPointDescription = (EditText) findViewById(R.id.activity_addpoint_description);
         //etPointUrl = (EditText) findViewById(R.id.activity_addpoint_url);
+
+        mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
 
 
         //spPointCategory = (Spinner) findViewById(R.id.activity_addpoint_category_spinner);
@@ -183,7 +188,7 @@ public class AddNewPointActivity extends Activity {
         mMap.setClickable(true);
         mMap.setUserLocationEnabled(true);
 
-        int optimalZoom = 21;
+        int optimalZoom = 16;
         if (mMap.getMaxZoomLevel() < optimalZoom)
             mMap.getController().setZoom(mMap.getMaxZoomLevel());
         else
@@ -335,9 +340,11 @@ public class AddNewPointActivity extends Activity {
 
         int categoryId = data.getIntExtra("category", -1);
         String name = data.getStringExtra("name");
+        String description = data.getStringExtra("description");
         setCategory(categoryId);
 
-        btCategory.setText("Category: " + name);
+        btCategory.setText(getString(R.string.category) + name);
+        mCategoryDescription.setText(getString(R.string.category_description) + description);
 
     }
 

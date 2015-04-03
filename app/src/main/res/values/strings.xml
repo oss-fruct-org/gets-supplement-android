@@ -31,5 +31,8 @@
     <string name="rating">Rating:&#160;</string>
     <string name="cant_determine_location">Can\'t determine location</string>
     <string name="successuflly_sent">Successfully sent to server</string>
+    <string name="category">Category: </string>
+    <string name="category_description">Category description: </string>
+    <string name="error_deleting_point">Error while deleting point</string>
 
 </resources>

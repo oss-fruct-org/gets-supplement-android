@@ -22,4 +22,7 @@
     <string name="title_activity_add_new_point">Добавление точки</string>
     <string name="title_activity_category">Категории</string>
     <string name="title_activity_login">Авторизация</string>
+    <string name="category">Категория: </string>
+    <string name="category_description">Описание категории: </string>
+    <string name="error_deleting_point">Ошибка при удалении точки</string>
 </resources>

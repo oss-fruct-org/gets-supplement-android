@@ -91,7 +91,8 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
             HttpEntity responseEntity = httpResponse.getEntity();
 
             // Parse
-            String strResponse = EntityUtils.toString(responseEntity);
+            //String strResponse = EntityUtils.toString(responseEntity);
+            String strResponse = EntityUtils.toString(responseEntity, "UTF-8");
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -126,6 +127,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
 
                     try {
                         point.name = element.getElementsByTagName("name").item(0).getTextContent();
+                        point.description = element.getElementsByTagName("description").item(0).getTextContent();
 
                         NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();
 
@@ -152,6 +154,9 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
 
                             if (dataNode.getAttribute("name").equals("rating"))
                                 point.rating = Float.parseFloat(dataNode.getChildNodes().item(0).getTextContent());
+
+                            if (dataNode.getAttribute("name").equals("category_id"))
+                                point.categoryId = Integer.parseInt(dataNode.getChildNodes().item(0).getTextContent());
 
                         }
 

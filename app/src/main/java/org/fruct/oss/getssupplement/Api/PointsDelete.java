@@ -10,6 +10,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fruct.oss.getssupplement.Model.Point;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -33,7 +34,7 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse> {
 
     String params = "";
 
-    public PointsDelete(String token, int categoryId, String uuid) {
+    public PointsDelete(String token, Point point) {
         /*
     public PointsAdd(String token, int category, String title, String description,
         String link, double latitude, double longitude, double altitude, long unixTime) {*/
@@ -41,8 +42,13 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse> {
         params = "<request><params>";
         params += "<auth_token>" + token + "</auth_token>";
 
-        params += "<category_id>" + categoryId + "</category_id>";
-        params += "<uuid>" + uuid + "</uuid>";
+        params += "<category_id>" + point.categoryId + "</category_id>";
+        params += "<uuid>" + point.uuid + "</uuid>";
+
+        params += "<latitude>" + point.latitude + "</latitude>";
+        params += "<longitude>" + point.longitude + "</longitude>";
+        params += "<time>" + point.time + "</time>";
+        params += "<description>" + point.description + "</description>";
 
         params += "</params></request>";
 
@@ -60,7 +66,7 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse> {
         try {
             // Do request, get response
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(Const.URL_POINTS_ADD);
+            HttpPost httppost = new HttpPost(Const.URL_POINTS_DELETE);
 
             String postData = this.params;
             Log.d(Const.TAG, "PointsAdd postData: " + postData);

@@ -5,7 +5,9 @@ package org.fruct.oss.getssupplement.Model;
  */
 public class Point {
     public int id;
+    public int categoryId;
     public String name;
+    public String description;
     public String url;
     public String access;
     public String time;
