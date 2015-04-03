@@ -45,10 +45,10 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse> {
         params += "<category_id>" + point.categoryId + "</category_id>";
         params += "<uuid>" + point.uuid + "</uuid>";
 
-        params += "<latitude>" + point.latitude + "</latitude>";
-        params += "<longitude>" + point.longitude + "</longitude>";
-        params += "<time>" + point.time + "</time>";
-        params += "<description>" + point.description + "</description>";
+        //params += "<latitude>" + point.latitude + "</latitude>";
+        //params += "<longitude>" + point.longitude + "</longitude>";
+        //params += "<time>" + point.time + "</time>";
+        //params += "<description>" + point.description + "</description>";
 
         params += "</params></request>";
 
