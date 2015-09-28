@@ -117,13 +117,7 @@ public class MapActivity extends Activity implements LocationListener{
             }
         });
 
-        findViewById(R.id.activity_map_refresh).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMapView.clear();
-                loadPoints();
-            }
-        });
+
 
         if (sLocation != null)
             mMapView.getController().setCenter(new LatLng(getLocation().getLatitude(), getLocation().getLongitude()));
@@ -403,6 +397,10 @@ public class MapActivity extends Activity implements LocationListener{
             intent.putExtra("zoomLevel", mMapView.getZoomLevel());
             startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
         }
+        if (id == R.id.activity_map_refresh) {
+                mMapView.clear();
+                loadPoints();
+            }
 
         return super.onOptionsItemSelected(item);
     }

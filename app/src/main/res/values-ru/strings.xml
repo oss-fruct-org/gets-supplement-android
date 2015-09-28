@@ -2,6 +2,7 @@
 <resources>
 
     <string name="action_add_new_point">Добавить точку</string>
+    <string name="refresh">Обновить точки</string>
     <string name="action_catalogue">Каталог точек</string>
     <string name="action_settings">Настройки</string>
     <string name="activity_addnewpoint_mapview_info">Для изменения местоположения маркера, нажмите на его новое местоположение</string>
