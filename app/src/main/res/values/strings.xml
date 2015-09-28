@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name" translatable="false">GeTS Supplement</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">Authorization</string>
+    <string name="error_authorization">Authorization error</string>
+    <string name="action_catalogue">Points catalogue</string>
+    <string name="title_activity_add_new_point">Add a point</string>
+    <string name="activity_addnewpoint_mapview_info">To change marker location, click on the desirable location at the map</string>
+    <string name="str_point_name">Point name</string>
+    <string name="str_description">Description (optional)</string>
+    <string name="str_url">URL (optional)</string>
+    <string name="str_user_my_location">Use my location</string>
+    <string name="plus" translatable="false">+</string>
+    <string name="action_add_new_point">Add new point</string>
+    <string name="done">Done</string>
+
+    <string name="mapbox_id_street" translatable="false">ksarkes.279c7439</string>
+    <string name="mapbox_token" translatable="false">pk.eyJ1Ijoia3NhcmtlcyIsImEiOiJjOTBlMTdkOWFlYTE1OGNlYjU1YWI2NTc3OTk2YmZhZSJ9.Nqsg_A3M5YrEWqwoZ5fdYA</string>
+
+    <string name="succesful_download">Точки успешно загружены</string>
+    <string name="no_network">No network connection found. You can save point locally and upload it later.</string>
+    <string name="saved_to_local_db">Saved to local database</string>
+    <string name="delete">Delete</string>
+    <string name="enter_name_description_url">Пожалуста введите имя, рейтинг и категорию препятствия</string>
+    <string name="enter_valid_url">Please, enter a valid URL address</string>
+    <string name="choose_category">Choose category</string>
+    <string name="title_activity_category">Categories</string>
+    <string name="change_view" translatable="false">Change view</string>
+    <string name="rating">Rating:&#160;</string>
+    <string name="cant_determine_location">Can\'t determine location</string>
+    <string name="successuflly_sent">Successfully sent to server</string>
+    <string name="category">Category: </string>
+    <string name="category_description">Category description: </string>
+    <string name="error_deleting_point">Error while deleting point</string>
+    <string name="network_error_authorization">To continue the process, connect to the internet and restart application</string>
+</resources>
