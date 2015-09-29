@@ -210,7 +210,7 @@ public class MapActivity extends Activity implements LocationListener{
                     marker.setRelatedObject(point);
                     mMapView.addMarker(marker);
                 }
-                Toast.makeText(getApplicationContext(),  getString(R.string.succesful_download), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),  getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
             }
 
         };

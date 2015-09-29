@@ -13,6 +13,7 @@
     <string name="enter_name_description_url">Введите имя, рейтинг и выберите категорию</string>
     <string name="enter_valid_url">Введите корректный URL</string>
     <string name="error_authorization">Ошибка авторизации</string>
+    <string name="successful_download">Точки успешно загружены</string>
     <string name="no_network">Не обнаружено сетевое подключение</string>
     <string name="rating">Рейтинг:&#160;</string>
     <string name="saved_to_local_db">Сохранено в локальную базу данных</string>
