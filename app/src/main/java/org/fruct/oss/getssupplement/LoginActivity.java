@@ -66,7 +66,6 @@ public class LoginActivity extends Activity {
                     // Save token
                     Log.d(Const.TAG, "Login response token: " + loginResponse.token);
                     Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, loginResponse.token);
-
                     // Close activity after obtaining token
                     Intent intent = new Intent();
                     intent.putExtra("token", loginResponse.token);
@@ -93,8 +92,4 @@ public class LoginActivity extends Activity {
     private void setResponseId(String newValue) {
         this.responseId = newValue;
     }
-
-
-
-
 }

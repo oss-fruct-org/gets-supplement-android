@@ -93,7 +93,7 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
                     loginResponse.token = element.getElementsByTagName("auth_token").item(0).getTextContent();
                     Log.d(Const.TAG, loginResponse.token + "login response " + loginResponse.message);
 
-                    // Return if aith_token found (else next attemp)
+                    // Return if auth_token found (else next attemp)
                     return loginResponse;
                 }
 

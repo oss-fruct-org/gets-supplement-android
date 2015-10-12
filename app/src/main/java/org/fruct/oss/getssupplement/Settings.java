@@ -13,6 +13,12 @@ public class Settings {
         editor.commit();
     }
 
+    public static void saveBoolean(Context context, String settingsName, Boolean value) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(Const.PREFS_NAME, 0).edit();
+        editor.putBoolean(settingsName, value);
+        editor.commit();
+    }
+
     public static String getToken(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
         return sharedPreferences.getString(Const.PREFS_AUTH_TOKEN, null);

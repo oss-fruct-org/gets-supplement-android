@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -30,12 +31,14 @@ import com.mapbox.mapboxsdk.views.MapViewListener;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
+import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
+import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 
 public class MapActivity extends Activity implements LocationListener{
 
@@ -87,6 +90,7 @@ public class MapActivity extends Activity implements LocationListener{
             }
         } else {
             Log.d(Const.TAG, "Authorized, downloading categories");
+            userStatusCheck();
             loadPoints();
         }
     }
@@ -232,9 +236,33 @@ public class MapActivity extends Activity implements LocationListener{
 
     }
 
+    private void userStatusCheck() {
+        // Get user info
+        String usrToken = Settings.getToken(getApplicationContext());
+        UserInfoGet userInfoGet = new UserInfoGet(usrToken) {
+            @Override
+            protected void onPostExecute(UserInfoResponse userInfoResponse) {
+                super.onPostExecute(userInfoResponse);
+
+                // Save user status
+                if (userInfoResponse == null) {
+                    Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
+                } else {
+                    Log.d(Const.TAG, "Is trusted user: " + userInfoResponse.isTrustedUser);
+                    Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, true);
+                }
+            }
+        };
+
+        if (usrToken == null || usrToken == "")
+            Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
+        else userInfoGet.execute();
+    }
+
     RelativeLayout rlBottomPanel = null;
     TextView tvBottomPanelName = null;
     TextView tvBottomPanelDescription = null;
+    ImageView ivBottomPanelArrowRight = null;
     ImageView ivBottomPanelIcon = null;
     View viGradient = null;
 
@@ -256,6 +284,9 @@ public class MapActivity extends Activity implements LocationListener{
 
         if (viGradient == null)
             viGradient = findViewById(R.id.activity_map_bottom_panel_gradient);
+
+        if (ivBottomPanelArrowRight == null)
+            ivBottomPanelArrowRight = (ImageView) findViewById(R.id.acitivity_map_bottom_panel_arrow_right);
     }
 
     private void setBottomPanelData(final Point point) {
@@ -282,6 +313,7 @@ public class MapActivity extends Activity implements LocationListener{
         if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
             ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
 
+        // ivBottomPanelArrowRight.setVisibility(View.VISIBLE);
 
         Log.d(Const.TAG + " marker clicked ", point.name + " " + point.description);
 

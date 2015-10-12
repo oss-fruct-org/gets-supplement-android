@@ -123,10 +123,16 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                     Point point = new Point();
 
                     try {
+
+                        if (point == null) continue;
+
                         point.name = element.getElementsByTagName("name").item(0).getTextContent();
                         point.description = element.getElementsByTagName("description").item(0).getTextContent();
 
                         NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();
+
+
+                        // TODO: Null checker on nodes
 
                         for (int k = 0; k < extendedData.getLength(); k++) {
                             Element dataNode = (Element) extendedData.item(k);

@@ -1,6 +1,7 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -9,6 +10,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -19,28 +22,33 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.fruct.oss.getssupplement.Const;
-import org.fruct.oss.getssupplement.Model.LoginResponse;
+/**
+ * Created by Andrey on 12.10.2015.
+ */
+public class UserInfoGet extends AsyncTask<String, String, UserInfoResponse> {
 
-public class AuthStepOne extends AsyncTask<String, String, LoginResponse> {
+    private String token;
 
+    public UserInfoGet(String _token) {
+        this.token = _token;
+    }
 
     @Override
-    protected LoginResponse doInBackground(String... params) {
+    protected UserInfoResponse doInBackground(String... params) {
 
-        LoginResponse loginResponse = new LoginResponse();
+        UserInfoResponse userInfoResponse = new UserInfoResponse();
 
         if (isCancelled()) {
             return null;
         }
 
         try {
-
             // Do request, get response
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(Const.URL_AUTH);
+            HttpPost httppost = new HttpPost(Const.URL_INFO);
 
-            String postData = "<request><params></params></request>";
+            String postData = "<request><params><auth_token>" + token + "</auth_token></params></request>";
+            Log.d(Const.TAG, "UserInfoGet token data: " + postData);
 
             httppost.setEntity(new StringEntity(postData));
             HttpResponse response = httpclient.execute(httppost);
@@ -61,26 +69,22 @@ public class AuthStepOne extends AsyncTask<String, String, LoginResponse> {
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
-                loginResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
-                loginResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
+                userInfoResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
+                userInfoResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
             }
 
             nodeList = doc.getElementsByTagName("content");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
-
-                loginResponse.id = element.getElementsByTagName("id").item(0).getTextContent();
-                loginResponse.redirectUrl = element.getElementsByTagName("redirect_url").item(0).getTextContent();
+                userInfoResponse.isTrustedUser = Boolean.parseBoolean(element.getElementsByTagName("isTrustedUser").item(0).getTextContent());
             }
 
+            return userInfoResponse;
 
-            return loginResponse;
-
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
-        }
-
+        };
         return null;
     }
 }

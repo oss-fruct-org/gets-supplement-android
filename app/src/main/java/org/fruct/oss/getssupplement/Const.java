@@ -18,6 +18,7 @@ public class Const {
     private static final String GETS_SERVER_PREFIX = "http://gets.cs.petrsu.ru/obstacle/service/";
 
     public static final String URL_AUTH = GETS_SERVER_PREFIX + "userLogin.php";
+    public static final String URL_INFO = GETS_SERVER_PREFIX + "userInfo.php";
 
     public static final String URL_POINTS_LOAD = GETS_SERVER_PREFIX + "loadPoints.php";
     public static final String URL_POINTS_ADD = GETS_SERVER_PREFIX + "addPoint.php";
@@ -33,6 +34,7 @@ public class Const {
      */
     public static final String PREFS_NAME = "gets_shared";
     public static final String PREFS_AUTH_TOKEN = "auth_token";
+    public static final String PREFS_IS_TRUSTED_USER = "is_trusted_user";
 
     /**
      * Database
