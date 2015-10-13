@@ -103,6 +103,25 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/activity_map_bottom_panel_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/activity_map_point_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_more"
+                android:background="@null"
+                android:paddingLeft="10dp"/>
+
+        </LinearLayout>
 
     </RelativeLayout>
+
 </RelativeLayout>

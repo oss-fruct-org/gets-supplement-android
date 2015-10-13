@@ -25,7 +25,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
 
     public GetsDbHelper(Context context, DatabaseType _databaseType) {
         super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 3);
-        this.databaseType = databaseType;
+        this.databaseType = _databaseType;
     }
 
     private static String getDatabasePrefix(DatabaseType databaseType) {
