@@ -319,7 +319,7 @@ public class MapActivity extends Activity implements LocationListener {
 
         String descriptionText = "";
 
-        if (point.description != null && !point.description.equals(""))
+        if (point.description != null && !point.description.equals("") && !point.description.equals("{}"))
             descriptionText += point.description + "\n";
 
         if (point.rating != 0)
