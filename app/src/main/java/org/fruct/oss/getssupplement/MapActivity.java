@@ -32,8 +32,10 @@ import com.mapbox.mapboxsdk.views.MapViewListener;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
+import org.fruct.oss.getssupplement.Api.PointsDelete;
 import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
+import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Api.PointsGet;
@@ -98,6 +100,7 @@ public class MapActivity extends Activity implements LocationListener {
         }
     }
 
+
     public static boolean isAuthorized() {
         return Settings.getToken(context) != null;
     }
@@ -149,6 +152,7 @@ public class MapActivity extends Activity implements LocationListener {
 
                 setCurrentSelectedMarker(marker);
 
+                ibBottomPanelDelete.setVisibility(View.INVISIBLE);
                 marker.getToolTip(mapView).getView().setVisibility(View.GONE);
                 Point point = (Point) marker.getRelatedObject();
                 Log.d(Const.TAG, "Marker clicked: " + point.name);
@@ -175,7 +179,6 @@ public class MapActivity extends Activity implements LocationListener {
 
     }
 
-
     private void setUpLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -200,6 +203,13 @@ public class MapActivity extends Activity implements LocationListener {
         Toast.makeText(this, "Can't determine location", Toast.LENGTH_SHORT).show();
     }
 
+    private void deleteMarker(Marker marker) {
+        if (marker != null) {
+            mMapView.removeMarker(marker);
+            marker.closeToolTip();
+            hideBottomPanel();
+        }
+    }
     private void loadPoints() {
 
         if (getLocation() == null) {
@@ -272,7 +282,7 @@ public class MapActivity extends Activity implements LocationListener {
     TextView tvBottomPanelDescription = null;
     ImageView ivBottomPanelArrowRight = null;
     ImageView ivBottomPanelIcon = null;
-    ImageButton ibBottomPanelMore = null;
+    ImageButton ibBottomPanelDelete = null;
     View viGradient = null;
 
 
@@ -288,8 +298,8 @@ public class MapActivity extends Activity implements LocationListener {
         if (tvBottomPanelDescription == null)
             tvBottomPanelDescription = (TextView) findViewById(R.id.acitivity_map_point_description);
 
-        if (ibBottomPanelMore == null)
-            ibBottomPanelMore = (ImageButton) findViewById(R.id.activity_map_point_more);
+        if (ibBottomPanelDelete == null)
+            ibBottomPanelDelete = (ImageButton) findViewById(R.id.activity_map_point_delete);
 
         if (ivBottomPanelIcon == null)
             ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
@@ -322,6 +332,9 @@ public class MapActivity extends Activity implements LocationListener {
             tvBottomPanelDescription.setVisibility(View.INVISIBLE);
         }
 
+        if (point.access == null || point.access.indexOf("w") != -1)
+            ibBottomPanelDelete.setVisibility(View.VISIBLE);
+
         if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
             ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
 
@@ -330,22 +343,21 @@ public class MapActivity extends Activity implements LocationListener {
 
         Log.d(Const.TAG + " marker clicked ", point.name + " " + point.description);
 
-        final PopupMenu popupMenu = new PopupMenu(getApplicationContext(), ibBottomPanelMore);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_map_point_more, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-                // TODO: Delete point
-
-                return false;
-            }
-        });
-
-        ibBottomPanelMore.setOnClickListener(new View.OnClickListener() {
+        ibBottomPanelDelete.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                popupMenu.show();
+
+                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
+                    @Override
+                    protected void onPostExecute(BasicResponse response) {
+                        super.onPostExecute(response);
+                        if (response.code == 0)
+                            deleteMarker(getCurrentSelectedMarker());
+                        else
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_deleting_point), Toast.LENGTH_SHORT).show();
+                    }
+                };
+                pointsDelete.execute();
             }
         });
 
@@ -368,6 +380,7 @@ public class MapActivity extends Activity implements LocationListener {
             public void onAnimationEnd(Animation animation) {
                 rlBottomPanel.setVisibility(View.INVISIBLE);
                 viGradient.setVisibility(View.INVISIBLE);
+                ibBottomPanelDelete.setVisibility(View.INVISIBLE);
             }
 
             @Override

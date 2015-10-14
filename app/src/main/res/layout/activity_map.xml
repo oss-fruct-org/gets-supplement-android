@@ -64,7 +64,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/activity_map_bottom_panel_icon"
@@ -99,9 +101,11 @@
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                     android:textColor="@color/black"
                     tools:text="Rating"/>
+
             </LinearLayout>
 
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/activity_map_bottom_panel_right"
@@ -113,10 +117,12 @@
             android:gravity="center">
 
             <ImageButton
-                android:id="@+id/activity_map_point_more"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_action_more"
+                android:id="@+id/activity_map_point_delete"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_margin="4dp"
+                android:src="@drawable/ic_delete"
+                android:visibility="gone"
                 android:background="@null"
                 android:paddingLeft="10dp"/>
 
