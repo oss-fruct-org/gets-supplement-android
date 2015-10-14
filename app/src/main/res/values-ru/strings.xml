@@ -29,5 +29,6 @@
     <string name="category_description">Описание категории: </string>
     <string name="error_deleting_point">Ошибка при удалении точки</string>
     <string name="network_error_authorization">Для продолжения работы подключите интернет и перезапустите приложение</string>
+    <string name="action_push">Опубликовать точки</string>
 
 </resources>

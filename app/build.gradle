@@ -16,8 +16,8 @@ android {
         applicationId "org.fruct.oss.getssupplement"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 9
-        versionName "2.1"
+        versionCode 10
+        versionName "2.2"
     }
     buildTypes {
         release {

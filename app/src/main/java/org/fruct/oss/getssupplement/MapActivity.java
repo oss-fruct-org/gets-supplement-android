@@ -18,6 +18,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,8 +32,10 @@ import com.mapbox.mapboxsdk.views.MapViewListener;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
+import org.fruct.oss.getssupplement.Api.PointsDelete;
 import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
+import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Api.PointsGet;
@@ -40,10 +43,14 @@ import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 
-public class MapActivity extends Activity implements LocationListener{
+public class MapActivity extends Activity implements LocationListener {
 
     static Context context;
+
+    private Menu menu;
+
     public MapView mMapView;
+
     public static Location getLocation() {
         return sLocation;
     }
@@ -79,25 +86,25 @@ public class MapActivity extends Activity implements LocationListener{
         setUpMapView();
 
         if (!isAuthorized()) {
-            if(isInternetConnectionAvailable()) {
+            if (isInternetConnectionAvailable()) {
                 Intent i = new Intent(this, LoginActivity.class);
                 startActivityForResult(i, Const.INTENT_RESULT_TOKEN);
-            }
-            else
-            {
+            } else {
                 Toast.makeText(getApplicationContext(), getString(R.string.network_error_authorization), Toast.LENGTH_SHORT).show();
                 return;
             }
         } else {
             Log.d(Const.TAG, "Authorized, downloading categories");
-            userStatusCheck();
+            checkUserStatus();
             loadPoints();
         }
     }
 
+
     public static boolean isAuthorized() {
         return Settings.getToken(context) != null;
     }
+
     private void setUpMapView() {
         mMapView.setClickable(true);
         mMapView.getController().setZoom(17);
@@ -120,7 +127,6 @@ public class MapActivity extends Activity implements LocationListener{
                 );
             }
         });
-
 
 
         if (sLocation != null)
@@ -146,6 +152,8 @@ public class MapActivity extends Activity implements LocationListener{
 
                 setCurrentSelectedMarker(marker);
 
+                ibBottomPanelDelete.setVisibility(View.INVISIBLE);
+                ibBottomPanelEdit.setVisibility(View.INVISIBLE);
                 marker.getToolTip(mapView).getView().setVisibility(View.GONE);
                 Point point = (Point) marker.getRelatedObject();
                 Log.d(Const.TAG, "Marker clicked: " + point.name);
@@ -172,7 +180,6 @@ public class MapActivity extends Activity implements LocationListener{
 
     }
 
-
     private void setUpLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -196,6 +203,14 @@ public class MapActivity extends Activity implements LocationListener{
 
         Toast.makeText(this, "Can't determine location", Toast.LENGTH_SHORT).show();
     }
+
+    private void deleteMarker(Marker marker) {
+        if (marker != null) {
+            mMapView.removeMarker(marker);
+            marker.closeToolTip();
+            hideBottomPanel();
+        }
+    }
     private void loadPoints() {
 
         if (getLocation() == null) {
@@ -214,7 +229,7 @@ public class MapActivity extends Activity implements LocationListener{
                     marker.setRelatedObject(point);
                     mMapView.addMarker(marker);
                 }
-                Toast.makeText(getApplicationContext(),  getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
             }
 
         };
@@ -236,7 +251,7 @@ public class MapActivity extends Activity implements LocationListener{
 
     }
 
-    private void userStatusCheck() {
+    private void checkUserStatus() {
         // Get user info
         String usrToken = Settings.getToken(getApplicationContext());
         UserInfoGet userInfoGet = new UserInfoGet(usrToken) {
@@ -246,15 +261,19 @@ public class MapActivity extends Activity implements LocationListener{
 
                 // Save user status
                 if (userInfoResponse == null) {
+                    Log.d(Const.TAG, "userInfoResponse == null");
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
                 } else {
                     Log.d(Const.TAG, "Is trusted user: " + userInfoResponse.isTrustedUser);
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, true);
+
+                    MenuItem menuItem = menu.findItem(R.id.action_push);
+                    menuItem.setVisible(true);
                 }
             }
         };
 
-        if (usrToken == null || usrToken == "")
+        if (usrToken == null || usrToken.equals(""))
             Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
         else userInfoGet.execute();
     }
@@ -264,10 +283,12 @@ public class MapActivity extends Activity implements LocationListener{
     TextView tvBottomPanelDescription = null;
     ImageView ivBottomPanelArrowRight = null;
     ImageView ivBottomPanelIcon = null;
+    ImageButton ibBottomPanelDelete = null;
+    ImageButton ibBottomPanelEdit = null;
     View viGradient = null;
 
 
-    private void initBottomPanel(){
+    private void initBottomPanel() {
         if (rlBottomPanel == null)
             rlBottomPanel = (RelativeLayout) findViewById(R.id.activity_map_bottom_panel);
         else
@@ -278,6 +299,12 @@ public class MapActivity extends Activity implements LocationListener{
 
         if (tvBottomPanelDescription == null)
             tvBottomPanelDescription = (TextView) findViewById(R.id.acitivity_map_point_description);
+
+        if (ibBottomPanelDelete == null)
+            ibBottomPanelDelete = (ImageButton) findViewById(R.id.activity_map_point_delete);
+
+        if (ibBottomPanelEdit == null)
+            ibBottomPanelEdit = (ImageButton) findViewById(R.id.activity_map_point_edit);
 
         if (ivBottomPanelIcon == null)
             ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
@@ -297,7 +324,7 @@ public class MapActivity extends Activity implements LocationListener{
 
         String descriptionText = "";
 
-        if (point.description != null && !point.description.equals(""))
+        if (point.description != null && !point.description.equals("") && !point.description.equals("{}"))
             descriptionText += point.description + "\n";
 
         if (point.rating != 0)
@@ -310,12 +337,46 @@ public class MapActivity extends Activity implements LocationListener{
             tvBottomPanelDescription.setVisibility(View.INVISIBLE);
         }
 
+        if (point.access == null || point.access.indexOf("w") != -1) {
+            ibBottomPanelDelete.setVisibility(View.VISIBLE);
+            ibBottomPanelEdit.setVisibility(View.VISIBLE);
+        }
         if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
             ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
 
+        // TODO: browsing arrows
         // ivBottomPanelArrowRight.setVisibility(View.VISIBLE);
 
         Log.d(Const.TAG + " marker clicked ", point.name + " " + point.description);
+
+        ibBottomPanelDelete.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
+                    @Override
+                    protected void onPostExecute(BasicResponse response) {
+                        super.onPostExecute(response);
+                        if (response.code == 0)
+                            deleteMarker(getCurrentSelectedMarker());
+                        else
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_deleting_point), Toast.LENGTH_SHORT).show();
+                    }
+                };
+                pointsDelete.execute();
+            }
+        });
+
+        ibBottomPanelEdit.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                /*
+                Intent intent = new Intent(MapActivity.this, AddNewPointActivity.class);
+                intent.putExtra("zoomLevel", mMapView.getZoomLevel());
+                startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
+                */
+            }
+        });
 
         Log.d(Const.TAG, point.uuid + "  = uuid");
         if (!isBottomPanelShowed())
@@ -336,6 +397,8 @@ public class MapActivity extends Activity implements LocationListener{
             public void onAnimationEnd(Animation animation) {
                 rlBottomPanel.setVisibility(View.INVISIBLE);
                 viGradient.setVisibility(View.INVISIBLE);
+                ibBottomPanelDelete.setVisibility(View.INVISIBLE);
+                ibBottomPanelEdit.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -380,7 +443,7 @@ public class MapActivity extends Activity implements LocationListener{
 
     }
 
-    private boolean isBottomPanelShowed(){
+    private boolean isBottomPanelShowed() {
         return rlBottomPanel.getVisibility() == View.VISIBLE;
     }
 
@@ -400,7 +463,7 @@ public class MapActivity extends Activity implements LocationListener{
         return false;
     }
 
-    private void addMarker(Point point){
+    private void addMarker(Point point) {
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
         marker.setIcon(new Icon(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId)));
         marker.setRelatedObject(point);
@@ -408,10 +471,10 @@ public class MapActivity extends Activity implements LocationListener{
     }
 
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_map, menu);
         return true;
     }
@@ -430,10 +493,9 @@ public class MapActivity extends Activity implements LocationListener{
             startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
         }
         if (id == R.id.activity_map_refresh) {
-                mMapView.clear();
-                loadPoints();
-            }
-
+            mMapView.clear();
+            loadPoints();
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -513,9 +575,11 @@ public class MapActivity extends Activity implements LocationListener{
         if (requestCode == Const.INTENT_RESULT_TOKEN) {
             // Save token
             Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, data.getStringExtra("token"));
+            checkUserStatus();
             loadPoints();
         }
     }
+
     @Override
     public void onProviderEnabled(String provider) {
 

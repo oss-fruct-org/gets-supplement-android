@@ -75,8 +75,8 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
 
             if (radius != 0)
                 postData += "<latitude>" + latitude + "</latitude>";
-                postData += "<longitude>" + longitude + "</longitude>";
-                postData += "<radius>" + radius + "</radius>";
+            postData += "<longitude>" + longitude + "</longitude>";
+            postData += "<radius>" + radius + "</radius>";
 
             postData += "</params></request>";
             Log.d(Const.TAG, postData + " ");
@@ -88,9 +88,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
             HttpEntity responseEntity = httpResponse.getEntity();
 
             // Parse
-            //String strResponse = EntityUtils.toString(responseEntity);
             String strResponse = EntityUtils.toString(responseEntity, "UTF-8");
-
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             InputStream is = new ByteArrayInputStream(strResponse.getBytes("UTF-8"));
@@ -101,7 +99,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
             NodeList nodeList = doc.getElementsByTagName("status");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
-                Element element = (Element) nodeList.item(  i);
+                Element element = (Element) nodeList.item(i);
 
                 response.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
                 response.message = element.getElementsByTagName("message").item(0).getTextContent();
@@ -125,6 +123,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                     try {
 
                         if (point == null) continue;
+
 
                         point.name = element.getElementsByTagName("name").item(0).getTextContent();
                         point.description = element.getElementsByTagName("description").item(0).getTextContent();
