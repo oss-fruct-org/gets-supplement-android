@@ -3,6 +3,9 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -225,7 +228,14 @@ public class MapActivity extends Activity implements LocationListener {
 
                 for (Point point : response.points) {
                     Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
-                    marker.setIcon(new Icon(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId)));
+                    Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+                    if (point.access == null || point.access.indexOf("w") != -1) {
+                        ColorMatrix matrix = new ColorMatrix();
+                        matrix.setSaturation(0);
+                        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+                        drawableImage.setColorFilter(filter);
+                    }
+                    marker.setIcon(new Icon(drawableImage));
                     marker.setRelatedObject(point);
                     mMapView.addMarker(marker);
                 }
