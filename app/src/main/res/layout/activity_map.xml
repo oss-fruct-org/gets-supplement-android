@@ -86,7 +86,7 @@
 
                 <TextView
                     android:id="@+id/acitivity_map_point_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
                     tools:text="Point name"
@@ -117,14 +117,22 @@
             android:gravity="center">
 
             <ImageButton
+                android:id="@+id/activity_map_point_edit"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/ic_edit"
+                android:visibility="gone"
+                android:background="@null"/>
+            
+            <ImageButton
                 android:id="@+id/activity_map_point_delete"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_margin="4dp"
                 android:src="@drawable/ic_delete"
                 android:visibility="gone"
-                android:background="@null"
-                android:paddingLeft="10dp"/>
+                android:background="@null"/>
 
         </LinearLayout>
 

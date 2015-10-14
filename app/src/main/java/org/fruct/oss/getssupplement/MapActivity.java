@@ -153,6 +153,7 @@ public class MapActivity extends Activity implements LocationListener {
                 setCurrentSelectedMarker(marker);
 
                 ibBottomPanelDelete.setVisibility(View.INVISIBLE);
+                ibBottomPanelEdit.setVisibility(View.INVISIBLE);
                 marker.getToolTip(mapView).getView().setVisibility(View.GONE);
                 Point point = (Point) marker.getRelatedObject();
                 Log.d(Const.TAG, "Marker clicked: " + point.name);
@@ -272,7 +273,7 @@ public class MapActivity extends Activity implements LocationListener {
             }
         };
 
-        if (usrToken == null || usrToken == "")
+        if (usrToken == null || usrToken.equals(""))
             Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
         else userInfoGet.execute();
     }
@@ -283,6 +284,7 @@ public class MapActivity extends Activity implements LocationListener {
     ImageView ivBottomPanelArrowRight = null;
     ImageView ivBottomPanelIcon = null;
     ImageButton ibBottomPanelDelete = null;
+    ImageButton ibBottomPanelEdit = null;
     View viGradient = null;
 
 
@@ -300,6 +302,9 @@ public class MapActivity extends Activity implements LocationListener {
 
         if (ibBottomPanelDelete == null)
             ibBottomPanelDelete = (ImageButton) findViewById(R.id.activity_map_point_delete);
+
+        if (ibBottomPanelEdit == null)
+            ibBottomPanelEdit = (ImageButton) findViewById(R.id.activity_map_point_edit);
 
         if (ivBottomPanelIcon == null)
             ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
@@ -332,9 +337,10 @@ public class MapActivity extends Activity implements LocationListener {
             tvBottomPanelDescription.setVisibility(View.INVISIBLE);
         }
 
-        if (point.access == null || point.access.indexOf("w") != -1)
+        if (point.access == null || point.access.indexOf("w") != -1) {
             ibBottomPanelDelete.setVisibility(View.VISIBLE);
-
+            ibBottomPanelEdit.setVisibility(View.VISIBLE);
+        }
         if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
             ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
 
@@ -361,6 +367,17 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
+        ibBottomPanelEdit.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                /*
+                Intent intent = new Intent(MapActivity.this, AddNewPointActivity.class);
+                intent.putExtra("zoomLevel", mMapView.getZoomLevel());
+                startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
+                */
+            }
+        });
+
         Log.d(Const.TAG, point.uuid + "  = uuid");
         if (!isBottomPanelShowed())
             showBottomPanel();
@@ -381,6 +398,7 @@ public class MapActivity extends Activity implements LocationListener {
                 rlBottomPanel.setVisibility(View.INVISIBLE);
                 viGradient.setVisibility(View.INVISIBLE);
                 ibBottomPanelDelete.setVisibility(View.INVISIBLE);
+                ibBottomPanelEdit.setVisibility(View.INVISIBLE);
             }
 
             @Override
