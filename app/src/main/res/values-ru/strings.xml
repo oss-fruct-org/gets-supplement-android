@@ -31,4 +31,13 @@
     <string name="network_error_authorization">Для продолжения работы подключите интернет и перезапустите приложение</string>
     <string name="action_push">Опубликовать точки</string>
 
+    <string name="successful_publish">Категория успешно опубликована</string>
+    <string name="unsuccessful_publish">Ошибка при публикации категории</string>
+    <string name="repeated_publish">Категория уже опубликована</string>
+
+    <string name="successful_unpublish">Категория успешно извлечена из общего доступа</string>
+    <string name="unsuccessful_unpublish">Ошибка при извлечении категории из общего доступа</string>
+    <string name="repeated_unpublish">Категория уже извлечена из общего доступа</string>
+
+
 </resources>

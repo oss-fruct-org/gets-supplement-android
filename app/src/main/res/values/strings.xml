@@ -37,4 +37,13 @@
     <string name="category_description">Category description: </string>
     <string name="error_deleting_point">Error while deleting point</string>
     <string name="network_error_authorization">To continue the process, connect to the internet and restart application</string>
+
+    <string name="successful_publish">Category have been publishing successfully</string>
+    <string name="unsuccessful_publish">Category have not been publishing</string>
+    <string name="repeated_publish">Category have already published</string>
+
+    <string name="successful_unpublish">Category have been unpublishing successfully</string>
+    <string name="unsuccessful_unpublish">Category have not been unpublishing</string>
+    <string name="repeated_unpublish">Category have already unpublished</string>
+
 </resources>

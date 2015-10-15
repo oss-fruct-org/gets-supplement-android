@@ -2,24 +2,31 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MapActivity" >
 
-    <item android:id="@+id/action_push"
+    <item android:id="@+id/action_publish"
         android:title="@string/action_push"
-        android:icon="@drawable/ic_push"
+        android:icon="@drawable/ic_publish"
         android:orderInCategory="1"
+        android:showAsAction="always"
+        android:visible="false"/>
+
+    <item android:id="@+id/action_unpublish"
+        android:title="@string/action_push"
+        android:icon="@drawable/ic_unpublish"
+        android:orderInCategory="2"
         android:showAsAction="always"
         android:visible="false"/>
 
     <item android:id="@+id/activity_map_refresh"
         android:title="@string/refresh"
         android:icon="@drawable/ic_refresh"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:showAsAction="always" />
 
 
     <item android:id="@+id/action_add"
         android:title="@string/action_add_new_point"
         android:icon="@drawable/ic_action_point_new"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:showAsAction="always" />
 
 

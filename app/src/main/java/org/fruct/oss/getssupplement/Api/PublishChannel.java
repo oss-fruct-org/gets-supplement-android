@@ -12,39 +12,32 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
-import org.fruct.oss.getssupplement.Model.Point;
-import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URI;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
- * Created by Andrey on 14.10.2015.
+ * Created by Andrey on 15.10.2015.
  */
-public class PointsDelete extends AsyncTask<String, String, BasicResponse>{
+public class PublishChannel extends AsyncTask<String, String, BasicResponse> {
 
     String params = "";
+    boolean isPublish;
 
-    public PointsDelete(String token, Point point) {
+    public PublishChannel(String token, int category, boolean _isPublish) {
 
         params = "<request><params>";
         params += "<auth_token>" + token + "</auth_token>";
-
-        params += "<category_id>" + point.categoryId + "</category_id>";
-        params += "<uuid>" + point.uuid + "</uuid>";
-
-        //params += "<latitude>" + point.latitude + "</latitude>";
-        //params += "<longitude>" + point.longitude + "</longitude>";
-        //params += "<time>" + point.time + "</time>";
-        //params += "<description>" + point.description + "</description>";
-
+        params += "<category_id>" + category + "</category_id>";
         params += "</params></request>";
+        this.isPublish = _isPublish;
     }
     @Override
     protected BasicResponse doInBackground(String... params) {
@@ -58,10 +51,14 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse>{
         try {
             // Do request, get response
             HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(Const.URL_POINTS_DELETE);
+            HttpPost httppost = new HttpPost();
+
+            if (isPublish) httppost.setURI(new URI(Const.URL_CHANNEL_PUBLISH));
+            else httppost.setURI(new URI(Const.URL_CHANNEL_UNPUBLISH));
 
             String postData = this.params;
-            Log.d(Const.TAG, "PointsDelete postData: " + postData);
+
+            Log.d(Const.TAG, "PublishChannel postData: " + postData);
 
             httppost.setEntity(new StringEntity(postData));
             HttpResponse response = httpclient.execute(httppost);
@@ -70,7 +67,7 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse>{
 
             // Parse
             String strResponse = EntityUtils.toString(responseEntity);
-            Log.d(Const.TAG, "PointsDelete response: " + strResponse);
+            Log.d(Const.TAG, "PublishChannel response: " + strResponse);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -93,6 +90,7 @@ public class PointsDelete extends AsyncTask<String, String, BasicResponse>{
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         return null;
     }

@@ -25,10 +25,8 @@ public class CategoryActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
-
         GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
         final ArrayList<Category> categories = dbHelper.getCategories();
-
 
         ArrayList<String> items = new ArrayList<String>();
         try {

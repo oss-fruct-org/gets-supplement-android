@@ -25,8 +25,12 @@ public class Const {
     public static final String URL_POINTS_UPDATE = GETS_SERVER_PREFIX + "updatePoint.php";
     public static final String URL_POINTS_DELETE = GETS_SERVER_PREFIX + "deletePoint.php";
 
+
     public static final String URL_CATEGORIES_GET = GETS_SERVER_PREFIX + "getCategories.php";
     public static final String URL_CATEGORIES_ADD = GETS_SERVER_PREFIX + "addCategory.php";
+
+    public static final String URL_CHANNEL_PUBLISH = GETS_SERVER_PREFIX + "publish.php";
+    public static final String URL_CHANNEL_UNPUBLISH = GETS_SERVER_PREFIX + "unpublish.php";
 
 
     /**
@@ -47,6 +51,8 @@ public class Const {
     /**
      * API constants
      */
+    public static final boolean API_PUBLISH = true;
+    public static final boolean API_UNPUBLISH = false;
     public static int API_POINTS_RADIUS = 5;// in km
 
 
@@ -56,6 +62,9 @@ public class Const {
     public static final int INTENT_RESULT_NEW_POINT = 1;
     public static final int INTENT_RESULT_TOKEN = 2;
     public static final int INTENT_RESULT_CATEGORY = 3;
+    public static final int INTENT_RESULT_PUBLISH = 4;
+    public static final int INTENT_RESULT_UNPUBLISH = 5;
+
 
 
     public static final int INTENT_RESULT_CODE_OK = 1;

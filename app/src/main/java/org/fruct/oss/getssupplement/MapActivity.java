@@ -36,6 +36,7 @@ import com.mapbox.mapboxsdk.views.MapViewListener;
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
 import org.fruct.oss.getssupplement.Api.PointsDelete;
+import org.fruct.oss.getssupplement.Api.PublishChannel;
 import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
@@ -226,6 +227,8 @@ public class MapActivity extends Activity implements LocationListener {
             @Override
             public void onPostExecute(final PointsResponse response) {
 
+                // TODO: do it in new thread
+
                 for (Point point : response.points) {
                     Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
                     Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
@@ -277,7 +280,9 @@ public class MapActivity extends Activity implements LocationListener {
                     Log.d(Const.TAG, "Is trusted user: " + userInfoResponse.isTrustedUser);
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, true);
 
-                    MenuItem menuItem = menu.findItem(R.id.action_push);
+                    MenuItem menuItem = menu.findItem(R.id.action_publish);
+                    menuItem.setVisible(true);
+                    menuItem = menu.findItem(R.id.action_unpublish);
                     menuItem.setVisible(true);
                 }
             }
@@ -502,10 +507,22 @@ public class MapActivity extends Activity implements LocationListener {
             intent.putExtra("zoomLevel", mMapView.getZoomLevel());
             startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
         }
+
         if (id == R.id.activity_map_refresh) {
             mMapView.clear();
             loadPoints();
         }
+
+        if (id == R.id.action_publish) {
+            Intent intent = new Intent(this, CategoryActivity.class);
+            startActivityForResult(intent, Const.INTENT_RESULT_PUBLISH);
+        }
+
+        if (id == R.id.action_unpublish) {
+            Intent intent = new Intent(this, CategoryActivity.class);
+            startActivityForResult(intent, Const.INTENT_RESULT_UNPUBLISH);
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -517,8 +534,50 @@ public class MapActivity extends Activity implements LocationListener {
             return;
         }
 
+        if (requestCode == Const.INTENT_RESULT_PUBLISH) {
+
+            int category = data.getIntExtra("category", 0);
+
+            PublishChannel publishChannel = new PublishChannel(Settings.getToken(getApplicationContext()), category, Const.API_PUBLISH) {
+                @Override
+                protected void onPostExecute(BasicResponse response) {
+                    super.onPostExecute(response);
+
+                    if (response.code == 0)
+                        Toast.makeText(getApplicationContext(), getString(R.string.successful_publish), Toast.LENGTH_SHORT).show();
+                    else if (response.code == 2)
+                        Toast.makeText(getApplicationContext(), getString(R.string.repeated_publish), Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), getString(R.string.unsuccessful_publish), Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            publishChannel.execute();
+        }
+
+        if (requestCode == Const.INTENT_RESULT_UNPUBLISH) {
+
+            int category = data.getIntExtra("category", 0);
+
+            PublishChannel publishChannel = new PublishChannel(Settings.getToken(getApplicationContext()), category, Const.API_UNPUBLISH) {
+                @Override
+                protected void onPostExecute(BasicResponse response) {
+                    super.onPostExecute(response);
+
+                    if (response.code == 0)
+                        Toast.makeText(getApplicationContext(), getString(R.string.successful_unpublish), Toast.LENGTH_SHORT).show();
+                    else if (response.code == 2)
+                        Toast.makeText(getApplicationContext(), getString(R.string.repeated_unpublish), Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getApplicationContext(), getString(R.string.unsuccessful_unpublish), Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            publishChannel.execute();
+        }
 
         if (requestCode == Const.INTENT_RESULT_NEW_POINT) {
+
             String pointName = data.getStringExtra("name");
             String pointUrl = data.getStringExtra("url");
             float rating = data.getFloatExtra("rating", 0f);
