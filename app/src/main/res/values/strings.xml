@@ -15,7 +15,6 @@
     <string name="str_user_my_location">Use my location</string>
     <string name="plus" translatable="false">+</string>
     <string name="action_add_new_point">Add new point</string>
-    <string name="action_push">Push points to the server</string>
     <string name="done">Done</string>
 
     <string name="mapbox_id_street" translatable="false">ksarkes.279c7439</string>
@@ -37,6 +36,9 @@
     <string name="category_description">Category description: </string>
     <string name="error_deleting_point">Error while deleting point</string>
     <string name="network_error_authorization">To continue the process, connect to the internet and restart application</string>
+
+    <string name="action_publish">Publish points</string>
+    <string name="action_unpublish">Unpublish points</string>
 
     <string name="successful_publish">Category have been publishing successfully</string>
     <string name="unsuccessful_publish">Category have not been publishing</string>

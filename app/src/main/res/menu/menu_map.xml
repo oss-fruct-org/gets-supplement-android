@@ -3,14 +3,14 @@
     tools:context=".MapActivity" >
 
     <item android:id="@+id/action_publish"
-        android:title="@string/action_push"
+        android:title="@string/action_publish"
         android:icon="@drawable/ic_publish"
         android:orderInCategory="1"
         android:showAsAction="always"
         android:visible="false"/>
 
     <item android:id="@+id/action_unpublish"
-        android:title="@string/action_push"
+        android:title="@string/action_unpublish"
         android:icon="@drawable/ic_unpublish"
         android:orderInCategory="2"
         android:showAsAction="always"
