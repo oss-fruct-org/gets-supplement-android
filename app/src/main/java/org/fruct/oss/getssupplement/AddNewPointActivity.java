@@ -3,6 +3,7 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,13 +22,18 @@ import com.mapbox.mapboxsdk.overlay.MapEventsReceiver;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.views.MapView;
 
+import org.fruct.oss.getssupplement.Api.PointsDelete;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
+import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 
 /**
  * Created by Andrey on 18.07.2015.
  */
 public class AddNewPointActivity extends Activity {
+
+    boolean isInEdit;
+    String uuid;
 
     RatingBar rbRating;
     private int category = -1;
@@ -103,8 +109,58 @@ public class AddNewPointActivity extends Activity {
         mMap.setClickable(true);
         mMap.setUserLocationEnabled(true);
 
+
         Intent intent = getIntent();
         float optimalZoom = intent.getFloatExtra("zoomLevel", 16);
+        isInEdit = intent.getBooleanExtra("isInEdit", false);
+        double latitude;
+        double longitude;
+        LatLng myLocation;
+        float ratingValue;
+        int categoryId;
+        String pointName;
+        String description;
+        String token;
+        String categoryName;
+
+        // If activity is opened as edit form
+
+        if (isInEdit) {
+            latitude = intent.getDoubleExtra("latitude", 0);
+            longitude = intent.getDoubleExtra("longitude", 0);
+
+            myLocation = new LatLng(latitude, longitude);
+            mMap.setCenter(myLocation);
+            addMaker(myLocation);
+
+            categoryId = intent.getIntExtra("categoryId", 0);
+            ratingValue = intent.getFloatExtra("rating", 0);
+            pointName = intent.getStringExtra("name");
+            description = intent.getStringExtra("description");
+            uuid = intent.getStringExtra("uuid");
+            token = intent.getStringExtra("token");
+
+
+            EditText Point_name = (EditText) findViewById(R.id.activity_addpoint_name);
+            GetsDbHelper DbHelp = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+            categoryName = DbHelp.getCategoryName(categoryId);
+
+            // Set values
+            Point_name.setText(pointName);
+            rbRating.setRating(ratingValue);
+            if (description != null && !description.equals("{}")) mCategoryDescription.setText(description);
+            btCategory.setText(getString(R.string.category) + " " + categoryName);
+            setCategory(categoryId);
+        }
+
+        else if (MapActivity.getLocation() != null) {
+            latitude =  MapActivity.getLocation().getLatitude();
+            longitude =  MapActivity.getLocation().getLongitude();
+
+            myLocation = new LatLng(latitude, longitude);
+            mMap.setCenter(myLocation);
+            addMaker(myLocation);
+        }
 
         if (mMap.getMaxZoomLevel() < optimalZoom)
             mMap.getController().setZoom(mMap.getMaxZoomLevel());
@@ -112,17 +168,6 @@ public class AddNewPointActivity extends Activity {
             mMap.getController().setZoom(optimalZoom);
 
         mMap.setUseDataConnection(true);
-
-        if (MapActivity.getLocation() != null) {
-            double latitude =  MapActivity.getLocation().getLatitude();
-            double longitude =  MapActivity.getLocation().getLongitude();
-
-            LatLng myLocation = new LatLng(latitude, longitude);
-
-            mMap.setCenter(myLocation);
-
-            addMaker(myLocation);
-        }
 
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
@@ -170,6 +215,7 @@ public class AddNewPointActivity extends Activity {
         Intent intent = new Intent();
 
         if (id == R.id.action_done){
+
             EditText Point_name = (EditText) findViewById(R.id.activity_addpoint_name);
             String pointName = Point_name.getText().toString();
 
@@ -194,6 +240,11 @@ public class AddNewPointActivity extends Activity {
             intent.putExtra("longitude", markerLocation.getLongitude());
             intent.putExtra("category", getCategory());
             intent.putExtra("rating", ratingValue);
+            if (isInEdit) {
+                intent.putExtra("deleteUuid", uuid);
+                Log.d(Const.TAG, "extra: " + uuid);
+            }
+
             setResult(Const.INTENT_RESULT_CODE_OK, intent);
             finish();
         }

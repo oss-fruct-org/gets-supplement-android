@@ -12,6 +12,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,6 +21,7 @@ import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -63,7 +65,7 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
     @Override
     protected PointsResponse doInBackground(String... params) {
 
-        PointsResponse loginResponse = new PointsResponse();
+        PointsResponse pointsResponse = new PointsResponse();
 
         if (isCancelled()) {
             return null;
@@ -99,11 +101,11 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
 
-                loginResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
-                loginResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
+                pointsResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
+                pointsResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
             }
 
-            return loginResponse;
+            return pointsResponse;
 
         } catch (Exception e) {
             e.printStackTrace();

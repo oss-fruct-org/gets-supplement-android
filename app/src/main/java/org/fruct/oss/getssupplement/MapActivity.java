@@ -385,11 +385,23 @@ public class MapActivity extends Activity implements LocationListener {
         ibBottomPanelEdit.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                /*
+
                 Intent intent = new Intent(MapActivity.this, AddNewPointActivity.class);
+
+                intent.putExtra("latitude", point.latitude);
+                intent.putExtra("longitude", point.longitude);
+                intent.putExtra("name", point.name);
+                intent.putExtra("categoryId", point.categoryId);
+                intent.putExtra("description", point.description);
+                intent.putExtra("rating", point.rating);
+                intent.putExtra("uuid", point.uuid);
+
+                intent.putExtra("token", Settings.getToken(getApplicationContext()));
                 intent.putExtra("zoomLevel", mMapView.getZoomLevel());
+                intent.putExtra("isInEdit", true);
+
                 startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
-                */
+
             }
         });
 
@@ -585,6 +597,29 @@ public class MapActivity extends Activity implements LocationListener {
             double longitude = data.getDoubleExtra("longitude", 0);
             int pointCategory = data.getIntExtra("category", 0);
 
+            final String deleteUuid = data.getStringExtra("deleteUuid");
+
+            // Delete old point if there was point editing
+            if (deleteUuid != null) {
+
+                Point point = new Point();
+                point.uuid = deleteUuid;
+
+                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
+                    @Override
+                    protected void onPostExecute(BasicResponse response) {
+                        super.onPostExecute(response);
+                        if (response.code == 0)
+                            deleteMarker(getCurrentSelectedMarker());
+                        else {
+                            Toast.makeText(getApplicationContext(), R.string.unsuccessful_edit,Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                };
+                pointsDelete.execute();
+            }
+
 
             // Save to local database when no Internet connection
             if (!isInternetConnectionAvailable()) {
@@ -611,14 +646,15 @@ public class MapActivity extends Activity implements LocationListener {
                     @Override
                     public void onPostExecute(PointsResponse response) {
                         if (response.code == 0) { // FIXME: codes
-                            Toast.makeText(getApplicationContext(), getString(R.string.successuflly_sent), Toast.LENGTH_SHORT).show();
+                            if (deleteUuid != null)
+                                Toast.makeText(getApplicationContext(), getString(R.string.successful_edit), Toast.LENGTH_SHORT).show();
+                            else
+                                Toast.makeText(getApplicationContext(), getString(R.string.successuflly_sent), Toast.LENGTH_SHORT).show();
                         } else {
                             // TODO
                         }
-
                     }
                 };
-
                 pointsAdd.execute();
             }
 
