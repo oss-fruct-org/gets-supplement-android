@@ -33,8 +33,8 @@ import org.fruct.oss.getssupplement.Model.DatabaseType;
 public class AddNewPointActivity extends Activity {
 
     boolean isInEdit;
-    String uuid;
-
+    String deleteUuid;
+    int deleteCategoryId;
     RatingBar rbRating;
     private int category = -1;
     Button btCategory;
@@ -117,7 +117,6 @@ public class AddNewPointActivity extends Activity {
         double longitude;
         LatLng myLocation;
         float ratingValue;
-        int categoryId;
         String pointName;
         String description;
         String token;
@@ -133,24 +132,24 @@ public class AddNewPointActivity extends Activity {
             mMap.setCenter(myLocation);
             addMaker(myLocation);
 
-            categoryId = intent.getIntExtra("categoryId", 0);
+            deleteCategoryId = intent.getIntExtra("categoryId", 0);
             ratingValue = intent.getFloatExtra("rating", 0);
             pointName = intent.getStringExtra("name");
             description = intent.getStringExtra("description");
-            uuid = intent.getStringExtra("uuid");
+            deleteUuid = intent.getStringExtra("uuid");
             token = intent.getStringExtra("token");
 
 
             EditText Point_name = (EditText) findViewById(R.id.activity_addpoint_name);
             GetsDbHelper DbHelp = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-            categoryName = DbHelp.getCategoryName(categoryId);
+            categoryName = DbHelp.getCategoryName(deleteCategoryId);
 
             // Set values
             Point_name.setText(pointName);
             rbRating.setRating(ratingValue);
             if (description != null && !description.equals("{}")) mCategoryDescription.setText(description);
             btCategory.setText(getString(R.string.category) + " " + categoryName);
-            setCategory(categoryId);
+            setCategory(deleteCategoryId);
         }
 
         else if (MapActivity.getLocation() != null) {
@@ -241,8 +240,9 @@ public class AddNewPointActivity extends Activity {
             intent.putExtra("category", getCategory());
             intent.putExtra("rating", ratingValue);
             if (isInEdit) {
-                intent.putExtra("deleteUuid", uuid);
-                Log.d(Const.TAG, "extra: " + uuid);
+                intent.putExtra("deleteUuid", deleteUuid);
+                intent.putExtra("deleteCategoryId", deleteCategoryId);
+                Log.d(Const.TAG, "extra: " + deleteUuid);
             }
 
             setResult(Const.INTENT_RESULT_CODE_OK, intent);
