@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -46,6 +47,8 @@ import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
+
+import java.util.concurrent.ExecutionException;
 
 public class MapActivity extends Activity implements LocationListener {
 
@@ -215,6 +218,21 @@ public class MapActivity extends Activity implements LocationListener {
             hideBottomPanel();
         }
     }
+
+    private void deletePoint(Point point) {
+        PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
+            @Override
+            protected void onPostExecute(BasicResponse response) {
+                super.onPostExecute(response);
+                if (response.code == 0)
+                    deleteMarker(getCurrentSelectedMarker());
+                else
+                    Toast.makeText(getApplicationContext(), getString(R.string.error_deleting_point), Toast.LENGTH_SHORT).show();
+            }
+        };
+        pointsDelete.execute();
+    }
+
     private void loadPoints() {
 
         if (getLocation() == null) {
@@ -228,19 +246,8 @@ public class MapActivity extends Activity implements LocationListener {
             public void onPostExecute(final PointsResponse response) {
 
                 // TODO: do it in new thread
-
                 for (Point point : response.points) {
-                    Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
-                    Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
-                    if (point.access == null || point.access.indexOf("w") != -1) {
-                        ColorMatrix matrix = new ColorMatrix();
-                        matrix.setSaturation(0);
-                        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-                        drawableImage.setColorFilter(filter);
-                    }
-                    marker.setIcon(new Icon(drawableImage));
-                    marker.setRelatedObject(point);
-                    mMapView.addMarker(marker);
+                    addMarker(point);
                 }
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
             }
@@ -367,29 +374,30 @@ public class MapActivity extends Activity implements LocationListener {
         ibBottomPanelDelete.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
-                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
-                    @Override
-                    protected void onPostExecute(BasicResponse response) {
-                        super.onPostExecute(response);
-                        if (response.code == 0)
-                            deleteMarker(getCurrentSelectedMarker());
-                        else
-                            Toast.makeText(getApplicationContext(), getString(R.string.error_deleting_point), Toast.LENGTH_SHORT).show();
-                    }
-                };
-                pointsDelete.execute();
+                deletePoint(point);
             }
         });
 
         ibBottomPanelEdit.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                /*
+
                 Intent intent = new Intent(MapActivity.this, AddNewPointActivity.class);
+
+                intent.putExtra("latitude", point.latitude);
+                intent.putExtra("longitude", point.longitude);
+                intent.putExtra("name", point.name);
+                intent.putExtra("categoryId", point.categoryId);
+                intent.putExtra("description", point.description);
+                intent.putExtra("rating", point.rating);
+                intent.putExtra("uuid", point.uuid);
+
+                intent.putExtra("token", Settings.getToken(getApplicationContext()));
                 intent.putExtra("zoomLevel", mMapView.getZoomLevel());
+                intent.putExtra("isInEdit", true);
+
                 startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
-                */
+
             }
         });
 
@@ -398,6 +406,7 @@ public class MapActivity extends Activity implements LocationListener {
             showBottomPanel();
 
     }
+
 
     private void hideBottomPanel() {
         initBottomPanel();
@@ -480,15 +489,28 @@ public class MapActivity extends Activity implements LocationListener {
 
     private void addMarker(Point point) {
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
+<<<<<<< HEAD
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
         if (point.access == null || point.access.indexOf("w") != -1) {
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation(0);
+=======
+
+        Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+        if (point.access == null || point.access.indexOf("w") != -1) {
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation((float) 0.3);
+>>>>>>> points-editing
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
             drawableImage.setColorFilter(filter);
         }
         marker.setIcon(new Icon(drawableImage));
+<<<<<<< HEAD
+=======
+
+>>>>>>> points-editing
         marker.setRelatedObject(point);
+
         mMapView.addMarker(marker);
     }
 
@@ -592,6 +614,40 @@ public class MapActivity extends Activity implements LocationListener {
             double longitude = data.getDoubleExtra("longitude", 0);
             int pointCategory = data.getIntExtra("category", 0);
 
+            final String deleteUuid = data.getStringExtra("deleteUuid");
+            final int deleteCategoryId = data.getIntExtra("deleteCategoryId", 0);
+
+            // Delete old point if there was point editing
+            if (deleteUuid != null) {
+
+                Point point = new Point();
+                point.uuid = deleteUuid;
+                point.categoryId = deleteCategoryId;
+
+                PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
+                    @Override
+                    protected void onPostExecute(BasicResponse response) {
+                        super.onPostExecute(response);
+                        if (response.code == 0)
+                            deleteMarker(getCurrentSelectedMarker());
+                        else {
+                            Toast.makeText(getApplicationContext(), R.string.unsuccessful_edit,Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                };
+                pointsDelete.execute();
+            }
+
+            PointsAdd pointsAdd = new PointsAdd(Settings.getToken(getApplicationContext()),
+                    pointCategory,
+                    pointName,
+                    rating,
+                    latitude,
+                    longitude,
+                    System.currentTimeMillis()
+            );
+
+            Point point = new Point();
 
             // Save to local database when no Internet connection
             if (!isInternetConnectionAvailable()) {
@@ -604,48 +660,50 @@ public class MapActivity extends Activity implements LocationListener {
                         longitude,
                         rating);
 
+                point.name = pointName;
+                point.url = pointUrl;
+                point.latitude = latitude;
+                point.longitude = longitude;
+                point.rating = rating;
+                point.categoryId = pointCategory;
+                addMarker(point);
+
                 Toast.makeText(getApplicationContext(), getString(R.string.saved_to_local_db), Toast.LENGTH_SHORT).show();
             } else {
                 // Send to API
-                PointsAdd pointsAdd = new PointsAdd(Settings.getToken(getApplicationContext()),
-                        pointCategory,
-                        pointName,
-                        rating,
-                        latitude,
-                        longitude,
-                        System.currentTimeMillis()
-                ) {
-                    @Override
-                    public void onPostExecute(PointsResponse response) {
-                        if (response.code == 0) { // FIXME: codes
-                            Toast.makeText(getApplicationContext(), getString(R.string.successuflly_sent), Toast.LENGTH_SHORT).show();
-                        } else {
-                            // TODO
-                        }
-
-                    }
-                };
-
                 pointsAdd.execute();
             }
 
-            // Finally, add marker to the map (it is not in array of APIs markers yet, it will be after next sync
-            Point point = new Point();
-            point.name = pointName;
-            point.url = pointUrl;
-            point.latitude = latitude;
-            point.longitude = longitude;
-            point.rating = rating;
-            point.categoryId = pointCategory;
+            try {
+                PointsResponse response = pointsAdd.get();
+
+                if (response.code == 0) { // FIXME: codes
+                    if (deleteUuid != null)
+                        Toast.makeText(getApplicationContext(), getString(R.string.successful_edit), Toast.LENGTH_SHORT).show();
+                    else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.successuflly_sent), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.d(Const.TAG, "Points adding error, response code: " + response.code);
+                    return;
+                }
+                try {
+                    point = response.points.get(0);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                }
+
+                addMarker(point);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
 
             mMapView.getController().animateTo(
-                    new LatLng(
-                            latitude,
-                            longitude,
-                            16)
+                    new LatLng(point.latitude, point.longitude, 16)
             );
-
-            addMarker(point);
         }
 
         if (requestCode == Const.INTENT_RESULT_TOKEN) {

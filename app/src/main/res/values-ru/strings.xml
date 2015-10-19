@@ -41,5 +41,7 @@
     <string name="unsuccessful_unpublish">Ошибка при извлечении категории из общего доступа</string>
     <string name="repeated_unpublish">Категория уже извлечена из общего доступа</string>
 
+    <string name="successful_edit">Редактирование выполнено успешно</string>
+    <string name="unsuccessful_edit">Редактирование не может быть выполнено</string>
 
 </resources>

@@ -48,4 +48,7 @@
     <string name="unsuccessful_unpublish">Category have not been unpublishing</string>
     <string name="repeated_unpublish">Category have already unpublished</string>
 
+    <string name="successful_edit">Editing has been done successfully</string>
+    <string name="unsuccessful_edit">Editing has not been done</string>
+
 </resources>

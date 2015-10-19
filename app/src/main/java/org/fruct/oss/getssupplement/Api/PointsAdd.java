@@ -12,6 +12,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,6 +21,7 @@ import org.w3c.dom.NodeList;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -63,7 +65,7 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
     @Override
     protected PointsResponse doInBackground(String... params) {
 
-        PointsResponse loginResponse = new PointsResponse();
+        PointsResponse pointsResponse = new PointsResponse();
 
         if (isCancelled()) {
             return null;
@@ -99,11 +101,82 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
 
-                loginResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
-                loginResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
+                pointsResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
+                pointsResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
             }
 
-            return loginResponse;
+            nodeList = doc.getElementsByTagName("Document");
+
+            ArrayList<Point> list = new ArrayList<Point>();
+
+            // Go through all <Placemark>
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                NodeList categoryInner = nodeList.item(i).getChildNodes();
+
+                // Go trough all items of every <Placemark>
+                for (int j = 0; j < categoryInner.getLength(); j++) {
+
+                    Element element = (Element) categoryInner.item(j);
+
+
+                    try {
+                        Point point = new Point();
+
+                        point.name = element.getElementsByTagName("name").item(0).getTextContent();
+                        point.description = element.getElementsByTagName("description").item(0).getTextContent();
+
+                        NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();
+
+
+                        // TODO: Null checker on nodes
+
+                        for (int k = 0; k < extendedData.getLength(); k++) {
+                            Element dataNode = (Element) extendedData.item(k);
+
+                            if (dataNode.getAttribute("name").equals("link")) {
+                                String url = dataNode.getChildNodes().item(0).getTextContent();
+
+                                // Check for empty url
+                                if (url.replace(" ", "").equals(""))
+                                    point.url = null;
+                                else point.url = url;
+                            }
+
+                            if (dataNode.getAttribute("name").equals("time"))
+                                point.time = dataNode.getChildNodes().item(0).getTextContent();
+
+                            if (dataNode.getAttribute("name").equals("access"))
+                                point.access = dataNode.getChildNodes().item(0).getTextContent();
+
+                            if (dataNode.getAttribute("name").equals("uuid"))
+                                point.uuid = dataNode.getChildNodes().item(0).getTextContent();
+
+                            if (dataNode.getAttribute("name").equals("rating"))
+                                point.rating = Float.parseFloat(dataNode.getChildNodes().item(0).getTextContent());
+
+                            if (dataNode.getAttribute("name").equals("category_id"))
+                                point.categoryId = Integer.parseInt(dataNode.getChildNodes().item(0).getTextContent());
+
+                        }
+
+                        String coordinates = element.getElementsByTagName("Point").item(0).getTextContent();
+                        point.longitude = Float.parseFloat(coordinates.split(",")[0]);
+                        point.latitude = Float.parseFloat(coordinates.split(",")[1]);
+
+                        Log.d(Const.TAG, "point add: " + point.uuid);
+                        list.add(point);
+
+                    } catch (Exception e) {
+                        Log.d(Const.TAG + "xml", "Error parsing XML " + e.toString());
+                    }
+
+                    //Log.d(Const.TAG, point.id + "login response " + point.name + " " + point.url);
+
+
+                }
+            }
+            pointsResponse.points = list;
+            return pointsResponse;
 
         } catch (Exception e) {
             e.printStackTrace();
