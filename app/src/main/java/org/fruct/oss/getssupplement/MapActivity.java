@@ -626,7 +626,6 @@ public class MapActivity extends Activity implements LocationListener {
                     }
                 };
                 pointsDelete.execute();
-                Log.d(Const.TAG, "ololo " + deleteUuid);
             }
 
             PointsAdd pointsAdd = new PointsAdd(Settings.getToken(getApplicationContext()),
@@ -692,7 +691,6 @@ public class MapActivity extends Activity implements LocationListener {
                 e.printStackTrace();
             }
 
-            Log.d(Const.TAG, "OK adding: " + point.uuid);
             mMapView.getController().animateTo(
                     new LatLng(point.latitude, point.longitude, 16)
             );
