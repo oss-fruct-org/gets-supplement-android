@@ -486,29 +486,24 @@ public class MapActivity extends Activity implements LocationListener {
 
         return false;
     }
-
     private void addMarker(Point point) {
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
-<<<<<<< HEAD
-        Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
-        if (point.access == null || point.access.indexOf("w") != -1) {
-            ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(0);
-=======
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+
+        // TODO: separating based on (un)publishing
+
+        /*
         if (point.access == null || point.access.indexOf("w") != -1) {
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation((float) 0.3);
->>>>>>> points-editing
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
             drawableImage.setColorFilter(filter);
         }
-        marker.setIcon(new Icon(drawableImage));
-<<<<<<< HEAD
-=======
+        */
 
->>>>>>> points-editing
+        marker.setIcon(new Icon(drawableImage));
+
         marker.setRelatedObject(point);
 
         mMapView.addMarker(marker);
@@ -733,4 +728,6 @@ public class MapActivity extends Activity implements LocationListener {
     public void onProviderDisabled(String provider) {
 
     }
+
 }
+
