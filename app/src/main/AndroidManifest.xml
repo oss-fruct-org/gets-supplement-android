@@ -36,7 +36,7 @@
         <activity
             android:name="org.fruct.oss.getssupplement.CategoryActivity"
             android:label="@string/title_activity_category"
-            android:parentActivityName="org.fruct.oss.getssupplement.MapActivity">
+            android:parentActivityName="org.fruct.oss.getssupplement.AddNewPointActivity">
         </activity>
 
         <activity

@@ -118,10 +118,9 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
 
                     Element element = (Element) categoryInner.item(j);
 
-                    Point point = new Point();
 
                     try {
-                        if (point == null) continue;
+                        Point point = new Point();
 
                         point.name = element.getElementsByTagName("name").item(0).getTextContent();
                         point.description = element.getElementsByTagName("description").item(0).getTextContent();
@@ -164,13 +163,14 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                         point.longitude = Float.parseFloat(coordinates.split(",")[0]);
                         point.latitude = Float.parseFloat(coordinates.split(",")[1]);
 
+                        list.add(point);
+
                     } catch (Exception e) {
                         Log.d(Const.TAG + "xml", "Error parsing XML " + e.toString());
                     }
 
                     //Log.d(Const.TAG, point.id + "login response " + point.name + " " + point.url);
 
-                    list.add(point);
                 }
             }
             response.points = list;

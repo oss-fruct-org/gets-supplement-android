@@ -244,7 +244,6 @@ public class MapActivity extends Activity implements LocationListener {
 
             @Override
             public void onPostExecute(final PointsResponse response) {
-
                 // TODO: do it in new thread
                 for (Point point : response.points) {
                     addMarker(point);
