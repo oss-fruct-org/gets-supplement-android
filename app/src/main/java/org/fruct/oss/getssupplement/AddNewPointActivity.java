@@ -63,7 +63,6 @@ public class AddNewPointActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addnewpoint);
-
         mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
 
         rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
