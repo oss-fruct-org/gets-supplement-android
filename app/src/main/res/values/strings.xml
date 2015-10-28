@@ -21,6 +21,8 @@
     <string name="mapbox_token" translatable="false">pk.eyJ1Ijoia3NhcmtlcyIsImEiOiJjOTBlMTdkOWFlYTE1OGNlYjU1YWI2NTc3OTk2YmZhZSJ9.Nqsg_A3M5YrEWqwoZ5fdYA</string>
 
     <string name="successful_download">Points have been loading successfully</string>
+
+    <string name="no_gps">For using this function please turn on geolocation</string>
     <string name="no_network">No network connection found. You can save point locally and upload it later.</string>
     <string name="saved_to_local_db">Saved to local database</string>
     <string name="delete">Delete</string>
