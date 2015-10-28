@@ -14,7 +14,6 @@
     <string name="enter_valid_url">Введите корректный URL</string>
     <string name="error_authorization">Ошибка авторизации</string>
     <string name="successful_download">Точки успешно загружены</string>
-    <string name="no_gps">Для импользования этой функции включите геолокацию</string>
     <string name="no_network">Не обнаружено сетевое подключение</string>
     <string name="rating">Рейтинг:&#160;</string>
     <string name="saved_to_local_db">Сохранено в локальную базу данных</string>
@@ -33,7 +32,7 @@
 
     <string name="action_publish">Опубликовать точки</string>
     <string name="action_unpublish">Извлечь точки из общего доступа</string>
-    <string name="action_gps">Включение/отключение отслеживания местоположения пользователя</string>
+
     <string name="successful_publish">Категория успешно опубликована</string>
     <string name="unsuccessful_publish">Ошибка при публикации категории</string>
     <string name="repeated_publish">Категория уже опубликована</string>
