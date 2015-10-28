@@ -33,6 +33,7 @@ public class LoginActivity extends Activity {
                 if (loginResponse == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
                     finish();
+                    return;
                 }
 
                 setResponseId(loginResponse.id);

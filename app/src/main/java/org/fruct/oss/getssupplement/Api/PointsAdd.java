@@ -127,9 +127,6 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
 
                         NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();
 
-
-                        // TODO: Null checker on nodes
-
                         for (int k = 0; k < extendedData.getLength(); k++) {
                             Element dataNode = (Element) extendedData.item(k);
 

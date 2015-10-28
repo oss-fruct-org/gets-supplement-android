@@ -14,6 +14,7 @@ import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.Category;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -28,16 +29,22 @@ public class CategoryActivity extends Activity {
         GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
         final ArrayList<Category> categories = dbHelper.getCategories();
 
-        ArrayList<String> items = new ArrayList<String>();
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<Integer> id = new ArrayList<Integer>();
+
+        String[] a = new String[5];
+        Integer[] as = new Integer[3];
+
         try {
             for (Category category : categories) {
-                items.add(category.name);
+                names.add(category.name);
+                id.add(category.id);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+        final CategoryArrayAdapter adapter = new CategoryArrayAdapter(this, names, id);
 
         ListView listView = (ListView) findViewById(R.id.activity_category_listview);
         listView.setAdapter(adapter);

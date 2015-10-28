@@ -63,7 +63,6 @@ public class AddNewPointActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addnewpoint);
-
         mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
 
         rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
@@ -267,17 +266,22 @@ public class AddNewPointActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode != Const.INTENT_RESULT_CODE_OK || data == null) {
-            return;
+        if (resultCode != RESULT_CANCELED) {
+            if (resultCode != Const.INTENT_RESULT_CODE_OK || data == null) {
+                return;
+            }
+            int categoryId = data.getIntExtra("category", -1);
+            String name = data.getStringExtra("name");
+            String description = data.getStringExtra("description");
+            setCategory(categoryId);
+
+            if (btCategory != null)
+                if (name != null) btCategory.setText(getString(R.string.category) + " " + name);
+                else btCategory.setText(getString(R.string.category));
+
+            if (mCategoryDescription != null)
+                if (description != null) mCategoryDescription.setText(description);
+                else mCategoryDescription.setText("");
         }
-
-        int categoryId = data.getIntExtra("category", -1);
-        String name = data.getStringExtra("name");
-        String description = data.getStringExtra("description");
-        setCategory(categoryId);
-
-        btCategory.setText(getString(R.string.category) + " " + name);
-        mCategoryDescription.setText(description);
-
     }
 }
