@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
@@ -16,6 +17,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -23,6 +25,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +51,10 @@ import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.LogRecord;
 
 public class MapActivity extends Activity implements LocationListener {
 
@@ -68,6 +74,21 @@ public class MapActivity extends Activity implements LocationListener {
 
     private static Location sLocation;
 
+    private boolean followingState;
+
+    private boolean succesLoading = false;
+
+    ProgressBar progressBar;
+
+    private LocationProvider currentProvider = null;
+
+    private LocationManager locationManager;
+
+    private  LocationProvider gpsProvider;
+
+    private LocationProvider networkProvider;
+
+    private Timer mapOffset;
 
     public Marker getCurrentSelectedMarker() {
         return currentSelectedMarker;
@@ -85,6 +106,7 @@ public class MapActivity extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        followingState = false;
 
         setUpLocation();
         context = getApplicationContext();
@@ -104,6 +126,25 @@ public class MapActivity extends Activity implements LocationListener {
             Log.d(Const.TAG, "Authorized, downloading categories");
             checkUserStatus();
             loadPoints();
+       /*     Timer collisionTimer = new Timer();
+            final Handler handler = new Handler();
+            collisionTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            selectAvailableProvider();
+                            if(succesLoading) {
+                                if (currentProvider != null && !followingState)
+                                    startFollow();
+                                if (currentProvider == null && followingState)
+                                    stopFollow();
+                            }
+                        }
+                    });
+                }
+            }, 100, 6L * 10);*/
         }
     }
 
@@ -188,13 +229,16 @@ public class MapActivity extends Activity implements LocationListener {
     }
 
     private void setUpLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        LocationProvider gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
-        LocationProvider networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+        networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+
 
         if (gpsProvider != null) {
-            locationManager.requestLocationUpdates(gpsProvider.getName(), 1000, 50, this);
             Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
             // If gps isn't connected yet, try to obtain network location
             if (gpsLocation == null)
@@ -203,7 +247,6 @@ public class MapActivity extends Activity implements LocationListener {
         }
 
         if (networkProvider != null) {
-            locationManager.requestLocationUpdates(networkProvider.getName(), 1000, 100, this);
             setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
             return;
         }
@@ -239,6 +282,8 @@ public class MapActivity extends Activity implements LocationListener {
             Log.e(Const.TAG, "Locations is null");
             return;
         }
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(ProgressBar.VISIBLE);
         final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
                 getLocation().getLatitude(), getLocation().getLongitude(), Const.API_POINTS_RADIUS) {
 
@@ -249,6 +294,8 @@ public class MapActivity extends Activity implements LocationListener {
                     addMarker(point);
                 }
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                succesLoading =true;
             }
 
         };
@@ -370,14 +417,14 @@ public class MapActivity extends Activity implements LocationListener {
 
         Log.d(Const.TAG + " marker clicked ", point.name + " " + point.description);
 
-        ibBottomPanelDelete.setOnClickListener(new View.OnClickListener(){
+        ibBottomPanelDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deletePoint(point);
             }
         });
 
-        ibBottomPanelEdit.setOnClickListener(new View.OnClickListener(){
+        ibBottomPanelEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -485,6 +532,7 @@ public class MapActivity extends Activity implements LocationListener {
 
         return false;
     }
+
     private void addMarker(Point point) {
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
 
@@ -514,9 +562,52 @@ public class MapActivity extends Activity implements LocationListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_map, menu);
+
+
         return true;
     }
 
+    private void stopFollow() {
+        followingState = false;
+        menu.findItem(R.id.follow_location).getIcon().setColorFilter(null);
+        setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+        locationManager.removeUpdates(this);
+        mMapView.setMapOrientation(0);
+        mapOffset.cancel();
+    }
+
+    private void startFollow() {
+        followingState = true;
+        if (menu.findItem(R.id.follow_location) != null)
+            menu.findItem(R.id.follow_location).getIcon().setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
+        setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+        mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+        locationManager.requestLocationUpdates(currentProvider.getName(), 1000, 50, this);
+        mapOffset = new Timer();
+        final Handler uiHandler = new Handler();
+        mapOffset.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+                        mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+                    }
+                });
+            }
+        }, 0L, 6L * 10);
+
+    }
+
+    private void selectAvailableProvider() {
+        if (networkProvider != null)
+            currentProvider = networkProvider;
+        if (gpsProvider != null) {
+            if (locationManager.getLastKnownLocation(gpsProvider.getName()) != null)
+                currentProvider = gpsProvider;
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -524,6 +615,15 @@ public class MapActivity extends Activity implements LocationListener {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        if (id == R.id.follow_location) {
+            selectAvailableProvider();
+            if(currentProvider != null) {
+                if (followingState)
+                    stopFollow();
+                else
+                    startFollow();
+            }
+        }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
             Intent intent = new Intent(this, AddNewPointActivity.class);
