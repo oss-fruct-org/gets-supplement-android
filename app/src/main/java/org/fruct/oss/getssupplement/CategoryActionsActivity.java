@@ -3,6 +3,8 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
@@ -45,5 +47,21 @@ public class CategoryActionsActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_categoryactions, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        Intent intent = new Intent();
+        setResult(Const.INTENT_RESULT_CODE_OK, intent);
+        finish();
+
+        return true;
     }
 }

@@ -215,7 +215,7 @@ public class AddNewPointActivity extends Activity {
 
         Intent intent = new Intent();
 
-        if (id == R.id.action_done){
+        if (id == R.id.action_done_adding){
 
             EditText Point_name = (EditText) findViewById(R.id.activity_addpoint_name);
             String pointName = Point_name.getText().toString();
@@ -251,7 +251,7 @@ public class AddNewPointActivity extends Activity {
             finish();
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     public int getCategory(){

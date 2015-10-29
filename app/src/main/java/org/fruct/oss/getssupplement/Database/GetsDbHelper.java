@@ -24,7 +24,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     private DatabaseType databaseType;
 
     public GetsDbHelper(Context context, DatabaseType _databaseType) {
-        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 3);
+        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 4);
         this.databaseType = _databaseType;
     }
 
@@ -40,10 +40,11 @@ public class GetsDbHelper extends SQLiteOpenHelper{
 
         db.execSQL("create table " + Const.DB_INTERNAL_POINTS + "(" +
                         "_id integer primary key autoincrement," + // Internal id, not connected with API
+                        "categoryId," +
                         "name text," +
+                        "description text," +
                         "url text," +
-                        // FIXME: no description?
-                        "access text," + // TODO: how to use?
+                        "access text," +
                         "time text," +
                         "latitude real," +
                         "longitude real," +
@@ -64,6 +65,9 @@ public class GetsDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("drop table if exists " + Const.DB_INTERNAL_POINTS);
+        db.execSQL("drop table if exists " + Const.DB_INTERNAL_CATEGORIES);
+        onCreate(db);
     }
 
 
@@ -71,7 +75,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     public void clearDatabase() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("delete from " + Const.DB_INTERNAL_POINTS);
-        db.execSQL("delete from " + Const.DB_INTERNAL_CATEGORIES);
+        //db.execSQL("delete from " + Const.DB_INTERNAL_CATEGORIES);
     }
 
     /**
@@ -171,34 +175,39 @@ public class GetsDbHelper extends SQLiteOpenHelper{
      *
      */
     public void addPoint(Point point) {
-        addPoint(point.name,
+        addPoint(point.categoryId,
+                point.name,
                 point.url,
                 point.access,
                 point.time,
+                point.description,
                 point.latitude,
                 point.longitude,
-                point.rating
+                point.rating,
+                point.uuid
         );
     }
 
-    public void addPoint(String name, String url, String access, long time, String latitude, String longitude, float rating) {
-        addPoint(name, url, access, time + "", Float.parseFloat(latitude), Float.parseFloat(longitude), rating);
+    public void addPoint(int categoryId, String name, String url, String access, long time, String description, String latitude, String longitude, float rating, String uuid) {
+        addPoint(categoryId, name, url, access, time + "", description, Float.parseFloat(latitude), Float.parseFloat(longitude), rating, uuid);
     }
 
-    public void addPoint(String name, String url, String access, String time, double latitude, double longitude, float rating) {
+    public void addPoint(int categoryId, String name, String url, String access, String time, String description, double latitude, double longitude, float rating, String uuid) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
+        cv.put("categoryId", categoryId);
         cv.put("name", name);
         cv.put("url", url);
         cv.put("access", access);
         cv.put("time", time); // TODO: normalize time
+        cv.put("description", description);
         cv.put("latitude", latitude);
         cv.put("longitude", longitude);
         cv.put("rating", rating);
+        cv.put("uuid", uuid);
 
-        db.insert(Const.DB_INTERNAL_POINTS, null, cv);
-        Log.d(Const.TAG + " testing", "addPoint pre db.close");
+        db.insertWithOnConflict(Const.DB_INTERNAL_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
         db.close();
     }
@@ -208,41 +217,46 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             Point point = points.get(i);
 
             // TODO: convert time
-            this.addPoint(point.name, point.url, point.access, "0", point.latitude, point.longitude, point.rating);
+            this.addPoint(point.categoryId, point.name, point.url, point.access, "0", point.description, point.latitude, point.longitude, point.rating, point.uuid);
         }
     }
 
-    public ArrayList<Point> getPoints() {
+    public ArrayList<Point> getPoints(int categoryId) {
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, null, null, null, null, null, null);
+        Cursor cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
         Log.d(Const.TAG + " testing", "getPoints cursor " + cursor.getCount());
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");
+            int indexCategoryId = cursor.getColumnIndex("categoryId");
             int indexName = cursor.getColumnIndex("name");
             int indexAccess = cursor.getColumnIndex("access");
             int indexTime = cursor.getColumnIndex("time");
+            int indexDescription = cursor.getColumnIndex("description");
             int indexLatitude = cursor.getColumnIndex("latitude");
             int indexLongitude = cursor.getColumnIndex("longitude");
             int indexUrl = cursor.getColumnIndex("url");
             int indexRating = cursor.getColumnIndex("rating");
+            int indexUuid = cursor.getColumnIndex("uuid");
 
             ArrayList<Point> list = new ArrayList<Point>();
             do {
                 Point point = new Point();
                 point.id = cursor.getInt(indexId);
+                point.categoryId = cursor.getInt(indexCategoryId);
                 point.name = cursor.getString(indexName);
                 point.url = cursor.getString(indexUrl);
                 point.access = cursor.getString(indexAccess);
                 point.time = cursor.getString(indexTime);
+                point.description = cursor.getString(indexDescription);
                 point.latitude = cursor.getFloat(indexLatitude);
                 point.longitude = cursor.getFloat(indexLongitude);
                 point.rating = cursor.getFloat(indexRating);
+                point.uuid = cursor.getString(indexUuid);
 
                 list.add(point);
+                Log.d(Const.TAG, point.categoryId+" " + point.name);
             } while (cursor.moveToNext());
-
-            Log.d(Const.TAG + " testing", "getPoints dbclose " + list.size());
 
             db.close();
             return list;

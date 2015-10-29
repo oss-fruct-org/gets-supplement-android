@@ -3,6 +3,7 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
@@ -51,6 +52,8 @@ import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -282,19 +285,39 @@ public class MapActivity extends Activity implements LocationListener {
             Log.e(Const.TAG, "Locations is null");
             return;
         }
+
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(ProgressBar.VISIBLE);
-        final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
+
+        final PointsGet pointsGet = new PointsGet(getApplicationContext(), Settings.getToken(getApplicationContext()),
                 getLocation().getLatitude(), getLocation().getLongitude(), Const.API_POINTS_RADIUS) {
 
             @Override
             public void onPostExecute(final PointsResponse response) {
+
                 for (Point point : response.points) {
                     addMarker(point);
                 }
+
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
-                succesLoading =true;
+                succesLoading = true;
+
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+                        dbHelper.clearDatabase();
+                        dbHelper.addPoints(response.points);
+                    }
+                });
+                t.start();
+/*
+                GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+                ArrayList<Point> points = dbHelper.getPoints();
+                for (Point point : points) {
+                    addMarker(point);
+                }*/
             }
 
         };
@@ -315,7 +338,10 @@ public class MapActivity extends Activity implements LocationListener {
         categoriesGet.execute();
 
     }
-
+    private void loadFilteredPoints() {
+        GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelper.getFilteredPoints();
+    }
     private void checkUserStatus() {
         // Get user info
         String usrToken = Settings.getToken(getApplicationContext());
@@ -530,7 +556,7 @@ public class MapActivity extends Activity implements LocationListener {
         return false;
     }
 
-    private void addMarker(Point point) {
+    public void addMarker(Point point) {
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
@@ -739,13 +765,16 @@ public class MapActivity extends Activity implements LocationListener {
             // Save to local database when no Internet connection
             if (!isInternetConnectionAvailable()) {
                 GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
-                dbHelper.addPoint(pointName,
+                dbHelper.addPoint(pointCategory,
+                        pointName,
                         pointUrl,
                         "?",
                         System.currentTimeMillis() + "",
+                        "",
                         latitude,
                         longitude,
-                        rating);
+                        rating,
+                        "?");
 
                 point.name = pointName;
                 point.url = pointUrl;
@@ -791,6 +820,16 @@ public class MapActivity extends Activity implements LocationListener {
             mMapView.getController().animateTo(
                     new LatLng(point.latitude, point.longitude, 16)
             );
+        }
+
+        if (requestCode == Const.INTENT_RESULT_CATEGORY_ACTIONS) {
+            // TODO: points filter
+            /*
+            GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
+            Map<String,?> allEntries = sharedPreferences.getAll();
+            for (Map.Entry<String,?> entry : entry.getKey().contains(Const.PREFS_CATEGORY))
+            */
         }
 
         if (requestCode == Const.INTENT_RESULT_TOKEN) {

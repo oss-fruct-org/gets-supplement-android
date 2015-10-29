@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,6 +16,7 @@ import org.fruct.oss.getssupplement.Api.PublishChannel;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Created by Andrey on 28.10.2015.
@@ -44,9 +47,23 @@ public class CategoryArrayAdapter extends ArrayAdapter {
 
         TextView textView = (TextView) rowView.findViewById(R.id.list_text);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.list_icon);
+        CheckBox checkBox = (CheckBox) rowView.findViewById(R.id.list_check);
 
         imageView.setVisibility(View.VISIBLE);
         textView.setText(names.get(position));
+
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), true);
+                }
+                else {
+                    Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), false);
+                }
+            }
+        });
+
         if (IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)) != null)
             imageView.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)));
 

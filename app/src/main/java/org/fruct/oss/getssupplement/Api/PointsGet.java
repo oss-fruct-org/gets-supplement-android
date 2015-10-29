@@ -1,7 +1,14 @@
 package org.fruct.oss.getssupplement.Api;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.overlay.Icon;
+import com.mapbox.mapboxsdk.overlay.Marker;
+import com.mapbox.mapboxsdk.views.MapView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -10,6 +17,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fruct.oss.getssupplement.Database.GetsDbHelper;
+import org.fruct.oss.getssupplement.IconHolder;
+import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -32,26 +42,30 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
     private double longitude;
     private int radius;
     private int categoryId;
+    private final Context context;
 
     // TODO: implement 'space' parameter
-    public PointsGet(String token, double latitude, double longitude, int radius, int categoryId) {
+    public PointsGet(Context context, String token, double latitude, double longitude, int radius, int categoryId) {
         authToken = token;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
         this.categoryId = categoryId;
+        this.context = context;
     }
 
-    public PointsGet(String token, int categoryId) {
+    public PointsGet(Context context, String token, int categoryId) {
         authToken = token;
         this.categoryId = categoryId;
+        this.context = context;
     }
 
-    public PointsGet(String token, double latitude, double longitude, int radius) {
+    public PointsGet(Context context, String token, double latitude, double longitude, int radius) {
         authToken = token;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
+        this.context = context;
     }
 
     @Override
@@ -108,6 +122,8 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
             nodeList = doc.getElementsByTagName("Document");
 
             ArrayList<Point> list = new ArrayList<Point>();
+
+
 
             // Go through all <Placemark>
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -173,6 +189,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
 
                 }
             }
+
             response.points = list;
 
             return response;

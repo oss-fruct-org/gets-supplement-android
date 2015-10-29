@@ -28,4 +28,5 @@ public class Settings {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
         return sharedPreferences.getBoolean(Const.PREFS_IS_TRUSTED_USER, false);
     }
+
 }

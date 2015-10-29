@@ -12,8 +12,7 @@
         android:title="@string/category_actions"
         android:icon="@drawable/ic_category_actions"
         android:orderInCategory="2"
-        android:showAsAction="always"
-        android:visible="false"/>
+        android:showAsAction="always"/>
 
     <item android:id="@+id/activity_map_refresh"
         android:title="@string/refresh"

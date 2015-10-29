@@ -39,7 +39,7 @@ public class Const {
     public static final String PREFS_NAME = "gets_shared";
     public static final String PREFS_AUTH_TOKEN = "auth_token";
     public static final String PREFS_IS_TRUSTED_USER = "is_trusted_user";
-
+    public static final String PREFS_CATEGORY = "category_";
     /**
      * Database
      */
@@ -64,7 +64,7 @@ public class Const {
     public static final int INTENT_RESULT_CATEGORY = 3;
     public static final int INTENT_RESULT_PUBLISH = 4;
     public static final int INTENT_RESULT_UNPUBLISH = 5;
-    public static final int INTENT_RESULT_CATEGORY_ACTIONS = 4;
+    public static final int INTENT_RESULT_CATEGORY_ACTIONS = 6;
 
 
 

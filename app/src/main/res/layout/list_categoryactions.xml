@@ -41,12 +41,11 @@
     </TextView>
 
     <CheckBox
-        android:id="@+id/check"
+        android:id="@+id/list_check"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:visibility="gone">
+        android:layout_alignParentRight="true">
     </CheckBox>
 
 </RelativeLayout>
