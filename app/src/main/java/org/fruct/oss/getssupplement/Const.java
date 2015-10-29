@@ -64,9 +64,17 @@ public class Const {
     public static final int INTENT_RESULT_CATEGORY = 3;
     public static final int INTENT_RESULT_PUBLISH = 4;
     public static final int INTENT_RESULT_UNPUBLISH = 5;
+    public static final int INTENT_RESULT_CATEGORY_ACTIONS = 4;
 
 
 
     public static final int INTENT_RESULT_CODE_OK = 1;
     public static final int INTENT_RESULT_CODE_NOT_OK = 2;
+
+
+    /**
+     * Service
+     */
+    public static final boolean SERVICE_ACTIONS = true;
+    public static final boolean SERVICE_NOT_ACTIONS = false;
 }

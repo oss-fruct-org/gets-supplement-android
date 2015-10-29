@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
@@ -32,9 +33,6 @@ public class CategoryActivity extends Activity {
         ArrayList<String> names = new ArrayList<String>();
         ArrayList<Integer> id = new ArrayList<Integer>();
 
-        String[] a = new String[5];
-        Integer[] as = new Integer[3];
-
         try {
             for (Category category : categories) {
                 names.add(category.name);
@@ -44,10 +42,11 @@ public class CategoryActivity extends Activity {
             e.printStackTrace();
         }
 
-        final CategoryArrayAdapter adapter = new CategoryArrayAdapter(this, names, id);
+        final CategoryArrayAdapter adapter = new CategoryArrayAdapter(this, names, id, Const.SERVICE_NOT_ACTIONS);
 
         ListView listView = (ListView) findViewById(R.id.activity_category_listview);
         listView.setAdapter(adapter);
+
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,6 +64,7 @@ public class CategoryActivity extends Activity {
                 finish();
             }
         });
+
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

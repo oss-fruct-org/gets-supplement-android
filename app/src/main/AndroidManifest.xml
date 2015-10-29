@@ -45,6 +45,12 @@
             android:parentActivityName="org.fruct.oss.getssupplement.MapActivity" >
         </activity>
 
+        <activity
+            android:name=".CategoryActionsActivity"
+            android:label="@string/title_activity_category_actions"
+            android:parentActivityName=".MapActivity">
+        </activity>
+
     </application>
 
 </manifest>

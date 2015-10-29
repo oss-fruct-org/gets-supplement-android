@@ -23,4 +23,9 @@ public class Settings {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
         return sharedPreferences.getString(Const.PREFS_AUTH_TOKEN, null);
     }
+
+    public static boolean getIsTrusted(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
+        return sharedPreferences.getBoolean(Const.PREFS_IS_TRUSTED_USER, false);
+    }
 }

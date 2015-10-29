@@ -30,6 +30,7 @@
     <string name="enter_valid_url">Please, enter a valid URL address</string>
     <string name="choose_category">Choose category</string>
     <string name="title_activity_category">Categories</string>
+    <string name="title_activity_category_actions">Actions with categories</string>
     <string name="change_view" translatable="false">Change view</string>
     <string name="rating">Rating:&#160;</string>
     <string name="cant_determine_location">Can\'t determine location</string>
@@ -41,6 +42,7 @@
 
     <string name="action_publish">Publish points</string>
     <string name="action_unpublish">Unpublish points</string>
+    <string name="action_gps">GPS activating</string>
 
     <string name="successful_publish">Category have been publishing successfully</string>
     <string name="unsuccessful_publish">Category have not been publishing</string>
@@ -52,5 +54,6 @@
 
     <string name="successful_edit">Editing has been done successfully</string>
     <string name="unsuccessful_edit">Editing has not been done</string>
+    <string name="category_actions">Actions with categories</string>
 
 </resources>

@@ -289,7 +289,6 @@ public class MapActivity extends Activity implements LocationListener {
 
             @Override
             public void onPostExecute(final PointsResponse response) {
-                // TODO: do it in new thread
                 for (Point point : response.points) {
                     addMarker(point);
                 }
@@ -333,9 +332,7 @@ public class MapActivity extends Activity implements LocationListener {
                     Log.d(Const.TAG, "Is trusted user: " + userInfoResponse.isTrustedUser);
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, true);
 
-                    MenuItem menuItem = menu.findItem(R.id.action_publish);
-                    menuItem.setVisible(true);
-                    menuItem = menu.findItem(R.id.action_unpublish);
+                    MenuItem menuItem = menu.findItem(R.id.action_category_actions);
                     menuItem.setVisible(true);
                 }
             }
@@ -636,14 +633,9 @@ public class MapActivity extends Activity implements LocationListener {
             loadPoints();
         }
 
-        if (id == R.id.action_publish) {
-            Intent intent = new Intent(this, CategoryActivity.class);
-            startActivityForResult(intent, Const.INTENT_RESULT_PUBLISH);
-        }
-
-        if (id == R.id.action_unpublish) {
-            Intent intent = new Intent(this, CategoryActivity.class);
-            startActivityForResult(intent, Const.INTENT_RESULT_UNPUBLISH);
+        if (id == R.id.action_category_actions) {
+            Intent intent = new Intent(this, CategoryActionsActivity.class);
+            startActivityForResult(intent, Const.INTENT_RESULT_CATEGORY_ACTIONS);
         }
 
         return super.onOptionsItemSelected(item);
@@ -657,6 +649,7 @@ public class MapActivity extends Activity implements LocationListener {
             return;
         }
 
+        // TODO: delete  requstCode
         if (requestCode == Const.INTENT_RESULT_PUBLISH) {
 
             int category = data.getIntExtra("category", 0);
