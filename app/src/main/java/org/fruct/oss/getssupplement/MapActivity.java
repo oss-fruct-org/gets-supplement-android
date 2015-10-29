@@ -289,7 +289,7 @@ public class MapActivity extends Activity implements LocationListener {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
-        final PointsGet pointsGet = new PointsGet(getApplicationContext(), Settings.getToken(getApplicationContext()),
+        final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
                 getLocation().getLatitude(), getLocation().getLongitude(), Const.API_POINTS_RADIUS) {
 
             @Override

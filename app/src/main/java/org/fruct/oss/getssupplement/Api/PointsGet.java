@@ -42,7 +42,6 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
     private double longitude;
     private int radius;
     private int categoryId;
-    private final Context context;
 
     // TODO: implement 'space' parameter
     public PointsGet(Context context, String token, double latitude, double longitude, int radius, int categoryId) {
@@ -51,21 +50,18 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
         this.longitude = longitude;
         this.radius = radius;
         this.categoryId = categoryId;
-        this.context = context;
     }
 
-    public PointsGet(Context context, String token, int categoryId) {
+    public PointsGet(String token, int categoryId) {
         authToken = token;
         this.categoryId = categoryId;
-        this.context = context;
     }
 
-    public PointsGet(Context context, String token, double latitude, double longitude, int radius) {
+    public PointsGet(String token, double latitude, double longitude, int radius) {
         authToken = token;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
-        this.context = context;
     }
 
     @Override
