@@ -4,7 +4,7 @@
 
     <item android:id="@+id/follow_location"
         android:title="@string/action_gps"
-        android:icon="@drawable/ic_location"
+        android:icon="@drawable/ic_follow"
         android:orderInCategory="1"
         android:showAsAction="always"/>
 
