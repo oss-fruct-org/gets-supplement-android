@@ -102,7 +102,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         }
 
         cursor.close();
-        db.close();
 
         return categoryName;
     }
@@ -116,7 +115,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("description", description);
         cv.put("iconurl", url);
         db.insertWithOnConflict(Const.DB_INTERNAL_CATEGORIES, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-        db.close();
     }
 
     public void addCategories(ArrayList<Category> categories) {
@@ -152,11 +150,9 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             } while (cursor.moveToNext());
 
             cursor.close();
-            db.close();
             return list;
         }
 
-        db.close();
         return null;
     }
 
@@ -210,8 +206,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("uuid", uuid);
 
         db.insertWithOnConflict(Const.DB_INTERNAL_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-
-        db.close();
     }
 
     public void addPoints(ArrayList<Point> points) {
@@ -223,25 +217,26 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         }
     }
 
-    public ArrayList<Point> getPoints(int categoryId, LatLng loadCenter) {
+    public ArrayList<Point> getPoints(int categoryId) {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor;
 
+        /*
         double dLat = loadCenter.getLatitude();
         double dLng = loadCenter.getLongitude();
         // TODO: convert geo coordinates
-
         if (categoryId == Const.ALL_CATEGORIES)
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null,
                     "latitude BETWEEN " + (dLat - 0.01) + " AND " + (dLat + 0.01) + " AND " +
                     "longitude BETWEEN " + (dLng - 0.03) + " AND " + (dLng + 0.03),
                     null, null, null, null, null);
+       */
+        if (categoryId == Const.ALL_CATEGORIES)
+            cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, null, null, null, null, null, null);
         else
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
-
-
-        Log.d(Const.TAG + " testing", "getPoints cursor " + cursor.getCount());
+        Log.d(Const.TAG, "count " + cursor.getCount());
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");
             int indexCategoryId = cursor.getColumnIndex("categoryId");
@@ -274,11 +269,11 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                 Log.d(Const.TAG, point.categoryId+" " + point.name);
             } while (cursor.moveToNext());
 
-            db.close();
+            cursor.close();
             return list;
         }
 
-        db.close();
+        cursor.close();
         return null;
     }
 

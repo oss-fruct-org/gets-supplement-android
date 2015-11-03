@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.os.Handler;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -111,6 +112,8 @@ public class MapActivity extends Activity implements LocationListener {
 
     private Timer mapOffset;
 
+    public GetsDbHelper dbHelper;
+
     public Marker getCurrentSelectedMarker() {
         return currentSelectedMarker;
     }
@@ -118,7 +121,6 @@ public class MapActivity extends Activity implements LocationListener {
     public void setCurrentSelectedMarker(Marker currentSelectedMarker) {
         this.currentSelectedMarker = currentSelectedMarker;
     }
-
 
     Marker currentSelectedMarker = null;
 
@@ -128,6 +130,8 @@ public class MapActivity extends Activity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         followingState = false;
+
+        dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
 
         setUpLocation();
 
@@ -189,6 +193,7 @@ public class MapActivity extends Activity implements LocationListener {
         return Settings.getToken(context) != null;
     }
 
+
     private void setUpMapView() {
         mMapView.setClickable(true);
         mMapView.getController().setZoom(17);
@@ -200,13 +205,13 @@ public class MapActivity extends Activity implements LocationListener {
         findViewById(R.id.activity_map_my_location).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getLocation() == null)
+                if (mMapView.getUserLocation() == null)
                     return;
 
                 mMapView.getController().setZoomAnimated(19,
                         new LatLng(
-                                getLocation().getLatitude(),
-                                getLocation().getLongitude()),
+                                mMapView.getUserLocation().getLatitude(),
+                                mMapView.getUserLocation().getLongitude()),
                         true,
                         false
                 );
@@ -221,16 +226,19 @@ public class MapActivity extends Activity implements LocationListener {
 
         hideBottomPanel();
 
+        // TODO: upgrade cache algorithm
+        /*
         mMapView.addListener(new MapListener() {
             @Override
             public void onScroll(ScrollEvent scrollEvent) {
-/*                Log.d(Const.TAG, "" + (double)getLoadCenter().distanceTo(mMapView.getCenter()) / 1000);
+                Log.d(Const.TAG, "" + (double)getLoadCenter().distanceTo(mMapView.getCenter()) / 1000);
                 if ((double) getLoadCenter().distanceTo(mMapView.getCenter()) / 1000 > 1.0) {
                     setLoadCenter(mMapView.getCenter());
-                    GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                     ArrayList<Point> points;
+                    GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                     points = dbHelper.getPoints(Const.ALL_CATEGORIES, mMapView.getCenter());
                     mMapView.clear();
+
                     if (points != null){
                         for (Point point : points) {
                             if ((double) mMapView.getCenter().distanceTo(new LatLng(point.latitude, point.longitude)) / 1000 < 2.0 ||
@@ -239,7 +247,7 @@ public class MapActivity extends Activity implements LocationListener {
                         }
 
                     }
-                } */
+                }
             }
 
             @Override
@@ -251,6 +259,7 @@ public class MapActivity extends Activity implements LocationListener {
             public void onRotate(RotateEvent rotateEvent) {
             }
         });
+        */
 
         mMapView.setMapViewListener(new MapViewListener() {
             @Override
@@ -368,7 +377,6 @@ public class MapActivity extends Activity implements LocationListener {
             public void onPostExecute(final PointsResponse response) {
 
                 for (Point point : response.points) {
-                   /* if (getLoadCenter().distanceTo(new LatLng(point.latitude, point.longitude))/1000 < 2) */
                         addMarker(point);
                 }
 
@@ -379,12 +387,12 @@ public class MapActivity extends Activity implements LocationListener {
                 Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                         dbHelper.clearDatabase();
                         dbHelper.addPoints(response.points);
                     }
                 });
                 t.start();
+
 /*
                 GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                 ArrayList<Point> points = dbHelper.getPoints();
@@ -402,7 +410,6 @@ public class MapActivity extends Activity implements LocationListener {
                 if (response == null)
                     return;
 
-                GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
                 dbHelper.addCategories(response.categories);
                 pointsGet.execute();
             }
@@ -412,7 +419,6 @@ public class MapActivity extends Activity implements LocationListener {
 
     }
     private void loadFilteredPoints() {
-        GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
         //dbHelper.getFilteredPoints();
     }
     private void checkUserStatus() {
@@ -848,8 +854,8 @@ public class MapActivity extends Activity implements LocationListener {
 
             // Save to local database when no Internet connection
             if (!isInternetConnectionAvailable()) {
-                GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
-                dbHelper.addPoint(pointCategory,
+                GetsDbHelper dbSaveHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
+                dbSaveHelper.addPoint(pointCategory,
                         pointName,
                         pointUrl,
                         "?",
