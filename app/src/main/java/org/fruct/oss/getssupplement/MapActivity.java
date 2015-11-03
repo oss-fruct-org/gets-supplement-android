@@ -97,6 +97,8 @@ public class MapActivity extends Activity implements LocationListener {
 
     private boolean succesLoading = false;
 
+    private boolean isLocationOn = false;
+
     ProgressBar progressBar;
 
     private LocationProvider currentProvider = null;
@@ -156,7 +158,7 @@ public class MapActivity extends Activity implements LocationListener {
             Log.d(Const.TAG, "Authorized, downloading categories");
             checkUserStatus();
             loadPoints();
-       /*     Timer collisionTimer = new Timer();
+            Timer collisionTimer = new Timer();
             final Handler handler = new Handler();
             collisionTimer.schedule(new TimerTask() {
                 @Override
@@ -164,17 +166,21 @@ public class MapActivity extends Activity implements LocationListener {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            selectAvailableProvider();
-                            if(succesLoading) {
-                                if (currentProvider != null && !followingState)
-                                    startFollow();
-                                if (currentProvider == null && followingState)
+                            if (succesLoading) {
+                                selectAvailableProvider();
+                                if (isLocationOn && currentProvider == null) {
+                                    isLocationOn = false;
                                     stopFollow();
+                                }
+                                if (!isLocationOn && currentProvider != null) {
+                                    isLocationOn = true;
+                                    startFollow();
+                                }
                             }
                         }
                     });
                 }
-            }, 100, 6L * 10);*/
+            }, 100, 6L * 10);
         }
     }
 
@@ -218,8 +224,7 @@ public class MapActivity extends Activity implements LocationListener {
         mMapView.addListener(new MapListener() {
             @Override
             public void onScroll(ScrollEvent scrollEvent) {
-                /*
-                Log.d(Const.TAG, "" + (double)getLoadCenter().distanceTo(mMapView.getCenter()) / 1000);
+/*                Log.d(Const.TAG, "" + (double)getLoadCenter().distanceTo(mMapView.getCenter()) / 1000);
                 if ((double) getLoadCenter().distanceTo(mMapView.getCenter()) / 1000 > 1.0) {
                     setLoadCenter(mMapView.getCenter());
                     GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
@@ -653,7 +658,11 @@ public class MapActivity extends Activity implements LocationListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_map, menu);
-
+        selectAvailableProvider();
+        if(currentProvider != null) {
+            isLocationOn = true;
+            startFollow();
+        }
 
         return true;
     }
@@ -661,7 +670,7 @@ public class MapActivity extends Activity implements LocationListener {
     private void stopFollow() {
         followingState = false;
         menu.findItem(R.id.follow_location).getIcon().setColorFilter(null);
-        setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+        setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
         locationManager.removeUpdates(this);
         mMapView.setMapOrientation(0);
         mapOffset.cancel();
@@ -682,8 +691,11 @@ public class MapActivity extends Activity implements LocationListener {
                 uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
-                        mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+                        selectAvailableProvider();
+                        if(currentProvider != null) {
+                            setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+                            mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+                        }
                     }
                 });
             }
@@ -692,7 +704,11 @@ public class MapActivity extends Activity implements LocationListener {
     }
 
     private void selectAvailableProvider() {
-        if (networkProvider != null)
+        currentProvider = null;
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+        networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+        if (networkProvider != null && isInternetConnectionAvailable())
             currentProvider = networkProvider;
         if (gpsProvider != null) {
             if (locationManager.getLastKnownLocation(gpsProvider.getName()) != null)
