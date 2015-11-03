@@ -251,7 +251,7 @@ public class AddNewPointActivity extends Activity {
             finish();
         }
 
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     public int getCategory(){

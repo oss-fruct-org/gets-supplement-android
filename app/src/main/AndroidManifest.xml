@@ -32,7 +32,7 @@
             android:name="org.fruct.oss.getssupplement.AddNewPointActivity"
             android:label="@string/title_activity_add_new_point"
             android:parentActivityName="org.fruct.oss.getssupplement.MapActivity"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden">
         </activity>
         <activity
             android:name="org.fruct.oss.getssupplement.CategoryActivity"

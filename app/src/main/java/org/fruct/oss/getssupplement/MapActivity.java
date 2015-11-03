@@ -32,11 +32,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.api.ILatLng;
+import com.mapbox.mapboxsdk.events.MapListener;
+import com.mapbox.mapboxsdk.events.RotateEvent;
+import com.mapbox.mapboxsdk.events.ScrollEvent;
+import com.mapbox.mapboxsdk.events.ZoomEvent;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
+import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.MapViewListener;
+import com.vividsolutions.jts.geom.CoordinateList;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
@@ -77,6 +83,16 @@ public class MapActivity extends Activity implements LocationListener {
 
     private static Location sLocation;
 
+    private static LatLng loadCenter;
+
+    private static LatLng getLoadCenter() {
+        return loadCenter;
+    }
+
+    private static void setLoadCenter(LatLng location) {
+        MapActivity.loadCenter = location;
+    }
+
     private boolean followingState;
 
     private boolean succesLoading = false;
@@ -112,6 +128,17 @@ public class MapActivity extends Activity implements LocationListener {
         followingState = false;
 
         setUpLocation();
+
+        try {
+            setLoadCenter(new LatLng(sLocation.getLatitude(), sLocation.getLongitude()));
+        }
+        catch(NullPointerException e) {
+            e.printStackTrace();
+        }
+        finally {
+            setLoadCenter(new LatLng(61.784626, 34.345600));
+        }
+
         context = getApplicationContext();
         mMapView = (MapView) findViewById(R.id.activity_map_mapview);
 
@@ -162,6 +189,7 @@ public class MapActivity extends Activity implements LocationListener {
         mMapView.setUseDataConnection(true);
         mMapView.setUserLocationEnabled(true);
         mMapView.setDiskCacheEnabled(true);
+        mMapView.setMinZoomLevel(14);
 
         findViewById(R.id.activity_map_my_location).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +214,38 @@ public class MapActivity extends Activity implements LocationListener {
             mMapView.getController().setZoom(3);
 
         hideBottomPanel();
+
+        mMapView.addListener(new MapListener() {
+            @Override
+            public void onScroll(ScrollEvent scrollEvent) {
+                /*
+                Log.d(Const.TAG, "" + (double)getLoadCenter().distanceTo(mMapView.getCenter()) / 1000);
+                if ((double) getLoadCenter().distanceTo(mMapView.getCenter()) / 1000 > 1.0) {
+                    setLoadCenter(mMapView.getCenter());
+                    GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+                    ArrayList<Point> points;
+                    points = dbHelper.getPoints(Const.ALL_CATEGORIES, mMapView.getCenter());
+                    mMapView.clear();
+                    if (points != null){
+                        for (Point point : points) {
+                            if ((double) mMapView.getCenter().distanceTo(new LatLng(point.latitude, point.longitude)) / 1000 < 2.0 ||
+                                   (double) getLoadCenter().distanceTo(new LatLng(point.latitude, point.longitude)) / 1000 < 2.0)
+                                addMarker(point);
+                        }
+
+                    }
+                } */
+            }
+
+            @Override
+            public void onZoom(ZoomEvent zoomEvent) {
+
+            }
+
+            @Override
+            public void onRotate(RotateEvent rotateEvent) {
+            }
+        });
 
         mMapView.setMapViewListener(new MapViewListener() {
             @Override
@@ -246,13 +306,20 @@ public class MapActivity extends Activity implements LocationListener {
             // If gps isn't connected yet, try to obtain network location
             if (gpsLocation == null)
                 setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-            return;
+            if (sLocation != null)
+                return;
         }
 
         if (networkProvider != null) {
             setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-            return;
+            if (sLocation != null)
+                return;
         }
+
+        // Set Petrozavodsk city if undefined
+        sLocation = new Location("Undefined");
+        sLocation.setLatitude(61.784626);
+        sLocation.setLongitude(34.345600);
 
         Toast.makeText(this, "Can't determine location", Toast.LENGTH_SHORT).show();
     }
@@ -296,7 +363,8 @@ public class MapActivity extends Activity implements LocationListener {
             public void onPostExecute(final PointsResponse response) {
 
                 for (Point point : response.points) {
-                    addMarker(point);
+                   /* if (getLoadCenter().distanceTo(new LatLng(point.latitude, point.longitude))/1000 < 2) */
+                        addMarker(point);
                 }
 
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
@@ -556,21 +624,21 @@ public class MapActivity extends Activity implements LocationListener {
         return false;
     }
 
-    public void addMarker(Point point) {
+    private void addMarker(Point point) {
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
 
         // TODO: separating based on (un)publishing
 
-        /*
+
         if (point.access == null || point.access.indexOf("w") != -1) {
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation((float) 0.3);
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
             drawableImage.setColorFilter(filter);
         }
-        */
+
 
         marker.setIcon(new Icon(drawableImage));
 

@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.Model.Category;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
@@ -221,10 +223,24 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         }
     }
 
-    public ArrayList<Point> getPoints(int categoryId) {
-        SQLiteDatabase db = getReadableDatabase();
+    public ArrayList<Point> getPoints(int categoryId, LatLng loadCenter) {
 
-        Cursor cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor;
+
+        double dLat = loadCenter.getLatitude();
+        double dLng = loadCenter.getLongitude();
+        // TODO: convert geo coordinates
+
+        if (categoryId == Const.ALL_CATEGORIES)
+            cursor = db.query(true, Const.DB_INTERNAL_POINTS, null,
+                    "latitude BETWEEN " + (dLat - 0.01) + " AND " + (dLat + 0.01) + " AND " +
+                    "longitude BETWEEN " + (dLng - 0.03) + " AND " + (dLng + 0.03),
+                    null, null, null, null, null);
+        else
+            cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
+
+
         Log.d(Const.TAG + " testing", "getPoints cursor " + cursor.getCount());
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");

@@ -52,22 +52,23 @@ public class CategoryArrayAdapter extends ArrayAdapter {
         imageView.setVisibility(View.VISIBLE);
         textView.setText(names.get(position));
 
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), true);
-                }
-                else {
-                    Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), false);
-                }
-            }
-        });
 
         if (IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)) != null)
             imageView.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)));
 
         if (isActions) {
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), true);
+                    }
+                    else {
+                        Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), false);
+                    }
+                }
+            });
+
             if (Settings.getIsTrusted(context)) {
                 final ImageButton imageButton = (ImageButton) rowView.findViewById(R.id.list_publish);
                 imageButton.setVisibility(View.VISIBLE);

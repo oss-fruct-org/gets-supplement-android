@@ -54,6 +54,7 @@ public class Const {
     public static final boolean API_PUBLISH = true;
     public static final boolean API_UNPUBLISH = false;
     public static int API_POINTS_RADIUS = 5;// in km
+    public static int ALL_CATEGORIES = -1;
 
 
     /**
