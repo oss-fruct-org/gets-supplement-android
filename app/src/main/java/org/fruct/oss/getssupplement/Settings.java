@@ -37,6 +37,6 @@ public class Settings {
 
     public static boolean getIsChecked(Context context, int categoryId) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME_CATEGORIES_CHECKED, 0);
-        return sharedPreferences.getBoolean(Integer.toString(categoryId), false);
+        return sharedPreferences.getBoolean(Integer.toString(categoryId), true);
     }
 }

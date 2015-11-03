@@ -925,8 +925,10 @@ public class MapActivity extends Activity implements LocationListener {
             for (int i = 0; i < categoryArrayList.size(); i++) {
                 if (Settings.getIsChecked(getApplicationContext(), categoryArrayList.get(i).id)) {
                     points = dbHelper.getPoints(categoryArrayList.get(i).id);
-                    for (Point point : points)
-                        addMarker(point);
+                    if (points != null) {
+                        for (Point point : points)
+                            addMarker(point);
+                    }
                 }
             }
         }
