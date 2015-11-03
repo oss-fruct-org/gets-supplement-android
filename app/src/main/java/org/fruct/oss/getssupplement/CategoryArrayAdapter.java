@@ -56,15 +56,21 @@ public class CategoryArrayAdapter extends ArrayAdapter {
         if (IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)) != null)
             imageView.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)));
 
+
         if (isActions) {
+
+            if (Settings.getIsChecked(context, id.get(position)))
+                checkBox.setChecked(true);
+            else checkBox.setChecked(false);
+
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (isChecked) {
-                        Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), true);
+                        Settings.saveCheckedStatus(context, id.get(position), true);
                     }
                     else {
-                        Settings.saveBoolean(context, Const.PREFS_CATEGORY + id.get(position), false);
+                        Settings.saveCheckedStatus(context, id.get(position), false);
                     }
                 }
             });

@@ -19,6 +19,12 @@ public class Settings {
         editor.commit();
     }
 
+    public static void saveCheckedStatus(Context context, int categoryId, boolean value) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(Const.PREFS_NAME_CATEGORIES_CHECKED, 0).edit();
+        editor.putBoolean(Integer.toString(categoryId), value);
+        editor.commit();
+    }
+
     public static String getToken(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
         return sharedPreferences.getString(Const.PREFS_AUTH_TOKEN, null);
@@ -29,4 +35,8 @@ public class Settings {
         return sharedPreferences.getBoolean(Const.PREFS_IS_TRUSTED_USER, false);
     }
 
+    public static boolean getIsChecked(Context context, int categoryId) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME_CATEGORIES_CHECKED, 0);
+        return sharedPreferences.getBoolean(Integer.toString(categoryId), false);
+    }
 }

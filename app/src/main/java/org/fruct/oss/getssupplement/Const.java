@@ -37,6 +37,7 @@ public class Const {
      * Shared preferences
      */
     public static final String PREFS_NAME = "gets_shared";
+    public static final String PREFS_NAME_CATEGORIES_CHECKED = "checked_categories";
     public static final String PREFS_AUTH_TOKEN = "auth_token";
     public static final String PREFS_IS_TRUSTED_USER = "is_trusted_user";
     public static final String PREFS_CATEGORY = "category_";

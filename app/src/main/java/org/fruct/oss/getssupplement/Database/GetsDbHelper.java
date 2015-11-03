@@ -236,6 +236,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, null, null, null, null, null, null);
         else
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
+
         Log.d(Const.TAG, "count " + cursor.getCount());
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");

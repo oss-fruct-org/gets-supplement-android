@@ -53,6 +53,7 @@ import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
+import org.fruct.oss.getssupplement.Model.Category;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
@@ -61,6 +62,7 @@ import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -113,6 +115,8 @@ public class MapActivity extends Activity implements LocationListener {
     private Timer mapOffset;
 
     public GetsDbHelper dbHelper;
+
+    public ArrayList<Category> categoryArrayList;
 
     public Marker getCurrentSelectedMarker() {
         return currentSelectedMarker;
@@ -377,6 +381,7 @@ public class MapActivity extends Activity implements LocationListener {
             public void onPostExecute(final PointsResponse response) {
 
                 for (Point point : response.points) {
+                    if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
                         addMarker(point);
                 }
 
@@ -410,7 +415,9 @@ public class MapActivity extends Activity implements LocationListener {
                 if (response == null)
                     return;
 
+                categoryArrayList = response.categories;
                 dbHelper.addCategories(response.categories);
+
                 pointsGet.execute();
             }
         };
@@ -883,7 +890,7 @@ public class MapActivity extends Activity implements LocationListener {
             try {
                 PointsResponse response = pointsAdd.get();
 
-                if (response.code == 0) { // FIXME: codes
+                if (response != null && response.code == 0) { // FIXME: codes
                     if (deleteUuid != null)
                         Toast.makeText(getApplicationContext(), getString(R.string.successful_edit), Toast.LENGTH_SHORT).show();
                     else {
@@ -913,13 +920,15 @@ public class MapActivity extends Activity implements LocationListener {
         }
 
         if (requestCode == Const.INTENT_RESULT_CATEGORY_ACTIONS) {
-            // TODO: points filter
-            /*
-            GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-            SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
-            Map<String,?> allEntries = sharedPreferences.getAll();
-            for (Map.Entry<String,?> entry : entry.getKey().contains(Const.PREFS_CATEGORY))
-            */
+            ArrayList<Point> points;
+            mMapView.clear();
+            for (int i = 0; i < categoryArrayList.size(); i++) {
+                if (Settings.getIsChecked(getApplicationContext(), categoryArrayList.get(i).id)) {
+                    points = dbHelper.getPoints(categoryArrayList.get(i).id);
+                    for (Point point : points)
+                        addMarker(point);
+                }
+            }
         }
 
         if (requestCode == Const.INTENT_RESULT_TOKEN) {
