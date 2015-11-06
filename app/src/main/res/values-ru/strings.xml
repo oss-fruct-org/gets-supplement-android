@@ -45,6 +45,6 @@
 
     <string name="successful_edit">Редактирование выполнено успешно</string>
     <string name="unsuccessful_edit">Редактирование не может быть выполнено</string>
-    <string name="category_actions">Управления категориями</string>
+    <string name="category_actions">Управление категориями</string>
 
 </resources>
