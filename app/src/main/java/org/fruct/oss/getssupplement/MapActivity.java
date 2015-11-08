@@ -312,28 +312,29 @@ public class MapActivity extends Activity implements LocationListener {
     private void setUpLocation() {
 
 
+        try {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+            networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+            if (gpsProvider != null) {
+                Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
+                // If gps isn't connected yet, try to obtain network location
+                if (gpsLocation == null)
+                    setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+                if (sLocation != null)
+                    return;
+            }
 
-        gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
-        networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
-
-
-        if (gpsProvider != null) {
-            Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
-            // If gps isn't connected yet, try to obtain network location
-            if (gpsLocation == null)
+            if (networkProvider != null) {
                 setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-            if (sLocation != null)
-                return;
+                if (sLocation != null)
+                    return;
+            }
         }
-
-        if (networkProvider != null) {
-            setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-            if (sLocation != null)
-                return;
+        catch (Exception e) {
+            e.printStackTrace();
         }
-
         // Set Petrozavodsk city if undefined
         sLocation = new Location("Undefined");
         sLocation.setLatitude(61.784626);
