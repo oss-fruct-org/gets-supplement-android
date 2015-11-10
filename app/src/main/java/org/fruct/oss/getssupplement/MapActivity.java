@@ -181,8 +181,8 @@ public class MapActivity extends Activity implements LocationListener {
                                     stopFollow();
                                 }
                                 if (!isLocationOn && currentProvider != null) {
-                                    isLocationOn = true;
-                                    startFollow();
+                                    if(startFollow())
+                                        isLocationOn = true;
                                 }
                             }
                         }
@@ -311,8 +311,6 @@ public class MapActivity extends Activity implements LocationListener {
 
     private void setUpLocation() {
 
-
-        try {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
             gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
@@ -331,10 +329,7 @@ public class MapActivity extends Activity implements LocationListener {
                 if (sLocation != null)
                     return;
             }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+
         // Set Petrozavodsk city if undefined
         sLocation = new Location("Undefined");
         sLocation.setLatitude(61.784626);
@@ -672,11 +667,13 @@ public class MapActivity extends Activity implements LocationListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_map, menu);
+/*
         selectAvailableProvider();
-        if(currentProvider != null) {
+        if(currentProvider != null && getLocation() != null) {
             isLocationOn = true;
             startFollow();
         }
+*/
 
         return true;
     }
@@ -690,31 +687,39 @@ public class MapActivity extends Activity implements LocationListener {
         mapOffset.cancel();
     }
 
-    private void startFollow() {
-        followingState = true;
-        if (menu.findItem(R.id.follow_location) != null)
-            menu.findItem(R.id.follow_location).getIcon().setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
+    private boolean startFollow() {
         setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
-        mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
-        locationManager.requestLocationUpdates(currentProvider.getName(), 1000, 50, this);
-        mapOffset = new Timer();
-        final Handler uiHandler = new Handler();
-        mapOffset.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        selectAvailableProvider();
-                        if(currentProvider != null) {
-                            setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
-                            mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+        if(getLocation() != null) {
+            followingState = true;
+            if (menu.findItem(R.id.follow_location) != null)
+                menu.findItem(R.id.follow_location).getIcon().setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
+            mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+            locationManager.requestLocationUpdates(currentProvider.getName(), 1000, 50, this);
+            mapOffset = new Timer();
+            final Handler uiHandler = new Handler();
+            mapOffset.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            selectAvailableProvider();
+                            if (currentProvider != null) {
+                                setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+                                if(getLocation() == null) {
+                                    stopFollow();
+                                    return;
+                                }
+                                mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+                            }
                         }
-                    }
-                });
-            }
-        }, 0L, 6L * 10);
-
+                    });
+                }
+            }, 0L, 6L * 10);
+            return true;
+        }
+        else
+            return false;
     }
 
     private void selectAvailableProvider() {
@@ -754,6 +759,7 @@ public class MapActivity extends Activity implements LocationListener {
 
         if (id == R.id.activity_map_refresh) {
             mMapView.clear();
+            setUpLocation();
             loadPoints();
         }
 
