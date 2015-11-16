@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
@@ -413,6 +414,12 @@ public class MapActivity extends Activity implements LocationListener {
 
                 categoryArrayList = response.categories;
                 dbHelper.addCategories(response.categories);
+
+                if (menu != null) {
+                    MenuItem miActions = menu.findItem(R.id.action_category_actions);
+                    if (miActions != null)
+                        miActions.setEnabled(true);
+                }
 
                 pointsGet.execute();
             }
