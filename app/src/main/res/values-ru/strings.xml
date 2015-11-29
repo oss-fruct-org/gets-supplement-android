@@ -27,6 +27,7 @@
     <string name="title_activity_category">Категории</string>
     <string name="title_activity_category_actions">Управление категориями</string>
     <string name="title_activity_login">Авторизация</string>
+    <string name="title_activity_appinfo">О программе</string>
     <string name="category">Категория: </string>
     <string name="category_description">Описание категории: </string>
     <string name="error_deleting_point">Ошибка при удалении точки</string>
@@ -47,4 +48,5 @@
     <string name="unsuccessful_edit">Редактирование не может быть выполнено</string>
     <string name="category_actions">Управление категориями</string>
 
+    <string name="app_info">Версия приложения:</string>
 </resources>

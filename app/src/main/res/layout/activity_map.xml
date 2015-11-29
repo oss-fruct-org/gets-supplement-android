@@ -41,6 +41,16 @@
             android:visibility="invisible"
             android:indeterminate="false"/>
 
+        <ImageButton
+            android:id="@+id/acitivity_map_app_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_info"
+            android:background="@null"/>
 
     </RelativeLayout>
 

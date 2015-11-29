@@ -31,6 +31,7 @@
     <string name="choose_category">Choose category</string>
     <string name="title_activity_category">Categories</string>
     <string name="title_activity_category_actions">Actions with categories</string>
+    <string name="title_activity_appinfo">About</string>
     <string name="change_view" translatable="false">Change view</string>
     <string name="rating">Rating:&#160;</string>
     <string name="cant_determine_location">Can\'t determine location</string>
@@ -56,4 +57,5 @@
     <string name="unsuccessful_edit">Editing has not been done</string>
     <string name="category_actions">Actions with categories</string>
 
+    <string name="app_info">Application version:</string>
 </resources>

@@ -223,6 +223,14 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
+        findViewById(R.id.acitivity_map_app_info).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AppInfoActivity.class);
+                startActivityForResult(intent, Const.INTENT_RESULT_APP_INFO);
+            }
+        });
+
 
         if (sLocation != null)
             mMapView.getController().setCenter(new LatLng(getLocation().getLatitude(), getLocation().getLongitude()));

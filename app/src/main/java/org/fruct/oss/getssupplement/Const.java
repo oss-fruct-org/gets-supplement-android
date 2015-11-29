@@ -67,6 +67,7 @@ public class Const {
     public static final int INTENT_RESULT_PUBLISH = 4;
     public static final int INTENT_RESULT_UNPUBLISH = 5;
     public static final int INTENT_RESULT_CATEGORY_ACTIONS = 6;
+    public static final int INTENT_RESULT_APP_INFO = 7;
 
 
 

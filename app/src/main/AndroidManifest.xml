@@ -52,6 +52,12 @@
             android:parentActivityName=".MapActivity">
         </activity>
 
+        <activity
+            android:name=".AppInfoActivity"
+            android:label="@string/title_activity_appinfo"
+            android:parentActivityName=".MapActivity">
+        </activity>
+
     </application>
 
 </manifest>
