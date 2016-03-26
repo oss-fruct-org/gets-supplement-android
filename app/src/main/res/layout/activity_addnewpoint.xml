@@ -52,6 +52,34 @@
             android:rating="2.5"
             android:layout_gravity="center"/>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:id="@+id/activity_addpoint_magnet_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true">
+            </CheckBox>
+
+            <TextView
+                android:id="@+id/activity_addpoint_magnet_text"
+                android:text="@string/activity_addpoint_magnet_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="?android:attr/listPreferredItemHeightSmall"
+                android:textAppearance="?android:attr/textAppearanceListItemSmall"
+                android:layout_toRightOf="@+id/activity_addpoint_magnet_check"
+                android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+                android:paddingLeft="?android:attr/listPreferredItemPaddingLeft">
+            </TextView>
+
+        </RelativeLayout>
+
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -87,6 +115,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_location"
             style="@style/ImageButtonNoBackgroundPadding"/>
+
 
         <LinearLayout
             android:layout_width="wrap_content"

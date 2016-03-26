@@ -58,4 +58,5 @@
     <string name="category_actions">Actions with categories</string>
 
     <string name="app_info">Application version:</string>
+    <string name="activity_addpoint_magnet_info">Activate point magnet</string>
 </resources>

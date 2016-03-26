@@ -49,4 +49,5 @@
     <string name="category_actions">Управление категориями</string>
 
     <string name="app_info">Версия приложения:</string>
+    <string name="activity_addpoint_magnet_info">Включить магнит для точек</string>
 </resources>

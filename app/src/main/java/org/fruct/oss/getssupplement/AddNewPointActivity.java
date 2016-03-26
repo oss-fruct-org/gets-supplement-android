@@ -11,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
@@ -45,9 +47,9 @@ public class AddNewPointActivity extends Activity {
     ImageButton btLocation;
     ImageButton btZoomIn;
     ImageButton btZoomOut;
-
     TextView mCategoryDescription;
-
+    CheckBox cbMagnet;
+    TextView tvMagnet;
     private MapView mMap;
 
     public Marker getChoosedLocation() {
@@ -100,6 +102,26 @@ public class AddNewPointActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mMap.zoomOut();
+            }
+        });
+
+        cbMagnet = (CheckBox) findViewById(R.id.activity_addpoint_magnet_check);
+        cbMagnet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked)
+                {
+                    Log.d(Const.TAG, "checked!");
+                    addMaker(new LatLng(61.78882177895904, 34.34953822700845));
+                }
+            }
+        });
+
+        tvMagnet = (TextView) findViewById(R.id.activity_addpoint_magnet_text);
+        tvMagnet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cbMagnet.setChecked(!cbMagnet.isChecked());
             }
         });
 
@@ -198,6 +220,10 @@ public class AddNewPointActivity extends Activity {
 
     private void addMaker(LatLng position) {
 
+        if (cbMagnet.isChecked())
+        {
+            position = new LatLng(61.78882177895904, 34.34953822700845);
+        }
         //if (getChoosedLocation() != null)
         //    setChoosedLocation(null);
         if (choosedLocation != null)

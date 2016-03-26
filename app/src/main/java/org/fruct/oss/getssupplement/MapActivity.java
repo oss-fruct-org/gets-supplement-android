@@ -385,6 +385,9 @@ public class MapActivity extends Activity implements LocationListener {
             @Override
             public void onPostExecute(final PointsResponse response) {
 
+                if (response == null) {
+                    return;
+                }
                 for (Point point : response.points) {
                     if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
                         addMarker(point);
