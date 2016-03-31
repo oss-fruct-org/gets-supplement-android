@@ -35,7 +35,7 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
     String params = "";
 
     public PointsAdd(String token, int category, String title, float rating,
-                     double latitude, double longitude, long unixTime) {
+                     double latitude, double longitude, int streetId, long unixTime) {
 
         params = "<request><params>";
         params += "<auth_token>" + token + "</auth_token>";
@@ -57,6 +57,9 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
         Date date = new Date(unixTime);
         String formatedDate = new SimpleDateFormat("dd MM yyyy HH:mm:s.000").format(date);
         params += "<time>" + formatedDate + "</time>";
+
+        if (streetId != -1)
+            params += "<extended_data><street_id>" + streetId + "</street_id></extended_data>";
 
         params += "</params></request>";
 

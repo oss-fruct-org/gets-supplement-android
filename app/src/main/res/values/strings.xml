@@ -59,4 +59,8 @@
 
     <string name="app_info">Application version:</string>
     <string name="activity_addpoint_magnet_info">Activate point magnet</string>
+
+    <string name="storage_path_sd_card">SD Card</string>
+    <string name="storage_path_external">External</string>
+    <string name="storage_path_internal">Internal</string>
 </resources>

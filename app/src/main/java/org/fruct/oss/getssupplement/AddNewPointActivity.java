@@ -2,9 +2,6 @@ package org.fruct.oss.getssupplement;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,10 +24,13 @@ import com.mapbox.mapboxsdk.overlay.MapEventsReceiver;
 import com.mapbox.mapboxsdk.overlay.Marker;
 import com.mapbox.mapboxsdk.views.MapView;
 
-import org.fruct.oss.getssupplement.Api.PointsDelete;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
-import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
+import org.fruct.oss.getssupplement.Utils.DirUtil;
+import org.fruct.oss.getssupplement.Utils.GHUtil;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by Andrey on 18.07.2015.
@@ -59,17 +59,18 @@ public class AddNewPointActivity extends Activity {
     public void setChoosedLocation(Marker _choosedLocation) { this.choosedLocation = _choosedLocation; }
 
     Marker choosedLocation = null;
-
+    GHUtil gu;
+    int closestStreetId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addnewpoint);
+
         mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
-
         rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
-
         btCategory = (Button) findViewById(R.id.activity_addpoint_category);
+
         btCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,10 +111,9 @@ public class AddNewPointActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked)
-                {
-                    Log.d(Const.TAG, "checked!");
-                    addMaker(new LatLng(61.78882177895904, 34.34953822700845));
-                }
+                    addMaker(attract(getChoosedLocation().getPoint()));
+                else
+                    closestStreetId = -1;
             }
         });
 
@@ -125,8 +125,22 @@ public class AddNewPointActivity extends Activity {
             }
         });
 
+        initGh();
         prepareMap();
     }
+
+    private void initGh() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
+                gu = new GHUtil(unpackedRootDir.getAbsolutePath());
+                Log.d(Const.TAG, "gu init");
+            }
+        });
+        t.start();
+    }
+
     private void prepareMap() {
         mMap = (MapView) findViewById(R.id.activity_addpoint_mapview);
 
@@ -221,11 +235,8 @@ public class AddNewPointActivity extends Activity {
     private void addMaker(LatLng position) {
 
         if (cbMagnet.isChecked())
-        {
-            position = new LatLng(61.78882177895904, 34.34953822700845);
-        }
-        //if (getChoosedLocation() != null)
-        //    setChoosedLocation(null);
+            position = attract(position);
+
         if (choosedLocation != null)
             choosedLocation.setPoint(position);
         else {
@@ -255,7 +266,7 @@ public class AddNewPointActivity extends Activity {
 
             LatLng markerLocation = getChoosedLocation().getPoint();
             GetsDbHelper DbHelp = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);;
-            if (!(pointName == null || pointName.equals("") || pointName.isEmpty()))
+            if (!pointName.isEmpty())
                 intent.putExtra("name", pointName);
             else {
                 String name = DbHelp.getCategoryName(getCategory());
@@ -267,6 +278,8 @@ public class AddNewPointActivity extends Activity {
             intent.putExtra("longitude", markerLocation.getLongitude());
             intent.putExtra("category", getCategory());
             intent.putExtra("rating", ratingValue);
+            intent.putExtra("streetId", closestStreetId);
+
             if (isInEdit) {
                 intent.putExtra("deleteUuid", deleteUuid);
                 intent.putExtra("deleteCategoryId", deleteCategoryId);
@@ -309,5 +322,16 @@ public class AddNewPointActivity extends Activity {
                 if (description != null) mCategoryDescription.setText(description);
                 else mCategoryDescription.setText("");
         }
+    }
+
+    private LatLng attract(LatLng point) {
+        if (gu != null) {
+            point = gu.getClosestPoint(point);
+            if (gu.getClosestStreet() != null && !gu.getClosestStreet().isEmpty() && !gu.getClosestStreet().startsWith(" "))
+                Toast.makeText(getApplicationContext(), gu.getClosestStreet(), Toast.LENGTH_SHORT).show();
+            this.closestStreetId = gu.getClosestStreetId();
+        }
+        return point;
+
     }
 }

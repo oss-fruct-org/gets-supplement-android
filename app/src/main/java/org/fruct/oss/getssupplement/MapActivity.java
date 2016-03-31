@@ -8,7 +8,6 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,35 +15,28 @@ import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.os.Handler;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.api.ILatLng;
-import com.mapbox.mapboxsdk.events.MapListener;
-import com.mapbox.mapboxsdk.events.RotateEvent;
-import com.mapbox.mapboxsdk.events.ScrollEvent;
-import com.mapbox.mapboxsdk.events.ZoomEvent;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.overlay.Icon;
 import com.mapbox.mapboxsdk.overlay.Marker;
-import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.MapViewListener;
-import com.vividsolutions.jts.geom.CoordinateList;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
@@ -60,14 +52,15 @@ import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
+import org.fruct.oss.getssupplement.Utils.DirUtil;
+import org.fruct.oss.getssupplement.Utils.GHUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.LogRecord;
 
 public class MapActivity extends Activity implements LocationListener {
 
@@ -137,6 +130,32 @@ public class MapActivity extends Activity implements LocationListener {
         followingState = false;
 
         dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+
+        String dataPath = Settings.getStorageDir(getApplicationContext());
+        if (dataPath == null) {
+            DirUtil.StorageDirDesc[] contentPaths = DirUtil.getPrivateStorageDirs(this);
+            dataPath = contentPaths[0].path;
+            Settings.saveString(getApplicationContext(), Const.PREF_STORAGE_PATH, dataPath);
+        }
+        File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
+        if (!unpackedRootDir.exists())
+            unpackedRootDir.mkdir();
+        if (!new File(dataPath, "karel.osm.pbf.ghz").exists()) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        GHUtil.downloadGHMap("http://gets.cs.petrsu.ru/maps/data/karel.osm.pbf.ghz", "karel.osm.pbf.ghz", getApplicationContext());
+                        DirUtil.unzipInStorage(getApplicationContext(), "karel.osm.pbf.ghz");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            t.start();
+        }
+        else DirUtil.unzipInStorage(getApplicationContext(), "karel.osm.pbf.ghz");
+
 
         setUpLocation();
 
@@ -238,41 +257,6 @@ public class MapActivity extends Activity implements LocationListener {
             mMapView.getController().setZoom(3);
 
         hideBottomPanel();
-
-        // TODO: upgrade cache algorithm
-        /*
-        mMapView.addListener(new MapListener() {
-            @Override
-            public void onScroll(ScrollEvent scrollEvent) {
-                Log.d(Const.TAG, "" + (double)getLoadCenter().distanceTo(mMapView.getCenter()) / 1000);
-                if ((double) getLoadCenter().distanceTo(mMapView.getCenter()) / 1000 > 1.0) {
-                    setLoadCenter(mMapView.getCenter());
-                    ArrayList<Point> points;
-                    GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-                    points = dbHelper.getPoints(Const.ALL_CATEGORIES, mMapView.getCenter());
-                    mMapView.clear();
-
-                    if (points != null){
-                        for (Point point : points) {
-                            if ((double) mMapView.getCenter().distanceTo(new LatLng(point.latitude, point.longitude)) / 1000 < 2.0 ||
-                                   (double) getLoadCenter().distanceTo(new LatLng(point.latitude, point.longitude)) / 1000 < 2.0)
-                                addMarker(point);
-                        }
-
-                    }
-                }
-            }
-
-            @Override
-            public void onZoom(ZoomEvent zoomEvent) {
-
-            }
-
-            @Override
-            public void onRotate(RotateEvent rotateEvent) {
-            }
-        });
-        */
 
         mMapView.setMapViewListener(new MapViewListener() {
             @Override
@@ -457,9 +441,10 @@ public class MapActivity extends Activity implements LocationListener {
                 } else {
                     Log.d(Const.TAG, "Is trusted user: " + userInfoResponse.isTrustedUser);
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, true);
-
-                    MenuItem menuItem = menu.findItem(R.id.action_category_actions);
-                    menuItem.setVisible(true);
+                    if (menu != null) {
+                        MenuItem menuItem = menu.findItem(R.id.action_category_actions);
+                        menuItem.setVisible(true);
+                    }
                 }
             }
         };
@@ -848,6 +833,7 @@ public class MapActivity extends Activity implements LocationListener {
             double latitude = data.getDoubleExtra("latitude", 0);
             double longitude = data.getDoubleExtra("longitude", 0);
             int pointCategory = data.getIntExtra("category", 0);
+            int streetId = data.getIntExtra("streetId", -1);
 
             final String deleteUuid = data.getStringExtra("deleteUuid");
             final int deleteCategoryId = data.getIntExtra("deleteCategoryId", 0);
@@ -879,6 +865,7 @@ public class MapActivity extends Activity implements LocationListener {
                     rating,
                     latitude,
                     longitude,
+                    streetId,
                     System.currentTimeMillis()
             );
 

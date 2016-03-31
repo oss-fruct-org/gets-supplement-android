@@ -50,4 +50,8 @@
 
     <string name="app_info">Версия приложения:</string>
     <string name="activity_addpoint_magnet_info">Включить магнит для точек</string>
+
+    <string name="storage_path_external">Внешнее</string>
+    <string name="storage_path_internal">Внутреннее</string>
+    <string name="storage_path_sd_card">SD-Карта</string>
 </resources>

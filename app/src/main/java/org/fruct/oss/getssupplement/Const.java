@@ -41,6 +41,7 @@ public class Const {
     public static final String PREFS_AUTH_TOKEN = "auth_token";
     public static final String PREFS_IS_TRUSTED_USER = "is_trusted_user";
     public static final String PREFS_CATEGORY = "category_";
+    public static final String PREF_STORAGE_PATH = "pref_storage_path";
     /**
      * Database
      */
