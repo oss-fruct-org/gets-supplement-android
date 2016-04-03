@@ -9,15 +9,22 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'org.fruct.oss.getssupplement'
+            keyPassword '4815162342'
+            storeFile file('C:/Users/Andrey/Desktop/android_release.keystore')
+            storePassword 'petrsu'
+        }
+    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
-
     defaultConfig {
         applicationId "org.fruct.oss.getssupplement"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 14
-        versionName "2.3.2"
+        versionCode 15
+        versionName "2.3.3"
     }
     buildTypes {
         release {
@@ -28,17 +35,15 @@ android {
 }
 
 dependencies {
-    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar') {transitive=true}
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar') { transitive = true }
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'org.osmdroid:osmdroid-android:5.1@aar'
-
-    compile(group: 'com.graphhopper', name: 'graphhopper', version: '0.4.1') {
+    compile('com.graphhopper:graphhopper:0.4.1') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
         exclude group: 'org.openstreetmap.osmosis', module: 'osmosis-osm-binary'
         exclude group: 'org.apache.xmlgraphics', module: 'xmlgraphics-commons'
     }
-
-    compile group: 'org.slf4j', name: 'slf4j-android', version: '1.7.12'
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+    compile 'org.slf4j:slf4j-android:1.7.12'
+    compile 'org.slf4j:slf4j-api:1.7.12'
 }
