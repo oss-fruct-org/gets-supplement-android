@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
@@ -17,8 +16,6 @@ import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.os.Handler;
@@ -55,25 +52,16 @@ import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 import org.fruct.oss.getssupplement.Utils.DirUtil;
-import org.fruct.oss.getssupplement.Utils.DownloadTask;
+import org.fruct.oss.getssupplement.Utils.DownloadGraphTask;
+import org.fruct.oss.getssupplement.Utils.DownloadXmlTask;
 import org.fruct.oss.getssupplement.Utils.GHUtil;
 import org.fruct.oss.getssupplement.Utils.XmlUtil;
-import org.w3c.dom.Document;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.security.spec.ECField;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 public class MapActivity extends Activity implements LocationListener {
 
@@ -215,7 +203,7 @@ public class MapActivity extends Activity implements LocationListener {
         if (!unpackedRootDir.exists())
             unpackedRootDir.mkdir();
 
-        DownloadTask downloadTask = new DownloadTask(Const.URL_ROOT_XML) {
+        DownloadXmlTask downloadXmlTask = new DownloadXmlTask(Const.URL_ROOT_XML) {
             @Override
             protected void onPostExecute(String response) {
                 if (response != null) {
@@ -237,24 +225,24 @@ public class MapActivity extends Activity implements LocationListener {
                                 .setCancelable(false)
                                 .setPositiveButton(R.string.text_download_positive,
                                         new DialogInterface.OnClickListener() {
+
                                             public void onClick(DialogInterface dialog, int id) {
                                                 Toast.makeText(getApplicationContext(), R.string.toast_download_start, Toast.LENGTH_SHORT).show();
-                                                new Thread(new Runnable() {
+                                                DownloadGraphTask downloadGraphTask = new DownloadGraphTask(url, fileName, getApplicationContext()) {
                                                     @Override
-                                                    public void run() {
-                                                        try {
-                                                            GHUtil.downloadGHMap(url, fileName, getApplicationContext());
-                                                            DirUtil.unzipInStorage(getApplicationContext(), fileName);
+                                                    protected void onPostExecute(Boolean success) {
+                                                        if (success) {
                                                             Toast.makeText(getApplicationContext(), R.string.toast_download_success, Toast.LENGTH_SHORT).show();
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
+                                                            Settings.saveMapHash(getApplicationContext(), newHash);
                                                         }
+                                                        else Toast.makeText(getApplicationContext(), R.string.toast_download_error, Toast.LENGTH_SHORT).show();
                                                     }
-                                                }).start();
+                                                };
+                                                downloadGraphTask.execute();
 
-                                                Settings.saveMapHash(getApplicationContext(), newHash);
                                                 dialog.cancel();
                                             }
+
                                         })
                                 .setNegativeButton(R.string.text_download_negative,
                                         new DialogInterface.OnClickListener() {
@@ -272,7 +260,7 @@ public class MapActivity extends Activity implements LocationListener {
                 }
             }
         };
-        downloadTask.execute();
+        downloadXmlTask.execute();
     }
 
 

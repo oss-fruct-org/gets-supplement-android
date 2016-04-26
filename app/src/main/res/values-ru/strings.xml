@@ -58,6 +58,6 @@
     <string name="text_download_positive">Загрузить</string>
     <string name="text_download_message">Доступно обновление графа дорог</string>
     <string name="toast_download_start">Идет загрузка графа дорог</string>
-    <string name="toast_unzip_error">Произошла ошибка при установке обновления графа дорог</string>
-    <string name="toast_download_success">Граф дорог загужен</string>
+    <string name="toast_download_error">Произошла ошибка при установке обновления графа дорог</string>
+    <string name="toast_download_success">Граф дорог загружен</string>
 </resources>

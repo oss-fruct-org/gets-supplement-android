@@ -66,7 +66,6 @@ public class DirUtil {
         }
         catch (Exception e)
         {
-            Toast.makeText(context, R.string.toast_unzip_error, Toast.LENGTH_SHORT).show();
             Log.d(Const.TAG, e.toString());
         }
     }

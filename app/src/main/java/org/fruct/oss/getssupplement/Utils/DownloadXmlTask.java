@@ -13,14 +13,14 @@ import java.net.URL;
 /**
  * Created by Andrey on 21.04.2016.
  */
-public class DownloadTask extends AsyncTask<String, Void, String> {
+public class DownloadXmlTask extends AsyncTask<Void, Void, String> {
     private String url;
-    public DownloadTask(String url) {
+    public DownloadXmlTask(String url) {
         this.url = url;
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    protected String doInBackground(Void... params) {
 
         URL link = null;
         String response = null;
