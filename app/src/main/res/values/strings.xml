@@ -66,4 +66,7 @@
     <string name="text_download_negative">Don\'t load</string>
     <string name="text_download_positive">Yes, load it</string>
     <string name="text_download_message">Road graph update is available</string>
+    <string name="toast_download_start">Graph is loading</string>
+    <string name="toast_download_error">There is an error during the graph loading</string>
+    <string name="toast_download_success">Graph has been loaded successfully</string>
 </resources>

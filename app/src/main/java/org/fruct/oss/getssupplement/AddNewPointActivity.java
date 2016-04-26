@@ -109,8 +109,9 @@ public class AddNewPointActivity extends Activity {
         cbMagnet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (gu.getGH() == null) {
+                if (gu == null || gu.getGH() == null) {
                     cbMagnet.setChecked(false);
+                    return;
                 }
                 if (isChecked)
                     addMaker(attract(getChoosedLocation().getPoint()));
@@ -324,7 +325,7 @@ public class AddNewPointActivity extends Activity {
     }
 
     private LatLng attract(LatLng point) {
-        if (gu.getGH() != null) {
+        if (gu != null || gu.getGH() != null) {
             point = gu.getClosestPoint(point);
             if (gu.getClosestStreet() != null && !gu.getClosestStreet().isEmpty() && !gu.getClosestStreet().startsWith(" "))
                 Toast.makeText(getApplicationContext(), gu.getClosestStreet(), Toast.LENGTH_SHORT).show();
