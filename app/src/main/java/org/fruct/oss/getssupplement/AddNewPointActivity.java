@@ -110,6 +110,9 @@ public class AddNewPointActivity extends Activity {
         cbMagnet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (gu.getGH() == null) {
+                    cbMagnet.setChecked(false);
+                }
                 if (isChecked)
                     addMaker(attract(getChoosedLocation().getPoint()));
                 else
@@ -130,15 +133,13 @@ public class AddNewPointActivity extends Activity {
     }
 
     private void initGh() {
-        Thread t = new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
                 gu = new GHUtil(unpackedRootDir.getAbsolutePath());
-                Log.d(Const.TAG, "gu init");
             }
-        });
-        t.start();
+        }).start();
     }
 
     private void prepareMap() {
@@ -325,7 +326,7 @@ public class AddNewPointActivity extends Activity {
     }
 
     private LatLng attract(LatLng point) {
-        if (gu != null) {
+        if (gu.getGH() != null) {
             point = gu.getClosestPoint(point);
             if (gu.getClosestStreet() != null && !gu.getClosestStreet().isEmpty() && !gu.getClosestStreet().startsWith(" "))
                 Toast.makeText(getApplicationContext(), gu.getClosestStreet(), Toast.LENGTH_SHORT).show();

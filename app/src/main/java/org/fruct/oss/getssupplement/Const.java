@@ -24,7 +24,7 @@ public class Const {
     public static final String URL_POINTS_ADD = GETS_SERVER_PREFIX + "addPoint.php";
     public static final String URL_POINTS_UPDATE = GETS_SERVER_PREFIX + "updatePoint.php";
     public static final String URL_POINTS_DELETE = GETS_SERVER_PREFIX + "deletePoint.php";
-
+    public static final String URL_ROOT_XML = "http://gets.cs.petrsu.ru/maps/root/root.xml";
 
     public static final String URL_CATEGORIES_GET = GETS_SERVER_PREFIX + "getCategories.php";
     public static final String URL_CATEGORIES_ADD = GETS_SERVER_PREFIX + "addCategory.php";
@@ -42,6 +42,7 @@ public class Const {
     public static final String PREFS_IS_TRUSTED_USER = "is_trusted_user";
     public static final String PREFS_CATEGORY = "category_";
     public static final String PREF_STORAGE_PATH = "pref_storage_path";
+    public static final String PREFS_MAP_HASH = "pref_map_hash";
     /**
      * Database
      */
@@ -81,4 +82,8 @@ public class Const {
      */
     public static final boolean SERVICE_ACTIONS = true;
     public static final boolean SERVICE_NOT_ACTIONS = false;
+
+    public static final String TYPE_GRAPHOPPER = "graphhopper-map";
+    public static final String ID_REGION_KARELIA = "70015d77052905b9c495229209117fb6d969a507";
+
 }

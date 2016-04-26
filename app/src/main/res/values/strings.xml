@@ -63,4 +63,7 @@
     <string name="storage_path_sd_card">SD Card</string>
     <string name="storage_path_external">External</string>
     <string name="storage_path_internal">Internal</string>
+    <string name="text_download_negative">Don\'t load</string>
+    <string name="text_download_positive">Yes, load it</string>
+    <string name="text_download_message">Road graph update is available</string>
 </resources>

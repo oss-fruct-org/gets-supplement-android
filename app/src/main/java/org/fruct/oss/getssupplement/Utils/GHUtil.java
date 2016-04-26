@@ -3,6 +3,7 @@ package org.fruct.oss.getssupplement.Utils;
 import android.content.Context;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.BikeFlagEncoder;
@@ -17,6 +18,7 @@ import com.graphhopper.util.PointList;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.R;
 import org.fruct.oss.getssupplement.Settings;
 
 import java.io.BufferedInputStream;
@@ -54,7 +56,7 @@ public class GHUtil {
         }}, 8));
         gh.setCHEnable(false);
         if(!gh.load(path)) {
-            Log.d(Const.TAG, "Couldn't load graph");
+            gh = null;
         }
         this.gh = gh;
     }
@@ -99,8 +101,9 @@ public class GHUtil {
         return closestStreetId;
     }
 
-    public static void downloadGHMap(String url, String name, Context context) throws IOException {
+    public GraphHopper getGH() { return gh; }
 
+    public static void downloadGHMap(String url, String name, Context context) throws IOException {
 
         String fileName = Settings.getStorageDir(context) + "/" + name;
         URL link = new URL(url);

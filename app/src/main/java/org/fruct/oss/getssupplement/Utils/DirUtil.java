@@ -3,6 +3,7 @@ package org.fruct.oss.getssupplement.Utils;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.R;
@@ -65,6 +66,7 @@ public class DirUtil {
         }
         catch (Exception e)
         {
+            Toast.makeText(context, R.string.toast_unzip_error, Toast.LENGTH_SHORT).show();
             Log.d(Const.TAG, e.toString());
         }
     }

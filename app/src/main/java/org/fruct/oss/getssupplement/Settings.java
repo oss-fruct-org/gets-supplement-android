@@ -25,6 +25,12 @@ public class Settings {
         editor.apply();
     }
 
+    public static void saveMapHash(Context context, String hash) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(Const.PREFS_MAP_HASH, 0).edit();
+        editor.putString(Const.PREFS_MAP_HASH, hash);
+        editor.apply();
+    }
+
     public static String getToken(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME, 0);
         return sharedPreferences.getString(Const.PREFS_AUTH_TOKEN, null);
@@ -43,5 +49,10 @@ public class Settings {
     public static boolean getIsChecked(Context context, int categoryId) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_NAME_CATEGORIES_CHECKED, 0);
         return sharedPreferences.getBoolean(Integer.toString(categoryId), true);
+    }
+
+    public static String getMapHash(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Const.PREFS_MAP_HASH, 0);
+        return sharedPreferences.getString(Const.PREFS_MAP_HASH, null);
     }
 }

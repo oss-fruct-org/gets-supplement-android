@@ -1,7 +1,9 @@
 package org.fruct.oss.getssupplement;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.ColorMatrix;
@@ -53,14 +55,25 @@ import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 import org.fruct.oss.getssupplement.Utils.DirUtil;
+import org.fruct.oss.getssupplement.Utils.DownloadTask;
 import org.fruct.oss.getssupplement.Utils.GHUtil;
+import org.fruct.oss.getssupplement.Utils.XmlUtil;
+import org.w3c.dom.Document;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.spec.ECField;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class MapActivity extends Activity implements LocationListener {
 
@@ -131,30 +144,7 @@ public class MapActivity extends Activity implements LocationListener {
 
         dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
 
-        String dataPath = Settings.getStorageDir(getApplicationContext());
-        if (dataPath == null) {
-            DirUtil.StorageDirDesc[] contentPaths = DirUtil.getPrivateStorageDirs(this);
-            dataPath = contentPaths[0].path;
-            Settings.saveString(getApplicationContext(), Const.PREF_STORAGE_PATH, dataPath);
-        }
-        File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
-        if (!unpackedRootDir.exists())
-            unpackedRootDir.mkdir();
-        if (!new File(dataPath, "karel.osm.pbf.ghz").exists()) {
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        GHUtil.downloadGHMap("http://gets.cs.petrsu.ru/maps/data/karel.osm.pbf.ghz", "karel.osm.pbf.ghz", getApplicationContext());
-                        DirUtil.unzipInStorage(getApplicationContext(), "karel.osm.pbf.ghz");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            t.start();
-        }
-        else DirUtil.unzipInStorage(getApplicationContext(), "karel.osm.pbf.ghz");
+        checkGraphUpdate();
 
 
         setUpLocation();
@@ -201,7 +191,7 @@ public class MapActivity extends Activity implements LocationListener {
                                     stopFollow();
                                 }
                                 if (!isLocationOn && currentProvider != null) {
-                                    if(startFollow())
+                                    if (startFollow())
                                         isLocationOn = true;
                                 }
                             }
@@ -210,6 +200,79 @@ public class MapActivity extends Activity implements LocationListener {
                 }
             }, 100, 6L * 10);
         }
+    }
+
+    private void checkGraphUpdate() {
+        String dataPath = Settings.getStorageDir(getApplicationContext());
+
+        if (dataPath == null) {
+            DirUtil.StorageDirDesc[] contentPaths = DirUtil.getPrivateStorageDirs(this);
+            dataPath = contentPaths[0].path;
+            Settings.saveString(getApplicationContext(), Const.PREF_STORAGE_PATH, dataPath);
+        }
+
+        File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
+        if (!unpackedRootDir.exists())
+            unpackedRootDir.mkdir();
+
+        DownloadTask downloadTask = new DownloadTask(Const.URL_ROOT_XML) {
+            @Override
+            protected void onPostExecute(String response) {
+                if (response != null) {
+                    XmlUtil xml = new XmlUtil(response);
+                    final String newHash = xml.getHashByRegionId(Const.ID_REGION_KARELIA);
+                    final String oldHash = Settings.getMapHash(getApplicationContext());
+                    final String fileName = xml.getFileNameByRegionId(Const.ID_REGION_KARELIA);
+                    final String url = xml.getUrlByRegionId(Const.ID_REGION_KARELIA);
+
+                    if (newHash == null)
+                        return;
+
+                    if (oldHash == null || !oldHash.equals(newHash) || !new File(Settings.getStorageDir(getApplicationContext()),
+                            fileName).exists()) {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                        builder
+                                .setMessage(R.string.text_download_message)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.text_download_positive,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                Toast.makeText(getApplicationContext(), R.string.toast_download_start, Toast.LENGTH_SHORT).show();
+                                                new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            GHUtil.downloadGHMap(url, fileName, getApplicationContext());
+                                                            DirUtil.unzipInStorage(getApplicationContext(), fileName);
+                                                            Toast.makeText(getApplicationContext(), R.string.toast_download_success, Toast.LENGTH_SHORT).show();
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                }).start();
+
+                                                Settings.saveMapHash(getApplicationContext(), newHash);
+                                                dialog.cancel();
+                                            }
+                                        })
+                                .setNegativeButton(R.string.text_download_negative,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                dialog.cancel();
+                                            }
+                                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                    // If ghz-file exists but not unpacked
+                    else if (new File(Settings.getStorageDir(getApplicationContext()), fileName).exists())
+                        DirUtil.unzipInStorage(getApplicationContext(), fileName);
+
+                }
+            }
+        };
+        downloadTask.execute();
     }
 
 
