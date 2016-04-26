@@ -3,7 +3,6 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -284,7 +283,6 @@ public class AddNewPointActivity extends Activity {
             if (isInEdit) {
                 intent.putExtra("deleteUuid", deleteUuid);
                 intent.putExtra("deleteCategoryId", deleteCategoryId);
-                Log.d(Const.TAG, "extra: " + deleteUuid);
             }
 
             setResult(Const.INTENT_RESULT_CODE_OK, intent);

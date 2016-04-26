@@ -2,7 +2,6 @@ package org.fruct.oss.getssupplement.Utils;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.PointXY;
 
 /**

@@ -1,7 +1,6 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -81,7 +80,6 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
             httppost.setHeader("Content-Type", "application/xml");
 
             String postData = this.params;
-            Log.d(Const.TAG, "PointsAdd postData: " + postData);
 
             httppost.setEntity(new StringEntity(postData, HTTP.UTF_8));
             HttpResponse response = httpclient.execute(httppost);
@@ -90,7 +88,6 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
 
             // Parse
             String strResponse = EntityUtils.toString(responseEntity);
-            Log.d(Const.TAG, "PointsAdd response: " + strResponse);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -163,11 +160,10 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
                         point.longitude = Float.parseFloat(coordinates.split(",")[0]);
                         point.latitude = Float.parseFloat(coordinates.split(",")[1]);
 
-                        Log.d(Const.TAG, "point add: " + point.uuid);
                         list.add(point);
 
                     } catch (Exception e) {
-                        Log.d(Const.TAG + "xml", "Error parsing XML " + e.toString());
+                        e.printStackTrace();
                     }
 
                     //Log.d(Const.TAG, point.id + "login response " + point.name + " " + point.url);

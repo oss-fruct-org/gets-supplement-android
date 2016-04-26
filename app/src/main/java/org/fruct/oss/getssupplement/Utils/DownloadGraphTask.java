@@ -2,9 +2,6 @@ package org.fruct.oss.getssupplement.Utils;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
-
-import org.fruct.oss.getssupplement.R;
 
 /**
  * Created by Andrey on 27.04.2016.

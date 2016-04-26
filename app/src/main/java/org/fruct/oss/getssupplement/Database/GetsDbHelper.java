@@ -5,9 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.Model.Category;
@@ -128,7 +125,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor = db.query(true, Const.DB_INTERNAL_CATEGORIES, null, null, null, null, null, null, null);
-        Log.d(Const.TAG, "Db categories cursor count:" + cursor.getCount());
 
 
         if (cursor.moveToFirst()) {
@@ -237,7 +233,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         else
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
 
-        Log.d(Const.TAG, "count " + cursor.getCount());
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");
             int indexCategoryId = cursor.getColumnIndex("categoryId");
@@ -267,7 +262,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                 point.uuid = cursor.getString(indexUuid);
 
                 list.add(point);
-                Log.d(Const.TAG, point.categoryId+" " + point.name);
             } while (cursor.moveToNext());
 
             cursor.close();

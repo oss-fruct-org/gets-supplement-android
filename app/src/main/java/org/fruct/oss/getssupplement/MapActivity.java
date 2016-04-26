@@ -16,7 +16,6 @@ import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -54,7 +53,6 @@ import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 import org.fruct.oss.getssupplement.Utils.DirUtil;
 import org.fruct.oss.getssupplement.Utils.DownloadGraphTask;
 import org.fruct.oss.getssupplement.Utils.DownloadXmlTask;
-import org.fruct.oss.getssupplement.Utils.GHUtil;
 import org.fruct.oss.getssupplement.Utils.XmlUtil;
 
 import java.io.File;
@@ -161,7 +159,6 @@ public class MapActivity extends Activity implements LocationListener {
                 return;
             }
         } else {
-            Log.d(Const.TAG, "Authorized, downloading categories");
             checkUserStatus();
             loadPoints();
             Timer collisionTimer = new Timer();
@@ -329,7 +326,6 @@ public class MapActivity extends Activity implements LocationListener {
                 ibBottomPanelEdit.setVisibility(View.INVISIBLE);
                 marker.getToolTip(mapView).getView().setVisibility(View.GONE);
                 Point point = (Point) marker.getRelatedObject();
-                Log.d(Const.TAG, "Marker clicked: " + point.name);
 
                 setBottomPanelData(point); // TODO: description
 
@@ -407,7 +403,6 @@ public class MapActivity extends Activity implements LocationListener {
     private void loadPoints() {
 
         if (getLocation() == null) {
-            Log.e(Const.TAG, "Locations is null");
             return;
         }
 
@@ -487,10 +482,8 @@ public class MapActivity extends Activity implements LocationListener {
 
                 // Save user status
                 if (userInfoResponse == null) {
-                    Log.d(Const.TAG, "userInfoResponse == null");
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
                 } else {
-                    Log.d(Const.TAG, "Is trusted user: " + userInfoResponse.isTrustedUser);
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, true);
                     if (menu != null) {
                         MenuItem menuItem = menu.findItem(R.id.action_category_actions);
@@ -574,8 +567,6 @@ public class MapActivity extends Activity implements LocationListener {
         // TODO: browsing arrows
         // ivBottomPanelArrowRight.setVisibility(View.VISIBLE);
 
-        Log.d(Const.TAG + " marker clicked ", point.name + " " + point.description);
-
         ibBottomPanelDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -606,7 +597,6 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
-        Log.d(Const.TAG, point.uuid + "  = uuid");
         if (!isBottomPanelShowed())
             showBottomPanel();
 
@@ -960,7 +950,6 @@ public class MapActivity extends Activity implements LocationListener {
                         Toast.makeText(getApplicationContext(), getString(R.string.successuflly_sent), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Log.d(Const.TAG, "Points adding error, response code: " + response.code);
                     return;
                 }
                 try {

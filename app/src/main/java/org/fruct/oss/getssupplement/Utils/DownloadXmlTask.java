@@ -1,9 +1,6 @@
 package org.fruct.oss.getssupplement.Utils;
 
 import android.os.AsyncTask;
-import android.util.Log;
-
-import org.fruct.oss.getssupplement.Settings;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

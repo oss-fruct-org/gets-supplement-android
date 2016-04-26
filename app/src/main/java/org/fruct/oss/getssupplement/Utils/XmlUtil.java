@@ -1,17 +1,12 @@
 package org.fruct.oss.getssupplement.Utils;
 
-import android.util.Log;
-import android.util.Xml;
-
 import org.fruct.oss.getssupplement.Const;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

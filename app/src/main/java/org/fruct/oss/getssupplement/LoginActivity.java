@@ -3,7 +3,6 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -51,12 +50,9 @@ public class LoginActivity extends Activity {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
-            Log.d(Const.TAG, url + " ");
-
             AuthStepTwo authStepTwo = new AuthStepTwo(getResponseId()) {
                 @Override
                 public void onPostExecute(LoginResponse loginResponse) {
-                    Log.d(Const.TAG, "Login response: " + loginResponse);
                     if (loginResponse == null) {
                         Toast.makeText(getApplicationContext(), getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
@@ -65,7 +61,6 @@ public class LoginActivity extends Activity {
                     }
 
                     // Save token
-                    Log.d(Const.TAG, "Login response token: " + loginResponse.token);
                     Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, loginResponse.token);
                     // Close activity after obtaining token
                     Intent intent = new Intent();

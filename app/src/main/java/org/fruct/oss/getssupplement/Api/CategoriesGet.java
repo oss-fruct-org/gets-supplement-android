@@ -3,7 +3,6 @@ package org.fruct.oss.getssupplement.Api;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -105,11 +104,6 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
                         IconHolder.getInstance().addBitmap(category.id, downloadBitmap(category.urlIcon));
                     }
 
-                    Log.d(Const.TAG, category.description + " " + category.id);
-
-                    //Log.d(Const.TAG, category.id + "login response " + category.name);
-
-
                     list.add(category);
                 }
             }
@@ -160,7 +154,6 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
             InputStream in = new java.net.URL(url).openStream();
             mIcon11 = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-            Log.e("Error", e.getMessage());
             e.printStackTrace();
         }
 

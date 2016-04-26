@@ -1,14 +1,7 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.util.Log;
-
-import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.overlay.Icon;
-import com.mapbox.mapboxsdk.overlay.Marker;
-import com.mapbox.mapboxsdk.views.MapView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,9 +10,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.fruct.oss.getssupplement.Database.GetsDbHelper;
-import org.fruct.oss.getssupplement.IconHolder;
-import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -89,7 +79,6 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
             postData += "<radius>" + radius + "</radius>";
 
             postData += "</params></request>";
-            Log.d(Const.TAG, postData + " ");
 
 
             httppost.setEntity(new StringEntity(postData));
@@ -178,7 +167,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                         list.add(point);
 
                     } catch (Exception e) {
-                        Log.d(Const.TAG + "xml", "Error parsing XML " + e.toString());
+                        e.printStackTrace();
                     }
 
                     //Log.d(Const.TAG, point.id + "login response " + point.name + " " + point.url);

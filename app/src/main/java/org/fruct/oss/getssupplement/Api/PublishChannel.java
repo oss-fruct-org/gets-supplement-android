@@ -1,7 +1,6 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -58,8 +57,6 @@ public class PublishChannel extends AsyncTask<String, String, BasicResponse> {
 
             String postData = this.params;
 
-            Log.d(Const.TAG, "PublishChannel postData: " + postData);
-
             httppost.setEntity(new StringEntity(postData));
             HttpResponse response = httpclient.execute(httppost);
 
@@ -67,7 +64,6 @@ public class PublishChannel extends AsyncTask<String, String, BasicResponse> {
 
             // Parse
             String strResponse = EntityUtils.toString(responseEntity);
-            Log.d(Const.TAG, "PublishChannel response: " + strResponse);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

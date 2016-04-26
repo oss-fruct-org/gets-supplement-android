@@ -1,9 +1,6 @@
 package org.fruct.oss.getssupplement.Utils;
 
 import android.content.Context;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.BikeFlagEncoder;
@@ -17,8 +14,6 @@ import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.PointList;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import org.fruct.oss.getssupplement.Const;
-import org.fruct.oss.getssupplement.R;
 import org.fruct.oss.getssupplement.Settings;
 
 import java.io.BufferedInputStream;
@@ -26,12 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 
 /**

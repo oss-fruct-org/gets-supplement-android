@@ -1,7 +1,6 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -48,7 +47,6 @@ public class UserInfoGet extends AsyncTask<String, String, UserInfoResponse> {
             HttpPost httppost = new HttpPost(Const.URL_INFO);
 
             String postData = "<request><params><auth_token>" + token + "</auth_token></params></request>";
-            Log.d(Const.TAG, "UserInfoGet token data: " + postData);
 
             httppost.setEntity(new StringEntity(postData));
             HttpResponse response = httpclient.execute(httppost);

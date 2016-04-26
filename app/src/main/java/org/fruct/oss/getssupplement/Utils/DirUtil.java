@@ -2,8 +2,6 @@ package org.fruct.oss.getssupplement.Utils;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
 import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.R;
@@ -16,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -48,9 +45,7 @@ public class DirUtil {
                 }
             }
 
-            Log.d(Const.TAG, "Zip archive successfully extracted");
         } catch (IOException e) {
-            Log.d(Const.TAG, "Can't extract archive");
             throw e;
         } finally {
             Utils.silentClose(zipInputStream);
@@ -66,7 +61,7 @@ public class DirUtil {
         }
         catch (Exception e)
         {
-            Log.d(Const.TAG, e.toString());
+            e.printStackTrace();
         }
     }
     public static String[] getSecondaryDirs() {

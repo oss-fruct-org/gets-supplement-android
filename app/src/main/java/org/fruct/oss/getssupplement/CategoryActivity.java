@@ -3,7 +3,6 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -52,8 +51,6 @@ public class CategoryActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Category category = categories.get(position);
-
-                Log.d(Const.TAG, "Clicked category: " + category.name);
 
                 Intent i = new Intent();
                 i.putExtra("name", category.name);
