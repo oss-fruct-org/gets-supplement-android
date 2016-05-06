@@ -9,20 +9,13 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        config {
-            keyAlias 'org.fruct.oss.getssupplement'
-            keyPassword '4815162342'
-            storeFile file('C:/Users/Andrey/Desktop/android_release.keystore')
-            storePassword 'petrsu'
-        }
-    }
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+    useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "org.fruct.oss.getssupplement"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 16
         versionName "2.3.4"
     }
@@ -36,8 +29,8 @@ android {
 
 dependencies {
     compile('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar') { transitive = true }
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'org.osmdroid:osmdroid-android:5.1@aar'
     compile('com.graphhopper:graphhopper:0.4.1') {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
