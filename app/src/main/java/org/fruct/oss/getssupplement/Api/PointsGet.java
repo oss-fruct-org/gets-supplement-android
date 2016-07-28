@@ -25,7 +25,7 @@ import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 
-public class PointsGet extends AsyncTask<String, String, PointsResponse> {
+public class PointsGet extends AsyncTask<String, Point, PointsResponse> {
 
     private String authToken;
     private double latitude;
@@ -165,6 +165,7 @@ public class PointsGet extends AsyncTask<String, String, PointsResponse> {
                         point.latitude = Float.parseFloat(coordinates.split(",")[1]);
 
                         list.add(point);
+                        publishProgress(point);
 
                     } catch (Exception e) {
                         e.printStackTrace();

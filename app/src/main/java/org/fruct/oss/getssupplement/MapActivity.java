@@ -419,16 +419,18 @@ public class MapActivity extends Activity implements LocationListener {
 
         final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
                 getLocation().getLatitude(), getLocation().getLongitude(), Const.API_POINTS_RADIUS) {
+            @Override
+            protected void onProgressUpdate(Point... point) {
+                super.onProgressUpdate(point);
+                if (Settings.getIsChecked(getApplicationContext(), point[0].categoryId))
+                    addMarker(point[0]);
+            }
 
             @Override
             public void onPostExecute(final PointsResponse response) {
 
                 if (response == null) {
                     return;
-                }
-                for (Point point : response.points) {
-                    if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
-                        addMarker(point);
                 }
 
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
