@@ -67,7 +67,7 @@ public class MapActivity extends Activity implements LocationListener {
 
     private Menu menu;
 
-    public MapView mMapView;
+    private MapView mMapView;
 
     public static Location getLocation() {
         return sLocation;
@@ -95,7 +95,7 @@ public class MapActivity extends Activity implements LocationListener {
 
     private boolean isLocationOn = false;
 
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
 
     private LocationProvider currentProvider = null;
 
@@ -107,15 +107,15 @@ public class MapActivity extends Activity implements LocationListener {
 
     private Timer mapOffset;
 
-    public GetsDbHelper dbHelper;
+    private GetsDbHelper dbHelper;
 
-    public ArrayList<Category> categoryArrayList;
+    private ArrayList<Category> categoryArrayList;
 
-    public Marker getCurrentSelectedMarker() {
+    private Marker getCurrentSelectedMarker() {
         return currentSelectedMarker;
     }
 
-    public void setCurrentSelectedMarker(Marker currentSelectedMarker) {
+    private void setCurrentSelectedMarker(Marker currentSelectedMarker) {
         this.currentSelectedMarker = currentSelectedMarker;
     }
 
@@ -356,16 +356,24 @@ public class MapActivity extends Activity implements LocationListener {
             gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
             networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
             if (gpsProvider != null) {
-                Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
-                // If gps isn't connected yet, try to obtain network location
-                if (gpsLocation == null)
-                    setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+                try {
+                    Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
+                    // If gps isn't connected yet, try to obtain network location
+                    if (gpsLocation == null)
+                        setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
                 if (sLocation != null)
                     return;
             }
 
             if (networkProvider != null) {
-                setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+                try {
+                    setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
                 if (sLocation != null)
                     return;
             }
@@ -725,20 +733,32 @@ public class MapActivity extends Activity implements LocationListener {
     private void stopFollow() {
         followingState = false;
         menu.findItem(R.id.follow_location).getIcon().setColorFilter(null);
-        setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-        locationManager.removeUpdates(this);
+        try {
+            setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+            locationManager.removeUpdates(this);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
         mMapView.setMapOrientation(0);
         mapOffset.cancel();
     }
 
     private boolean startFollow() {
-        setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+        try {
+            setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
         if(getLocation() != null) {
             followingState = true;
             if (menu.findItem(R.id.follow_location) != null)
                 menu.findItem(R.id.follow_location).getIcon().setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
             mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
-            locationManager.requestLocationUpdates(currentProvider.getName(), 1000, 50, this);
+            try {
+                locationManager.requestLocationUpdates(currentProvider.getName(), 1000, 50, this);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
             mapOffset = new Timer();
             final Handler uiHandler = new Handler();
             mapOffset.schedule(new TimerTask() {
@@ -749,7 +769,11 @@ public class MapActivity extends Activity implements LocationListener {
                         public void run() {
                             selectAvailableProvider();
                             if (currentProvider != null) {
-                                setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+                                try {
+                                    setLocation(locationManager.getLastKnownLocation(currentProvider.getName()));
+                                } catch (SecurityException e) {
+                                    e.printStackTrace();
+                                }
                                 if(getLocation() == null) {
                                     stopFollow();
                                     return;
@@ -774,8 +798,12 @@ public class MapActivity extends Activity implements LocationListener {
         if (networkProvider != null && isInternetConnectionAvailable())
             currentProvider = networkProvider;
         if (gpsProvider != null) {
-            if (locationManager.getLastKnownLocation(gpsProvider.getName()) != null)
-                currentProvider = gpsProvider;
+            try {
+                if (locationManager.getLastKnownLocation(gpsProvider.getName()) != null)
+                    currentProvider = gpsProvider;
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
         }
     }
     @Override

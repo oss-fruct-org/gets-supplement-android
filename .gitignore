@@ -3,10 +3,14 @@
 .idea/workspace.xml
 .idea/runConfigurations.xml
 .idea/libraries
+/.idea/gradle.xml
+.gradle
 .DS_Store
 /build
 /captures
+*.iml
 .idea/misc.xml
 .idea/vcs.xml
 .idea/misc.xml
 app/app-release.apk
+*/build/
