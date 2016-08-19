@@ -24,7 +24,7 @@ public class Const {
     public static final String URL_POINTS_ADD = GETS_SERVER_PREFIX + "addPoint.php";
     public static final String URL_POINTS_UPDATE = GETS_SERVER_PREFIX + "updatePoint.php";
     public static final String URL_POINTS_DELETE = GETS_SERVER_PREFIX + "deletePoint.php";
-    public static final String URL_ROOT_XML = "http://gets.cs.petrsu.ru/maps/root/root.xml";
+    public static final String URL_ROOT_XML = "http://gets.cs.petrsu.ru/obstacle/maps/root/root.xml";
 
     public static final String URL_CATEGORIES_GET = GETS_SERVER_PREFIX + "getCategories.php";
     public static final String URL_CATEGORIES_ADD = GETS_SERVER_PREFIX + "addCategory.php";

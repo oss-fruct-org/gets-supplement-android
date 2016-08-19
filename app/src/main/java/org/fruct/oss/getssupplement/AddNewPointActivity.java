@@ -113,8 +113,13 @@ public class AddNewPointActivity extends Activity {
                     cbMagnet.setChecked(false);
                     return;
                 }
-                if (isChecked)
-                    addMaker(attract(getChoosedLocation().getPoint()));
+                if (isChecked) {
+                    LatLng point = attract(getChoosedLocation().getPoint());
+                    if(point != null)
+                        addMaker(point);
+                    else
+                        closestStreetId = -1;
+                }
                 else
                     closestStreetId = -1;
             }

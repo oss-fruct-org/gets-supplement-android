@@ -1,10 +1,12 @@
 package org.fruct.oss.getssupplement.Utils;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.BikeFlagEncoder;
 import com.graphhopper.routing.util.CarFlagEncoder;
+import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -35,18 +37,16 @@ public class GHUtil {
     public String closestEdge;
     public int closestStreetId;
 
-    public GHUtil(String path) {
+    public GHUtil(String path) throws IllegalStateException {
 
         GraphHopper gh = new GraphHopper().forMobile();
         gh.setEncodingManager(new EncodingManager(new ArrayList<FlagEncoder>(4) {{
-            add(new CarFlagEncoder());
-            add(new BikeFlagEncoder());
             add(new FootFlagEncoder());
             add(new FootPriorityFlagEncoder());
         }}, 8));
         gh.setCHEnable(false);
-        if(!gh.load(path)) {
-            gh = null;
+        if (!gh.load(path)) {
+           gh = null;
         }
         this.gh = gh;
     }
@@ -57,11 +57,20 @@ public class GHUtil {
      */
     public LatLng getClosestPoint(LatLng point) {
 
+        if (point == null)
+            return null;
+
         LatLng magnetPoint;
         LocationIndex index = gh.getLocationIndex();
         this.qr = index.findClosest(point.getLatitude(), point.getLongitude(), EdgeFilter.ALL_EDGES);
 
+        if (!qr.isValid()) {
+            System.out.println("Точки не найдены!!!");
+            return null;
+        }
+
         PointList pointList = qr.getClosestEdge().fetchWayGeometry(3);
+        System.out.println(pointList);
         ArrayList<LatLng> wayPoints = new ArrayList<LatLng>();
         double minDist = Double.MAX_VALUE;
         LatLng closestPoint = new LatLng(point);
