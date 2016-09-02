@@ -937,8 +937,7 @@ public class MapActivity extends Activity implements LocationListener {
                     latitude,
                     longitude,
                     streetId,
-                    System.currentTimeMillis(),
-                    dbHelperSend
+                    System.currentTimeMillis()
             );
 
             Point point = new Point();

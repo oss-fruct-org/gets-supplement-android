@@ -49,7 +49,6 @@ public class Const {
     public static final String DB_INTERNAL_NAME = "internal_db";
     public static final String DB_INTERNAL_POINTS = "internal_points";
     public static final String DB_INTERNAL_CATEGORIES = "internal_categories";
-    public static final String DB_TEMP_POINTS = "temp_points";
 
 
     /**

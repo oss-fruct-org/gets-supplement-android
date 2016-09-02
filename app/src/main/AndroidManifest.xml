@@ -40,13 +40,6 @@
             android:parentActivityName="org.fruct.oss.getssupplement.AddNewPointActivity">
         </activity>
 
-
-        <activity
-            android:name="org.fruct.oss.getssupplement.TempPointsActivity"
-            android:label="@string/title_activity_temp_points"
-            android:parentActivityName="org.fruct.oss.getssupplement.MapActivity">
-        </activity>
-
         <activity
             android:name="org.fruct.oss.getssupplement.LoginActivity"
             android:label="@string/title_activity_login"
