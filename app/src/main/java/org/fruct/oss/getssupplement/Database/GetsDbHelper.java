@@ -60,6 +60,22 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                         ");"
         );
 
+        db.execSQL("create table " + Const.DB_TEMP_POINTS + "(" +
+                "_id integer primary key autoincrement," + // Internal id, not connected with API
+                "categoryId," +
+                "title text," +
+                "token text," +
+                "latitude real," +
+                "longitude real," +
+                "rating real," +
+                "streetId text," +
+                "time text," +
+                "status text," +
+                "code text," +
+                "message text" +
+                ");"
+        );
+
     }
 
     @Override
@@ -69,6 +85,16 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         onCreate(db);
     }
 
+
+    public SQLiteDatabase getWrData() {
+        SQLiteDatabase dbtemp = getWritableDatabase();
+        return dbtemp;
+    }
+
+    public SQLiteDatabase getRdData() {
+        SQLiteDatabase dbtemp = getReadableDatabase();
+        return dbtemp;
+    }
 
 
     public void clearDatabase() {
