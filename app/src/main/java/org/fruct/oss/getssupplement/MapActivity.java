@@ -108,6 +108,7 @@ public class MapActivity extends Activity implements LocationListener {
     private Timer mapOffset;
 
     private GetsDbHelper dbHelper;
+    private GetsDbHelper dbHelperSend;
 
     private ArrayList<Category> categoryArrayList;
 
