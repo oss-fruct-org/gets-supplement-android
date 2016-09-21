@@ -120,8 +120,8 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
             // Parse
             String strResponse = EntityUtils.toString(responseEntity);
 
-            System.out.print("strResponse = ");
-            System.out.println(strResponse);
+            //System.out.print("strResponse = ");
+            //System.out.println(strResponse);
 
             /* strResponse проверить что хранит */
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -143,23 +143,23 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
                 pointsResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
 
 
-                System.out.print("code = ");
-                System.out.println(pointsResponse.code);
-                System.out.print("message = ");
-                System.out.println(pointsResponse.message);
+                //System.out.print("code = ");
+                //System.out.println(pointsResponse.code);
+                //System.out.print("message = ");
+                //System.out.println(pointsResponse.message);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (pointsResponse.code == 0) {
+        /*if (pointsResponse.code == 0) {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!SUCCESS REQUEST!!!!!!!!!!!!!!!!!!!!!!!");
             isSuccessR = true;
         } else if (pointsResponse.code == 1) {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!INCORRECT XML!!!!!!!!!!!!!!!!!!!!!!!");
         } else {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!SERVER OFFLINE!!!!!!!!!!!!!!!!!!!!!!!");
-        }
+        }*/
 
         return isSuccessR;
     }
@@ -197,16 +197,16 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
 
                 if (IsSuccessRequest(postData)) {
                     tempDataToDelete.add(cursor.getString(cursor.getColumnIndex("_id")));
-                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!POSTDATA SUCCESS!!!!!!!!!!!!!!!!!!!!!!!");
-                } else {
-                    System.out.println("!!!!!!!!!!!!!!!!!!!!!!POSTDATA NOT SUCCESS!!!!!!!!!!!!!!!!!!!!!!!");
+                    //System.out.println("!!!!!!!!!!!!!!!!!!!!!!POSTDATA SUCCESS!!!!!!!!!!!!!!!!!!!!!!!");
+                //} else {
+                    //System.out.println("!!!!!!!!!!!!!!!!!!!!!!POSTDATA NOT SUCCESS!!!!!!!!!!!!!!!!!!!!!!!");
                 }
             }
 
             while (!tempDataToDelete.isEmpty()) {
                 db.delete(Const.DB_TEMP_POINTS, "_id = ?", new String[] {tempDataToDelete.get(0)});
                 tempDataToDelete.remove(0);
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!DELETED!!!!!!!!!!!!!!!!!!!!!!!");
+                //System.out.println("!!!!!!!!!!!!!!!!!!!!!!DELETED!!!!!!!!!!!!!!!!!!!!!!!");
             }
 
             cursor.close();
