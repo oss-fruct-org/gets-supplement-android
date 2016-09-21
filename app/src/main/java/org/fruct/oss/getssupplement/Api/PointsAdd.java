@@ -152,10 +152,10 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
             e.printStackTrace();
         }
 
-        /*if (pointsResponse.code == 0) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!SUCCESS REQUEST!!!!!!!!!!!!!!!!!!!!!!!");
+        if (pointsResponse.code == 0) {
+            //System.out.println("!!!!!!!!!!!!!!!!!!!!!!SUCCESS REQUEST!!!!!!!!!!!!!!!!!!!!!!!");
             isSuccessR = true;
-        } else if (pointsResponse.code == 1) {
+        }/* else if (pointsResponse.code == 1) {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!INCORRECT XML!!!!!!!!!!!!!!!!!!!!!!!");
         } else {
             System.out.println("!!!!!!!!!!!!!!!!!!!!!!SERVER OFFLINE!!!!!!!!!!!!!!!!!!!!!!!");
