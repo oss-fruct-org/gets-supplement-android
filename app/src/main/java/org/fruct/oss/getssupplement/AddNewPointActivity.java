@@ -155,7 +155,7 @@ public class AddNewPointActivity extends Activity {
 
 
         Intent intent = getIntent();
-        float optimalZoom = intent.getFloatExtra("zoomLevel", 16);
+        double optimalZoom = intent.getFloatExtra("zoomLevel", 16);
         isInEdit = intent.getBooleanExtra("isInEdit", false);
         double latitude;
         double longitude;

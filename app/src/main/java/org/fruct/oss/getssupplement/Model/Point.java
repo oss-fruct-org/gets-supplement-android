@@ -15,6 +15,7 @@ public class Point {
     public double longitude;
     public float rating;
     public String uuid;
+    public long markerId;
 
     public Point() {
     }

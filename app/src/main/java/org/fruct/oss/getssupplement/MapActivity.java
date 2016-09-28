@@ -16,6 +16,7 @@ import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -29,12 +30,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mapbox.mapboxsdk.api.ILatLng;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.overlay.Icon;
-import com.mapbox.mapboxsdk.overlay.Marker;
-import com.mapbox.mapboxsdk.views.MapView;
-import com.mapbox.mapboxsdk.views.MapViewListener;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsAdd;
@@ -68,6 +71,8 @@ public class MapActivity extends Activity implements LocationListener {
     private Menu menu;
 
     private MapView mMapView;
+
+    private double mCurrentZoom;
 
     public static Location getLocation() {
         return sLocation;
@@ -269,13 +274,57 @@ public class MapActivity extends Activity implements LocationListener {
 
     private void setUpMapView() {
         mMapView.setClickable(true);
-        mMapView.getController().setZoom(17);
-        mMapView.setUseDataConnection(true);
-        mMapView.setUserLocationEnabled(true);
-        mMapView.setDiskCacheEnabled(true);
-        mMapView.setMinZoomLevel(14);
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(MapboxMap mapboxMap) {
+                LatLng coords;
+                if (sLocation != null) {
+                    coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(coords)
+                            .zoom(17)
+                            .build();
+                    mapboxMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(position), 7000);
+                }
+                mapboxMap.setMinZoom(14);
+                mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(@NonNull Marker marker) {
+                        getPointById(marker.getId());
 
-        findViewById(R.id.activity_map_my_location).setOnClickListener(new View.OnClickListener() {
+                        // old
+                        setCurrentSelectedMarker(marker);
+                        ibBottomPanelDelete.setVisibility(View.INVISIBLE);
+                        ibBottomPanelEdit.setVisibility(View.INVISIBLE);
+                        Point point = (Point) marker.getRelatedObject();
+
+                        setBottomPanelData(point);
+                        return false;
+                    }
+                });
+                mapboxMap.setOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(@NonNull LatLng point) {
+                        clearBottomPanelData();
+                    }
+                });
+                mapboxMap.setOnCameraChangeListener(new MapboxMap.OnCameraChangeListener() {
+                    @Override
+                    public void onCameraChange(CameraPosition position) {
+                        mCurrentZoom = position.zoom;
+                    }
+                });
+            }
+        });
+
+//        mMapView.getController().setZoom(17);
+//        mMapView.setUseDataConnection(true);
+//        mMapView.setUserLocationEnabled(true);
+//        mMapView.setDiskCacheEnabled(true);
+//        mMapView.setMinZoomLevel(14);
+
+/*        findViewById(R.id.activity_map_my_location).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mMapView.getUserLocation() == null)
@@ -289,7 +338,7 @@ public class MapActivity extends Activity implements LocationListener {
                         false
                 );
             }
-        });
+        });*/
 
         findViewById(R.id.acitivity_map_app_info).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -299,55 +348,7 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
-
-        if (sLocation != null)
-            mMapView.getController().setCenter(new LatLng(getLocation().getLatitude(), getLocation().getLongitude()));
-        else
-            mMapView.getController().setZoom(3);
-
         hideBottomPanel();
-
-        mMapView.setMapViewListener(new MapViewListener() {
-            @Override
-            public void onShowMarker(MapView mapView, Marker marker) {
-
-            }
-
-            @Override
-            public void onHideMarker(MapView mapView, Marker marker) {
-
-            }
-
-            @Override
-            public void onTapMarker(MapView mapView, Marker marker) {
-
-                setCurrentSelectedMarker(marker);
-
-                ibBottomPanelDelete.setVisibility(View.INVISIBLE);
-                ibBottomPanelEdit.setVisibility(View.INVISIBLE);
-                marker.getToolTip(mapView).getView().setVisibility(View.GONE);
-                Point point = (Point) marker.getRelatedObject();
-
-                setBottomPanelData(point); // TODO: description
-
-            }
-
-            @Override
-            public void onLongPressMarker(MapView mapView, Marker marker) {
-
-            }
-
-            @Override
-            public void onTapMap(MapView mapView, ILatLng iLatLng) {
-                clearBottomPanelData();
-            }
-
-            @Override
-            public void onLongPressMap(MapView mapView, ILatLng iLatLng) {
-
-            }
-        });
-
     }
 
     private void setUpLocation() {
@@ -387,10 +388,14 @@ public class MapActivity extends Activity implements LocationListener {
         Toast.makeText(this, "Can't determine location", Toast.LENGTH_SHORT).show();
     }
 
-    private void deleteMarker(Marker marker) {
+    private void deleteMarker(final Marker marker) {
         if (marker != null) {
-            mMapView.removeMarker(marker);
-            marker.closeToolTip();
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(MapboxMap mapboxMap) {
+                    mapboxMap.removeMarker(marker);
+                }
+            });
             hideBottomPanel();
         }
     }
@@ -419,7 +424,8 @@ public class MapActivity extends Activity implements LocationListener {
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
         final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
-                getLocation().getLatitude(), getLocation().getLongitude(), Const.API_POINTS_RADIUS) {
+                getLocation().getLatitude(), getLocation().getLongitude(),
+                Const.API_POINTS_RADIUS) {
             @Override
             protected void onProgressUpdate(Point... point) {
                 super.onProgressUpdate(point);
@@ -600,7 +606,7 @@ public class MapActivity extends Activity implements LocationListener {
                 intent.putExtra("uuid", point.uuid);
 
                 intent.putExtra("token", Settings.getToken(getApplicationContext()));
-                intent.putExtra("zoomLevel", mMapView.getZoomLevel());
+                intent.putExtra("zoomLevel", mCurrentZoom);
                 intent.putExtra("isInEdit", true);
 
                 startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
@@ -693,7 +699,13 @@ public class MapActivity extends Activity implements LocationListener {
         return false;
     }
 
-    private void addMarker(Point point) {
+    private Marker addMarker(Point point) {
+
+        /**
+         * https://www.mapbox.com/help/android-markers/
+         * Не добавлять title/snippet
+         */
+
         Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
@@ -714,6 +726,8 @@ public class MapActivity extends Activity implements LocationListener {
         marker.setRelatedObject(point);
 
         mMapView.addMarker(marker);
+
+        return marker;
     }
 
 
@@ -828,7 +842,7 @@ public class MapActivity extends Activity implements LocationListener {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
             Intent intent = new Intent(this, AddNewPointActivity.class);
-            intent.putExtra("zoomLevel", mMapView.getZoomLevel());
+            intent.putExtra("zoomLevel", mCurrentZoom);
             startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
         }
 
