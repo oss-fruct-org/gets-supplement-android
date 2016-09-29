@@ -10,13 +10,13 @@
         android:layout_height="match_parent">
 
 
-        <com.mapbox.mapboxsdk.views.MapView
+        <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/activity_map_mapview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:minHeight="250dp"
             android:clickable="true"
-            mapbox:style_url="mapbox://styles/mapbox/streets-v9"/>
+            mapbox:style_url="mapbox://styles/ksarkes/cirizl9l20004hgm5dovjwher"/>
 
         <ImageButton
             android:id="@+id/activity_map_my_location"

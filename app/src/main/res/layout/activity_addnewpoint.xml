@@ -96,7 +96,7 @@
         android:gravity="top"
         android:layout_weight="1">
 
-        <com.mapbox.mapboxsdk.views.MapView
+        <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/activity_addpoint_mapview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

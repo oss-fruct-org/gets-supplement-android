@@ -23,7 +23,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     private DatabaseType databaseType;
 
     public GetsDbHelper(Context context, DatabaseType _databaseType) {
-        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 4);
+        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 5);
         this.databaseType = _databaseType;
     }
 
@@ -48,7 +48,8 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                         "latitude real," +
                         "longitude real," +
                         "rating real," +
-                        "uuid text" +
+                        "uuid text," +
+                        "markerId integer" +
                         ");"
         );
 
