@@ -31,7 +31,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.annotations.MarkerView;
+import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -277,9 +281,8 @@ public class MapActivity extends Activity implements LocationListener {
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
-                LatLng coords;
                 if (sLocation != null) {
-                    coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
+                    LatLng coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
                     CameraPosition position = new CameraPosition.Builder()
                             .target(coords)
                             .zoom(17)
@@ -699,34 +702,37 @@ public class MapActivity extends Activity implements LocationListener {
         return false;
     }
 
-    private Marker addMarker(Point point) {
+    private Marker addMarker(final Point point) {
 
         /**
          * https://www.mapbox.com/help/android-markers/
          * Не добавлять title/snippet
+         * set point id = marker id
          */
 
-        Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
+//        Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
-
+        IconFactory iconFactory = IconFactory.getInstance(this);
         // TODO: separating based on (un)publishing
-
-
-        if (point.access == null || point.access.indexOf("w") != -1) {
+        if (point.access == null || point.access.contains("w")) {
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation((float) 0.3);
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
             drawableImage.setColorFilter(filter);
         }
-
-
-        marker.setIcon(new Icon(drawableImage));
-
-        marker.setRelatedObject(point);
-
-        mMapView.addMarker(marker);
-
+        final Icon icon = iconFactory.fromDrawable(drawableImage);
+        Marker marker;
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(MapboxMap mapboxMap) {
+                marker = mapboxMap.addMarker(new MarkerOptions()
+                .position(new LatLng(point.latitude, point.longitude))
+                .icon(icon));
+            }
+        });
+//        marker.setRelatedObject(point);
+//        mMapView.addMarker(marker);
         return marker;
     }
 
@@ -756,7 +762,7 @@ public class MapActivity extends Activity implements LocationListener {
         } catch (SecurityException e) {
             e.printStackTrace();
         }
-        mMapView.setMapOrientation(0);
+//        mMapView.setMapOrientation(0);
         mapOffset.cancel();
     }
 
@@ -770,7 +776,20 @@ public class MapActivity extends Activity implements LocationListener {
             followingState = true;
             if (menu.findItem(R.id.follow_location) != null)
                 menu.findItem(R.id.follow_location).getIcon().setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
-            mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(MapboxMap mapboxMap) {
+                    LatLng coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(coords)
+                            .zoom(19)
+                            .build();
+                    mapboxMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(position), 7000);
+
+                }
+            });
+//            mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
             try {
                 locationManager.requestLocationUpdates(currentProvider.getName(), 1000, 50, this);
             } catch (SecurityException e) {
@@ -795,7 +814,20 @@ public class MapActivity extends Activity implements LocationListener {
                                     stopFollow();
                                     return;
                                 }
-                                mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+//                                mMapView.getController().setZoomAnimated(19, new LatLng(getLocation().getLatitude(), getLocation().getLongitude()), true, false);
+                                mMapView.getMapAsync(new OnMapReadyCallback() {
+                                    @Override
+                                    public void onMapReady(MapboxMap mapboxMap) {
+                                        LatLng coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
+                                        CameraPosition position = new CameraPosition.Builder()
+                                                .target(coords)
+                                                .zoom(19)
+                                                .build();
+                                        mapboxMap.animateCamera(CameraUpdateFactory
+                                                .newCameraPosition(position), 7000);
+
+                                    }
+                                });
                             }
                         }
                     });
@@ -847,7 +879,14 @@ public class MapActivity extends Activity implements LocationListener {
         }
 
         if (id == R.id.activity_map_refresh) {
-            mMapView.clear();
+//            mMapView.clear();
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(MapboxMap mapboxMap) {
+                    //TODO: check is it working?
+                    mapboxMap.removeAnnotations();
+                }
+            });
             setUpLocation();
             loadPoints();
         }
@@ -970,7 +1009,8 @@ public class MapActivity extends Activity implements LocationListener {
                         latitude,
                         longitude,
                         rating,
-                        "?");
+                        "?",
+                        -1);
 
                 point.name = pointName;
                 point.url = pointUrl;
@@ -1012,14 +1052,33 @@ public class MapActivity extends Activity implements LocationListener {
                 e.printStackTrace();
             }
 
-            mMapView.getController().animateTo(
-                    new LatLng(point.latitude, point.longitude, 16)
-            );
+//            mMapView.getController().animateTo(new LatLng(point.latitude, point.longitude, 16));
+            final Point finalPoint = point;
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(MapboxMap mapboxMap) {
+                    LatLng coords = new LatLng(finalPoint.latitude, finalPoint.longitude);
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(coords)
+                            .zoom(16)
+                            .build();
+                    mapboxMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(position), 7000);
+
+                }
+            });
         }
 
         if (requestCode == Const.INTENT_RESULT_CATEGORY_ACTIONS) {
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(MapboxMap mapboxMap) {
+                    //TODO: check is it working?
+                    mapboxMap.removeAnnotations();
+                }
+            });
+
             ArrayList<Point> points;
-            mMapView.clear();
             for (int i = 0; i < categoryArrayList.size(); i++) {
                 if (Settings.getIsChecked(getApplicationContext(), categoryArrayList.get(i).id)) {
                     points = dbHelper.getPoints(categoryArrayList.get(i).id);

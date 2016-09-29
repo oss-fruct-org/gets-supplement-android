@@ -204,15 +204,16 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                 point.latitude,
                 point.longitude,
                 point.rating,
-                point.uuid
+                point.uuid,
+                point.markerId
         );
     }
 
-    public void addPoint(int categoryId, String name, String url, String access, long time, String description, String latitude, String longitude, float rating, String uuid) {
-        addPoint(categoryId, name, url, access, time + "", description, Float.parseFloat(latitude), Float.parseFloat(longitude), rating, uuid);
+    public void addPoint(int categoryId, String name, String url, String access, long time, String description, String latitude, String longitude, float rating, String uuid, long markerId) {
+        addPoint(categoryId, name, url, access, time + "", description, Float.parseFloat(latitude), Float.parseFloat(longitude), rating, uuid, markerId);
     }
 
-    public void addPoint(int categoryId, String name, String url, String access, String time, String description, double latitude, double longitude, float rating, String uuid) {
+    public void addPoint(int categoryId, String name, String url, String access, String time, String description, double latitude, double longitude, float rating, String uuid, long markerId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -226,6 +227,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("longitude", longitude);
         cv.put("rating", rating);
         cv.put("uuid", uuid);
+        cv.put("markerId", markerId);
 
         db.insertWithOnConflict(Const.DB_INTERNAL_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -235,7 +237,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             Point point = points.get(i);
 
             // TODO: convert time
-            this.addPoint(point.categoryId, point.name, point.url, point.access, "0", point.description, point.latitude, point.longitude, point.rating, point.uuid);
+            this.addPoint(point.categoryId, point.name, point.url, point.access, "0", point.description, point.latitude, point.longitude, point.rating, point.uuid, point.markerId);
         }
     }
 
@@ -271,6 +273,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             int indexUrl = cursor.getColumnIndex("url");
             int indexRating = cursor.getColumnIndex("rating");
             int indexUuid = cursor.getColumnIndex("uuid");
+            int indexMarkerId = cursor.getColumnIndex("markerId");
 
             ArrayList<Point> list = new ArrayList<Point>();
             do {
@@ -286,6 +289,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                 point.longitude = cursor.getFloat(indexLongitude);
                 point.rating = cursor.getFloat(indexRating);
                 point.uuid = cursor.getString(indexUuid);
+                point.markerId = cursor.getLong(indexMarkerId);
 
                 list.add(point);
             } while (cursor.moveToNext());
