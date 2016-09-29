@@ -307,4 +307,47 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         super.onDowngrade(db, oldVersion, newVersion);
     }
+
+    public Point getPointByMarkerId(long id) {
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "markerId = " + id, null, null, null, null, null);
+
+        int indexId = cursor.getColumnIndex("_id");
+        int indexCategoryId = cursor.getColumnIndex("categoryId");
+        int indexName = cursor.getColumnIndex("name");
+        int indexAccess = cursor.getColumnIndex("access");
+        int indexTime = cursor.getColumnIndex("time");
+        int indexDescription = cursor.getColumnIndex("description");
+        int indexLatitude = cursor.getColumnIndex("latitude");
+        int indexLongitude = cursor.getColumnIndex("longitude");
+        int indexUrl = cursor.getColumnIndex("url");
+        int indexRating = cursor.getColumnIndex("rating");
+        int indexUuid = cursor.getColumnIndex("uuid");
+        int indexMarkerId = cursor.getColumnIndex("markerId");
+
+        if (cursor.moveToFirst()) {
+            Point point = new Point();
+            point.id = cursor.getInt(indexId);
+            point.categoryId = cursor.getInt(indexCategoryId);
+            point.name = cursor.getString(indexName);
+            point.url = cursor.getString(indexUrl);
+            point.access = cursor.getString(indexAccess);
+            point.time = cursor.getString(indexTime);
+            point.description = cursor.getString(indexDescription);
+            point.latitude = cursor.getFloat(indexLatitude);
+            point.longitude = cursor.getFloat(indexLongitude);
+            point.rating = cursor.getFloat(indexRating);
+            point.uuid = cursor.getString(indexUuid);
+            point.markerId = cursor.getLong(indexMarkerId);
+
+            cursor.close();
+            db.close();
+            return point;
+        } else {
+            cursor.close();
+            db.close();
+            return null;
+        }
+    }
 }
