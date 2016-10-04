@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    compile('com.mapbox.mapboxsdk:mapbox-android-sdk:4.2.0-beta.3@aar') { transitive = true }
+    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:4.2.0-beta.3@aar') { transitive = true }
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'org.osmdroid:osmdroid-android:5.1@aar'

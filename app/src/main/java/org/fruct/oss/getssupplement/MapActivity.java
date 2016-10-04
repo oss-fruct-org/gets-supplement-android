@@ -143,6 +143,7 @@ public class MapActivity extends Activity implements LocationListener {
 
         checkGraphUpdate();
 
+        initBottomPanel();
 
         setUpLocation();
 
@@ -164,127 +165,54 @@ public class MapActivity extends Activity implements LocationListener {
             public void onMapReady(MapboxMap mapboxMap) {
                 MapActivity.this.mapboxMap = mapboxMap;
                 setUpMapView();
+
+                if (!isAuthorized()) {
+                    if (isInternetConnectionAvailable()) {
+                        Intent i = new Intent(MapActivity.this, LoginActivity.class);
+                        startActivityForResult(i, Const.INTENT_RESULT_TOKEN);
+                    } else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.network_error_authorization), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                } else {
+                    checkUserStatus();
+                    loadPoints();
+                    Timer collisionTimer = new Timer();
+                    final Handler handler = new Handler();
+                    collisionTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (succesLoading) {
+                                        selectAvailableProvider();
+                                        if (isLocationOn && currentProvider == null) {
+                                            isLocationOn = false;
+                                            stopFollow();
+                                        }
+                                        if (!isLocationOn && currentProvider != null) {
+                                            if (startFollow())
+                                                isLocationOn = true;
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }, 100, 6L * 10);
+                }
             }
         });
 
-        if (!isAuthorized()) {
-            if (isInternetConnectionAvailable()) {
-                Intent i = new Intent(this, LoginActivity.class);
-                startActivityForResult(i, Const.INTENT_RESULT_TOKEN);
-            } else {
-                Toast.makeText(getApplicationContext(), getString(R.string.network_error_authorization), Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } else {
-            checkUserStatus();
-            loadPoints();
-            Timer collisionTimer = new Timer();
-            final Handler handler = new Handler();
-            collisionTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (succesLoading) {
-                                selectAvailableProvider();
-                                if (isLocationOn && currentProvider == null) {
-                                    isLocationOn = false;
-                                    stopFollow();
-                                }
-                                if (!isLocationOn && currentProvider != null) {
-                                    if (startFollow())
-                                        isLocationOn = true;
-                                }
-                            }
-                        }
-                    });
-                }
-            }, 100, 6L * 10);
-        }
     }
-
-    private void checkGraphUpdate() {
-        String dataPath = Settings.getStorageDir(getApplicationContext());
-
-        if (dataPath == null) {
-            DirUtil.StorageDirDesc[] contentPaths = DirUtil.getPrivateStorageDirs(this);
-            dataPath = contentPaths[0].path;
-            Settings.saveString(getApplicationContext(), Const.PREF_STORAGE_PATH, dataPath);
-        }
-
-        File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
-        if (!unpackedRootDir.exists())
-            unpackedRootDir.mkdir();
-
-        DownloadXmlTask downloadXmlTask = new DownloadXmlTask(Const.URL_ROOT_XML) {
-            @Override
-            protected void onPostExecute(String response) {
-                if (response != null) {
-                    XmlUtil xml = new XmlUtil(response);
-                    final String newHash = xml.getHashByRegionId(Const.ID_REGION_KARELIA);
-                    final String oldHash = Settings.getMapHash(getApplicationContext());
-                    final String fileName = xml.getFileNameByRegionId(Const.ID_REGION_KARELIA);
-                    final String url = xml.getUrlByRegionId(Const.ID_REGION_KARELIA);
-
-                    if (newHash == null)
-                        return;
-
-                    if (oldHash == null || !oldHash.equals(newHash) || !new File(Settings.getStorageDir(getApplicationContext()),
-                            fileName).exists()) {
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-                        builder
-                                .setMessage(R.string.text_download_message)
-                                .setCancelable(false)
-                                .setPositiveButton(R.string.text_download_positive,
-                                        new DialogInterface.OnClickListener() {
-
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                Toast.makeText(getApplicationContext(), R.string.toast_download_start, Toast.LENGTH_SHORT).show();
-                                                DownloadGraphTask downloadGraphTask = new DownloadGraphTask(url, fileName, getApplicationContext()) {
-                                                    @Override
-                                                    protected void onPostExecute(Boolean success) {
-                                                        if (success) {
-                                                            Toast.makeText(getApplicationContext(), R.string.toast_download_success, Toast.LENGTH_SHORT).show();
-                                                            Settings.saveMapHash(getApplicationContext(), newHash);
-                                                        }
-                                                        else Toast.makeText(getApplicationContext(), R.string.toast_download_error, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                };
-                                                downloadGraphTask.execute();
-
-                                                dialog.cancel();
-                                            }
-
-                                        })
-                                .setNegativeButton(R.string.text_download_negative,
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                        AlertDialog alert = builder.create();
-                        alert.show();
-                    }
-                    // If ghz-file exists but not unpacked
-                    else if (new File(Settings.getStorageDir(getApplicationContext()), fileName).exists())
-                        DirUtil.unzipInStorage(getApplicationContext(), fileName);
-
-                }
-            }
-        };
-        downloadXmlTask.execute();
-    }
-
 
     public static boolean isAuthorized() {
         return Settings.getToken(context) != null;
     }
 
-
     private void setUpMapView() {
         if (mapboxMap != null) {
+            mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
             mapboxMap.setMyLocationEnabled(true);
             if (sLocation != null) {
                 LatLng coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
@@ -317,7 +245,8 @@ public class MapActivity extends Activity implements LocationListener {
             mapboxMap.setOnMapClickListener(new MapboxMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull LatLng point) {
-                    clearBottomPanelData();
+//                    clearBottomPanelData();
+                    hideBottomPanel();
                 }
             });
             mapboxMap.setOnCameraChangeListener(new MapboxMap.OnCameraChangeListener() {
@@ -366,7 +295,7 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
-        hideBottomPanel();
+//        hideBottomPanel();
     }
 
     private void setUpLocation() {
@@ -545,36 +474,19 @@ public class MapActivity extends Activity implements LocationListener {
 
 
     private void initBottomPanel() {
-        if (rlBottomPanel == null)
-            rlBottomPanel = (RelativeLayout) findViewById(R.id.activity_map_bottom_panel);
-        else
-            return;
-
-        if (tvBottomPanelName == null)
-            tvBottomPanelName = (TextView) findViewById(R.id.acitivity_map_point_name);
-
-        if (tvBottomPanelDescription == null)
-            tvBottomPanelDescription = (TextView) findViewById(R.id.acitivity_map_point_description);
-
-        if (ibBottomPanelDelete == null)
-            ibBottomPanelDelete = (ImageButton) findViewById(R.id.activity_map_point_delete);
-
-        if (ibBottomPanelEdit == null)
-            ibBottomPanelEdit = (ImageButton) findViewById(R.id.activity_map_point_edit);
-
-        if (ivBottomPanelIcon == null)
-            ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
-
-        if (viGradient == null)
-            viGradient = findViewById(R.id.activity_map_bottom_panel_gradient);
-
-        if (ivBottomPanelArrowRight == null)
-            ivBottomPanelArrowRight = (ImageView) findViewById(R.id.acitivity_map_bottom_panel_arrow_right);
+        rlBottomPanel = (RelativeLayout) findViewById(R.id.activity_map_bottom_panel);
+        tvBottomPanelName = (TextView) findViewById(R.id.acitivity_map_point_name);
+        tvBottomPanelDescription = (TextView) findViewById(R.id.acitivity_map_point_description);
+        ibBottomPanelDelete = (ImageButton) findViewById(R.id.activity_map_point_delete);
+        ibBottomPanelEdit = (ImageButton) findViewById(R.id.activity_map_point_edit);
+        ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
+        viGradient = findViewById(R.id.activity_map_bottom_panel_gradient);
+        ivBottomPanelArrowRight = (ImageView) findViewById(R.id.acitivity_map_bottom_panel_arrow_right);
     }
 
     private void setBottomPanelData(final Point point) {
 
-        initBottomPanel();
+//        initBottomPanel();
 
         tvBottomPanelName.setText(point.name);
 
@@ -640,7 +552,7 @@ public class MapActivity extends Activity implements LocationListener {
 
 
     private void hideBottomPanel() {
-        initBottomPanel();
+//        initBottomPanel();
 
         Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
@@ -650,10 +562,10 @@ public class MapActivity extends Activity implements LocationListener {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                rlBottomPanel.setVisibility(View.INVISIBLE);
-                viGradient.setVisibility(View.INVISIBLE);
-                ibBottomPanelDelete.setVisibility(View.INVISIBLE);
-                ibBottomPanelEdit.setVisibility(View.INVISIBLE);
+                rlBottomPanel.setVisibility(View.GONE);
+                viGradient.setVisibility(View.GONE);
+                ibBottomPanelDelete.setVisibility(View.GONE);
+                ibBottomPanelEdit.setVisibility(View.GONE);
             }
 
             @Override
@@ -661,19 +573,14 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
-        if (rlBottomPanel == null) {
-            rlBottomPanel = (RelativeLayout) findViewById(R.id.activity_map_bottom_panel);
-            viGradient = findViewById(R.id.activity_map_bottom_panel_gradient);
-        }
-
-        rlBottomPanel.setAnimation(fadeOut);
-        viGradient.setAnimation(fadeOut);
+        rlBottomPanel.startAnimation(fadeOut);
+        viGradient.startAnimation(fadeOut);
 
     }
 
     private void showBottomPanel() {
 
-        initBottomPanel();
+//        initBottomPanel();
 
         Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
@@ -692,8 +599,8 @@ public class MapActivity extends Activity implements LocationListener {
             }
         });
 
-        rlBottomPanel.setAnimation(fadeOut);
-        viGradient.setAnimation(fadeOut);
+        rlBottomPanel.startAnimation(fadeOut);
+        viGradient.startAnimation(fadeOut);
         rlBottomPanel.setVisibility(View.VISIBLE);
 
     }
@@ -704,7 +611,7 @@ public class MapActivity extends Activity implements LocationListener {
 
     private void clearBottomPanelData() {
         //setBottomPanelData("", "", null);
-        initBottomPanel();
+//        initBottomPanel();
         hideBottomPanel();
     }
 
@@ -1089,6 +996,82 @@ public class MapActivity extends Activity implements LocationListener {
             loadPoints();
         }
     }
+
+
+    private void checkGraphUpdate() {
+        String dataPath = Settings.getStorageDir(getApplicationContext());
+
+        if (dataPath == null) {
+            DirUtil.StorageDirDesc[] contentPaths = DirUtil.getPrivateStorageDirs(this);
+            dataPath = contentPaths[0].path;
+            Settings.saveString(getApplicationContext(), Const.PREF_STORAGE_PATH, dataPath);
+        }
+
+        File unpackedRootDir = new File(Settings.getStorageDir(getApplicationContext()), "/unpacked");
+        if (!unpackedRootDir.exists())
+            unpackedRootDir.mkdir();
+
+        DownloadXmlTask downloadXmlTask = new DownloadXmlTask(Const.URL_ROOT_XML) {
+            @Override
+            protected void onPostExecute(String response) {
+                if (response != null) {
+                    XmlUtil xml = new XmlUtil(response);
+                    final String newHash = xml.getHashByRegionId(Const.ID_REGION_KARELIA);
+                    final String oldHash = Settings.getMapHash(getApplicationContext());
+                    final String fileName = xml.getFileNameByRegionId(Const.ID_REGION_KARELIA);
+                    final String url = xml.getUrlByRegionId(Const.ID_REGION_KARELIA);
+
+                    if (newHash == null)
+                        return;
+
+                    if (oldHash == null || !oldHash.equals(newHash) || !new File(Settings.getStorageDir(getApplicationContext()),
+                            fileName).exists()) {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                        builder
+                                .setMessage(R.string.text_download_message)
+                                .setCancelable(false)
+                                .setPositiveButton(R.string.text_download_positive,
+                                        new DialogInterface.OnClickListener() {
+
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                Toast.makeText(getApplicationContext(), R.string.toast_download_start, Toast.LENGTH_SHORT).show();
+                                                DownloadGraphTask downloadGraphTask = new DownloadGraphTask(url, fileName, getApplicationContext()) {
+                                                    @Override
+                                                    protected void onPostExecute(Boolean success) {
+                                                        if (success) {
+                                                            Toast.makeText(getApplicationContext(), R.string.toast_download_success, Toast.LENGTH_SHORT).show();
+                                                            Settings.saveMapHash(getApplicationContext(), newHash);
+                                                        }
+                                                        else Toast.makeText(getApplicationContext(), R.string.toast_download_error, Toast.LENGTH_SHORT).show();
+                                                    }
+                                                };
+                                                downloadGraphTask.execute();
+
+                                                dialog.cancel();
+                                            }
+
+                                        })
+                                .setNegativeButton(R.string.text_download_negative,
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                dialog.cancel();
+                                            }
+                                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                    // If ghz-file exists but not unpacked
+                    else if (new File(Settings.getStorageDir(getApplicationContext()), fileName).exists())
+                        DirUtil.unzipInStorage(getApplicationContext(), fileName);
+
+                }
+            }
+        };
+        downloadXmlTask.execute();
+    }
+
+
 
     @Override
     public void onProviderEnabled(String provider) {

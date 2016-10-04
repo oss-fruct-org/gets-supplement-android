@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             android:minHeight="250dp"
             android:clickable="true"
-            mapbox:style_url="mapbox://styles/mapbox/streets-v9"/>
+            mapbox:style_url="@string/mapbox_style_url"/>
 
         <ImageButton
             android:id="@+id/activity_map_my_location"
@@ -60,7 +60,9 @@
         android:layout_width="match_parent"
         android:layout_height="10dp"
         android:background="@drawable/white_gradient"
-        android:layout_above="@+id/activity_map_bottom_panel"/>
+        android:layout_above="@+id/activity_map_bottom_panel"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <RelativeLayout
         android:id="@+id/activity_map_bottom_panel"
@@ -70,7 +72,9 @@
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:padding="10dp"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <ImageView
             android:id="@+id/acitivity_map_bottom_panel_arrow_right"
