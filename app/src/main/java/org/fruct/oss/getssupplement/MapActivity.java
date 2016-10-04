@@ -30,7 +30,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mapbox.mapboxsdk.MapboxAccountManager;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
@@ -135,7 +134,6 @@ public class MapActivity extends Activity implements LocationListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MapboxAccountManager.start(this, getString(R.string.mapbox_token));
         setContentView(R.layout.activity_map);
         followingState = false;
 
@@ -1092,6 +1090,7 @@ public class MapActivity extends Activity implements LocationListener {
     public void onProviderDisabled(String provider) {
 
     }
+
     @Override
     public void onResume() {
         super.onResume();

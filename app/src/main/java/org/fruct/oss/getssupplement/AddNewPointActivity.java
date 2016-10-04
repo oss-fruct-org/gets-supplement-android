@@ -3,6 +3,7 @@ package org.fruct.oss.getssupplement;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +16,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
@@ -49,7 +49,8 @@ public class AddNewPointActivity extends Activity {
     private TextView mCategoryDescription;
     private CheckBox cbMagnet;
     private TextView tvMagnet;
-    private MapView mMap;
+    private MapView mMapView;
+    private MapboxMap mMapboxMap;
 
     public Marker getChoosedLocation() {
         return choosedLocation;
@@ -81,88 +82,22 @@ public class AddNewPointActivity extends Activity {
         });
 
         btLocation = (ImageButton) findViewById(R.id.activity_addpoint_location);
-        btLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (MapActivity.getLocation() != null) {
-                    mMap.getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(MapboxMap mapboxMap) {
-                            LatLng myLocation = new LatLng(MapActivity.getLocation().getLatitude(), MapActivity.getLocation().getLongitude());
-                            CameraPosition position = new CameraPosition.Builder()
-                                    .target(myLocation)
-                                    .build();
-                            mapboxMap.animateCamera(CameraUpdateFactory
-                                    .newCameraPosition(position), 2000);
-                        }
-                    });
-                }
-            }
-        });
-
         btZoomIn = (ImageButton) findViewById(R.id.activity_addpoint_zoom_in);
-        btZoomIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMap.getMapAsync(new OnMapReadyCallback() {
-                    @Override
-                    public void onMapReady(MapboxMap mapboxMap) {
-                        double currentZoom = mapboxMap.getCameraPosition().zoom;
-                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
-                                .zoom(currentZoom + 1).build());
-                    }
-                });
-            }
-        });
-
         btZoomOut = (ImageButton) findViewById(R.id.activity_addpoint_zoom_out);
-        btZoomOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMap.getMapAsync(new OnMapReadyCallback() {
-                    @Override
-                    public void onMapReady(MapboxMap mapboxMap) {
-                        double currentZoom = mapboxMap.getCameraPosition().zoom;
-                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
-                                .zoom(currentZoom - 1).build());
-                    }
-                });
-            }
-        });
-
         cbMagnet = (CheckBox) findViewById(R.id.activity_addpoint_magnet_check);
-        cbMagnet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (gu == null || gu.getGH() == null) {
-                    cbMagnet.setChecked(false);
-                    return;
-                }
-                if (isChecked) {
-                    Point point = mDbHelper.getPointByMarkerId(getChoosedLocation().getId());
-                    if (point != null) {
-                        LatLng coords = attract(new LatLng(point.latitude, point.longitude));
-                        if (coords != null)
-                            addMaker(coords);
-                        else
-                            closestStreetId = -1;
-                    }
-                }
-                else
-                    closestStreetId = -1;
-            }
-        });
-
         tvMagnet = (TextView) findViewById(R.id.activity_addpoint_magnet_text);
-        tvMagnet.setOnClickListener(new View.OnClickListener() {
+
+        mMapView = (MapView) findViewById(R.id.activity_addpoint_mapview);
+        mMapView.onCreate(savedInstanceState);
+        mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onClick(View view) {
-                cbMagnet.setChecked(!cbMagnet.isChecked());
+            public void onMapReady(MapboxMap mapboxMap) {
+                AddNewPointActivity.this.mMapboxMap = mapboxMap;
+                setListeners();
+                initGh();
+                prepareMap();
             }
         });
-
-        initGh();
-        prepareMap();
     }
 
     private void initGh() {
@@ -176,19 +111,16 @@ public class AddNewPointActivity extends Activity {
     }
 
     private void prepareMap() {
-        mMap = (MapView) findViewById(R.id.activity_addpoint_mapview);
 
-        mMap.setClickable(true);
+//        mMapView.setClickable(true);
         // TODO: was ist das?
-//        mMap.setUserLocationEnabled(true);
-
-
+//        mMapView.setUserLocationEnabled(true);
         Intent intent = getIntent();
         double optimalZoom = intent.getDoubleExtra("zoomLevel", 16);
         isInEdit = intent.getBooleanExtra("isInEdit", false);
         double latitude;
         double longitude;
-        final LatLng myLocation;
+        LatLng myLocation;
         float ratingValue;
         String pointName;
         String description;
@@ -196,20 +128,14 @@ public class AddNewPointActivity extends Activity {
         String categoryName;
 
         // If activity is opened as edit form
-
         if (isInEdit) {
             latitude = intent.getDoubleExtra("latitude", 0);
             longitude = intent.getDoubleExtra("longitude", 0);
 
             myLocation = new LatLng(latitude, longitude);
             //TODO: maybe fix by new mapbox feature
-//            mMap.setCenter(myLocation);
-            mMap.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(MapboxMap mapboxMap) {
-                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(myLocation).build());
-                }
-            });
+//            mMapView.setCenter(myLocation);
+            mMapboxMap.setCameraPosition(new CameraPosition.Builder().target(myLocation).build());
             addMaker(myLocation);
 
             deleteCategoryId = intent.getIntExtra("categoryId", 0);
@@ -236,24 +162,25 @@ public class AddNewPointActivity extends Activity {
             longitude =  MapActivity.getLocation().getLongitude();
 
             myLocation = new LatLng(latitude, longitude);
-//            mMap.setCenter(myLocation);
+//            mMapView.setCenter(myLocation);
             //TODO: maybe fix by new mapbox feature
-            mMap.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(MapboxMap mapboxMap) {
-                    mapboxMap.setCameraPosition(new CameraPosition.Builder().target(myLocation).build());
-                }
-            });
+            mMapboxMap.setCameraPosition(new CameraPosition.Builder().target(myLocation).build());
             addMaker(myLocation);
         }
 
+        mMapboxMap.setOnMapClickListener(new MapboxMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng point) {
+                addMaker(point);
+            }
+        });
 /*
-        if (mMap.getMaxZoomLevel() < optimalZoom)
-            mMap.getController().setZoom(mMap.getMaxZoomLevel());
+        if (mMapView.getMaxZoomLevel() < optimalZoom)
+            mMapView.getController().setZoom(mMapView.getMaxZoomLevel());
         else
-            mMap.getController().setZoom(optimalZoom);
+            mMapView.getController().setZoom(optimalZoom);
 
-        mMap.setUseDataConnection(true);
+        mMapView.setUseDataConnection(true);
 
         MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
             @Override
@@ -270,7 +197,7 @@ public class AddNewPointActivity extends Activity {
             }
         };
 
-        mMap.addOverlay(new MapEventsOverlay(getApplicationContext(), mapEventsReceiver));
+        mMapView.addOverlay(new MapEventsOverlay(getApplicationContext(), mapEventsReceiver));
 */
 
     }
@@ -290,20 +217,15 @@ public class AddNewPointActivity extends Activity {
         if (choosedLocation != null)
             choosedLocation.setPosition(position);
         else {
-            final LatLng finalPosition = position;
-            mMap.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(MapboxMap mapboxMap) {
-                    IconFactory iconFactory = IconFactory.getInstance(AddNewPointActivity.this);
-                    Marker marker = mapboxMap.addMarker(new MarkerOptions()
-                            .position(finalPosition)
-                            .icon(iconFactory.defaultMarker()));
-                    setChoosedLocation(marker);
-//                    setChoosedLocation(new Marker(mMap, "", "", finalPosition));
+            IconFactory iconFactory = IconFactory.getInstance(AddNewPointActivity.this);
+            Marker marker = mMapboxMap.addMarker(new MarkerOptions()
+                    .position(position)
+                    .icon(iconFactory.defaultMarker()));
+            setChoosedLocation(marker);
+//                    setChoosedLocation(new Marker(mMapView, "", "", finalPosition));
 //                    getChoosedLocation().setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000"));
-//                    mMap.addMarker(getChoosedLocation());
-                }
-            });
+//                    mMapView.addMarker(getChoosedLocation());
+
         }
     }
 
@@ -352,13 +274,69 @@ public class AddNewPointActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public int getCategory(){
-        return this.category;
-    }
-    public void setCategory(int category) {
-        this.category = category;
-    }
+    private void setListeners() {
+        btLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (MapActivity.getLocation() != null) {
+                    LatLng myLocation = new LatLng(MapActivity.getLocation().getLatitude(), MapActivity.getLocation().getLongitude());
+                    CameraPosition position = new CameraPosition.Builder()
+                            .target(myLocation)
+                            .build();
+                    mMapboxMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(position), 2000);
+                }
+            }
+        });
 
+        btZoomIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                double currentZoom = mMapboxMap.getCameraPosition().zoom;
+                CameraPosition position = new CameraPosition.Builder()
+                        .zoom(currentZoom + 1).build();
+                mMapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
+            }
+        });
+
+        btZoomOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                double currentZoom = mMapboxMap.getCameraPosition().zoom;
+                CameraPosition position = new CameraPosition.Builder()
+                        .zoom(currentZoom - 1).build();
+                mMapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 500);
+            }
+        });
+
+        cbMagnet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (gu == null || gu.getGH() == null) {
+                    cbMagnet.setChecked(false);
+                    return;
+                }
+                if (isChecked) {
+                    Point point = mDbHelper.getPointByMarkerId(getChoosedLocation().getId());
+                    if (point != null) {
+                        LatLng coords = attract(new LatLng(point.latitude, point.longitude));
+                        if (coords != null)
+                            addMaker(coords);
+                        else
+                            closestStreetId = -1;
+                    }
+                } else
+                    closestStreetId = -1;
+            }
+        });
+
+        tvMagnet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cbMagnet.setChecked(!cbMagnet.isChecked());
+            }
+        });
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -384,13 +362,50 @@ public class AddNewPointActivity extends Activity {
     }
 
     private LatLng attract(LatLng point) {
-        if (gu != null || gu.getGH() != null) {
+        if (gu != null && gu.getGH() != null) {
             point = gu.getClosestPoint(point);
             if (gu.getClosestStreet() != null && !gu.getClosestStreet().isEmpty() && !gu.getClosestStreet().startsWith(" "))
                 Toast.makeText(getApplicationContext(), gu.getClosestStreet(), Toast.LENGTH_SHORT).show();
             this.closestStreetId = gu.getClosestStreetId();
         }
         return point;
+    }
 
+
+    public int getCategory(){
+        return this.category;
+    }
+    public void setCategory(int category) {
+        this.category = category;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMapView.onSaveInstanceState(outState);
     }
 }
