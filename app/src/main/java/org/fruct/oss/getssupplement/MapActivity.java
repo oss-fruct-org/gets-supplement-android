@@ -1,10 +1,12 @@
 package org.fruct.oss.getssupplement;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
@@ -17,6 +19,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
+import android.support.v4.app.ActivityCompat;
 import android.view.Menu;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -36,6 +40,7 @@ import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.location.LocationServices;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -76,6 +81,7 @@ public class MapActivity extends Activity implements LocationListener {
     private MapboxMap mapboxMap;
 
     private double mCurrentZoom;
+    private LocationServices locationServices;
 
     public static Location getLocation() {
         return sLocation;
@@ -84,6 +90,8 @@ public class MapActivity extends Activity implements LocationListener {
     private static void setLocation(Location sLocation) {
         MapActivity.sLocation = sLocation;
     }
+
+    private static final int PERMISSIONS_LOCATION = 0;
 
     private static Location sLocation;
 
@@ -156,6 +164,7 @@ public class MapActivity extends Activity implements LocationListener {
         }
 
         context = getApplicationContext();
+        locationServices = LocationServices.getLocationServices(MapActivity.this);
         mMapView = (MapView) findViewById(R.id.activity_map_mapview);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -253,7 +262,7 @@ public class MapActivity extends Activity implements LocationListener {
                     mCurrentZoom = position.zoom;
                 }
             });
-
+        }
 
 //        mMapView.getController().setZoom(17);
 //        mMapView.setUseDataConnection(true);
@@ -261,10 +270,15 @@ public class MapActivity extends Activity implements LocationListener {
 //        mMapView.setDiskCacheEnabled(true);
 //        mMapView.setMinZoomLevel(14);
 
-        findViewById(R.id.activity_map_my_location).setOnClickListener(new View.OnClickListener() {
+        ImageButton ibMyLocation = (ImageButton) findViewById(R.id.activity_map_my_location);
+
+        ibMyLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                        if (sLocation != null) {
+                if (mapboxMap != null) {
+                    toggleGps(mapboxMap.isMyLocationEnabled());
+                }
+/*                        if (sLocation != null) {
                             LatLng coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
                             CameraPosition position = new CameraPosition.Builder()
                                     .target(coords)
@@ -272,9 +286,9 @@ public class MapActivity extends Activity implements LocationListener {
                                     .build();
                             mapboxMap.animateCamera(CameraUpdateFactory
                                     .newCameraPosition(position), 2000);
-                        }
-                    }
-            });
+                        }*/
+            }
+        });
 /*                mMapView.getController().setZoomAnimated(19,
                         new LatLng(
                                 mMapView.getUserLocation().getLatitude(),
@@ -283,17 +297,16 @@ public class MapActivity extends Activity implements LocationListener {
                         false
                 );
             }*/
-        }
 
-        findViewById(R.id.acitivity_map_app_info).setOnClickListener(new View.OnClickListener() {
+
+        ImageButton ibMapInfo = (ImageButton) findViewById(R.id.acitivity_map_app_info);
+        ibMapInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), AppInfoActivity.class);
                 startActivityForResult(intent, Const.INTENT_RESULT_APP_INFO);
             }
         });
-
-//        hideBottomPanel();
     }
 
     private void setUpLocation() {
@@ -1069,7 +1082,51 @@ public class MapActivity extends Activity implements LocationListener {
         downloadXmlTask.execute();
     }
 
+    @UiThread
+    public void toggleGps(boolean enableGps) {
+        if (enableGps) {
+            // Check if user has granted location permission
+            if (!locationServices.areLocationPermissionsGranted()) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_LOCATION);
+            } else {
+                enableLocation(true);
+            }
+        } else {
+            enableLocation(false);
+        }
+    }
 
+    private void enableLocation(boolean enabled) {
+        if (enabled) {
+            locationServices.addLocationListener(new com.mapbox.mapboxsdk.location.LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    if (location != null) {
+                        // Move the map camera to where the user location is
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                                .target(new LatLng(location))
+                                .zoom(16)
+                                .build());
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_LOCATION: {
+                if (grantResults.length > 0 &&
+                        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableLocation(true);
+                }
+            }
+        }
+    }
 
     @Override
     public void onProviderEnabled(String provider) {
