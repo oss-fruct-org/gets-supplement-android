@@ -408,7 +408,7 @@ public class MapActivity extends Activity implements LocationListener {
                 if (mapboxMap != null) {
                     for (Point point : response.points) {
                         if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
-                            addMarker(point, mapboxMap);
+                            addMarker(point);
                     }
                     new Thread(new Runnable() {
                         @Override
@@ -636,7 +636,7 @@ public class MapActivity extends Activity implements LocationListener {
         return false;
     }
 
-    private void addMarker(Point point, MapboxMap mapboxMap) {
+    private void addMarker(Point point) {
 
         /**
          * https://www.mapbox.com/help/android-markers/
@@ -936,7 +936,7 @@ public class MapActivity extends Activity implements LocationListener {
                 point.rating = rating;
                 point.categoryId = pointCategory;
                 if (mapboxMap != null) {
-                    addMarker(point, mapboxMap);
+                    addMarker(point);
                     GetsDbHelper dbSaveHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
                     dbSaveHelper.addPoint(point);
                 }
@@ -962,7 +962,7 @@ public class MapActivity extends Activity implements LocationListener {
                 try {
                     point = response.points.get(0);
                     if (mapboxMap != null)
-                        addMarker(point, mapboxMap);
+                        addMarker(point);
                 } catch (ArrayIndexOutOfBoundsException e) {
                     e.printStackTrace();
                 }
@@ -992,7 +992,7 @@ public class MapActivity extends Activity implements LocationListener {
                         points = dbHelper.getPoints(categoryArrayList.get(i).id);
                         if (points != null) {
                             for (Point point : points)
-                                addMarker(point, mapboxMap);
+                                addMarker(point);
                         }
                     }
                 }

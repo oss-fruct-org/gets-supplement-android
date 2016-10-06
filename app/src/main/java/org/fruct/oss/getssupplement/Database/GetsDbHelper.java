@@ -103,6 +103,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("delete from " + Const.DB_INTERNAL_POINTS);
         //db.execSQL("delete from " + Const.DB_INTERNAL_CATEGORIES);
+        db.close();
     }
 
     /**
@@ -127,7 +128,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         }
 
         cursor.close();
-
+        db.close();
         return categoryName;
     }
 
@@ -140,6 +141,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("description", description);
         cv.put("iconurl", url);
         db.insertWithOnConflict(Const.DB_INTERNAL_CATEGORIES, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
     }
 
     public void addCategories(ArrayList<Category> categories) {
@@ -174,9 +176,11 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             } while (cursor.moveToNext());
 
             cursor.close();
+            db.close();
             return list;
         }
-
+        cursor.close();
+        db.close();
         return null;
     }
 
@@ -232,6 +236,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("markerId", markerId);
 
         db.insertWithOnConflict(Const.DB_INTERNAL_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
     }
 
     public void addPoints(ArrayList<Point> points) {
@@ -297,10 +302,12 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             } while (cursor.moveToNext());
 
             cursor.close();
+            db.close();
             return list;
         }
 
         cursor.close();
+        db.close();
         return null;
     }
 
