@@ -28,7 +28,6 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
-import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Utils.GHUtil;
 
 import java.io.File;
@@ -56,7 +55,8 @@ public class AddNewPointActivity extends Activity {
     private GHUtil gu;
     private GetsDbHelper mDbHelper;
     private int closestStreetId = -1;
-    private Marker choosedLocation = null;
+    private Marker mCurrentMarker = null;
+    private LatLng mHomeLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +67,6 @@ public class AddNewPointActivity extends Activity {
         mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
         rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
         btCategory = (Button) findViewById(R.id.activity_addpoint_category);
-
         btCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,38 +105,32 @@ public class AddNewPointActivity extends Activity {
     }
 
     private void prepareMap() {
-        // TODO: was ist das?
-//        mMapView.setUserLocationEnabled(true);
         Intent intent = getIntent();
         double optimalZoom = intent.getDoubleExtra("zoomLevel", 16);
         isInEdit = intent.getBooleanExtra("isInEdit", false);
-        double latitude;
-        double longitude;
-        LatLng myLocation;
+        double latitude = intent.getDoubleExtra("latitude", 0);
+        double longitude = intent.getDoubleExtra("longitude", 0);
         float ratingValue;
         String pointName;
         String description;
         String token;
         String categoryName;
 
+        mHomeLocation = new LatLng(latitude, longitude);
+        mMapboxMap.setCameraPosition(new CameraPosition.Builder()
+                .target(mHomeLocation)
+                .zoom(optimalZoom)
+                .build());
+        addMaker(mHomeLocation);
+
         // If activity is opened as edit form
         if (isInEdit) {
-            latitude = intent.getDoubleExtra("latitude", 0);
-            longitude = intent.getDoubleExtra("longitude", 0);
-
-            myLocation = new LatLng(latitude, longitude);
-            //TODO: maybe fix by new mapbox feature
-//            mMapView.setCenter(myLocation);
-            mMapboxMap.setCameraPosition(new CameraPosition.Builder().target(myLocation).build());
-            addMaker(myLocation);
-
             deleteCategoryId = intent.getIntExtra("categoryId", 0);
             ratingValue = intent.getFloatExtra("rating", 0);
             pointName = intent.getStringExtra("name");
             description = intent.getStringExtra("description");
             deleteUuid = intent.getStringExtra("uuid");
             token = intent.getStringExtra("token");
-
 
             EditText Point_name = (EditText) findViewById(R.id.activity_addpoint_name);
             categoryName = mDbHelper.getCategoryName(deleteCategoryId);
@@ -149,14 +142,6 @@ public class AddNewPointActivity extends Activity {
                 mCategoryDescription.setText(description);
             btCategory.setText(getString(R.string.category) + " " + categoryName);
             setCategory(deleteCategoryId);
-        } else if (MapActivity.getLocation() != null) {
-            latitude = MapActivity.getLocation().getLatitude();
-            longitude = MapActivity.getLocation().getLongitude();
-            myLocation = new LatLng(latitude, longitude);
-//            mMapView.setCenter(myLocation);
-            //TODO: maybe fix by new mapbox feature
-            mMapboxMap.setCameraPosition(new CameraPosition.Builder().target(myLocation).build());
-            addMaker(myLocation);
         }
 
         mMapboxMap.setOnMapClickListener(new MapboxMap.OnMapClickListener() {
@@ -165,32 +150,6 @@ public class AddNewPointActivity extends Activity {
                 addMaker(point);
             }
         });
-/*
-        if (mMapView.getMaxZoomLevel() < optimalZoom)
-            mMapView.getController().setZoom(mMapView.getMaxZoomLevel());
-        else
-            mMapView.getController().setZoom(optimalZoom);
-
-        mMapView.setUseDataConnection(true);
-
-        MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
-            @Override
-            public boolean singleTapUpHelper(ILatLng iLatLng) {
-                addMaker(new LatLng(iLatLng.getLatitude(), iLatLng.getLongitude()));
-                //Toast.makeText(getApplicationContext(), "Single tap " + iLatLng, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            @Override
-            public boolean longPressHelper(ILatLng iLatLng) {
-                //Toast.makeText(getApplicationContext(), "Long press", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        };
-
-        mMapView.addOverlay(new MapEventsOverlay(getApplicationContext(), mapEventsReceiver));
-*/
-
     }
 
     @Override
@@ -201,18 +160,16 @@ public class AddNewPointActivity extends Activity {
 
 
     private void addMaker(LatLng position) {
-
         if (cbMagnet.isChecked())
             position = attract(position);
-
-        if (choosedLocation != null)
-            choosedLocation.setPosition(position);
+        if (getCurrentMarker() != null)
+            getCurrentMarker().setPosition(position);
         else {
             IconFactory iconFactory = IconFactory.getInstance(AddNewPointActivity.this);
             Marker marker = mMapboxMap.addMarker(new MarkerOptions()
                     .position(position)
                     .icon(iconFactory.defaultMarker()));
-            setChoosedLocation(marker);
+            setCurrentMarker(marker);
         }
     }
 
@@ -238,7 +195,7 @@ public class AddNewPointActivity extends Activity {
                 intent.putExtra("name", name);
             }
 
-            LatLng markerLocation = getChoosedLocation().getPosition();
+            LatLng markerLocation = getCurrentMarker().getPosition();
             intent.putExtra("latitude", markerLocation.getLatitude());
             intent.putExtra("longitude", markerLocation.getLongitude());
             intent.putExtra("category", getCategory());
@@ -258,13 +215,14 @@ public class AddNewPointActivity extends Activity {
         btLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (MapActivity.getLocation() != null) {
-                    LatLng myLocation = new LatLng(MapActivity.getLocation().getLatitude(), MapActivity.getLocation().getLongitude());
+                if (mMapboxMap != null) {
                     CameraPosition position = new CameraPosition.Builder()
-                            .target(myLocation)
+                            .target(new LatLng(mHomeLocation))
+                            .zoom(16)
                             .build();
                     mMapboxMap.animateCamera(CameraUpdateFactory
                             .newCameraPosition(position), 2000);
+
                 }
             }
         });
@@ -297,14 +255,11 @@ public class AddNewPointActivity extends Activity {
                     return;
                 }
                 if (isChecked) {
-                    Point point = mDbHelper.getPointByMarkerId(getChoosedLocation().getId());
-                    if (point != null) {
-                        LatLng coords = attract(new LatLng(point.latitude, point.longitude));
-                        if (coords != null)
-                            addMaker(coords);
-                        else
-                            closestStreetId = -1;
-                    }
+                    LatLng coords = attract(getCurrentMarker().getPosition());
+                    if (coords != null)
+                        addMaker(coords);
+                    else
+                        closestStreetId = -1;
                 } else
                     closestStreetId = -1;
             }
@@ -364,12 +319,12 @@ public class AddNewPointActivity extends Activity {
         this.category = category;
     }
 
-    public Marker getChoosedLocation() {
-        return choosedLocation;
+    public Marker getCurrentMarker() {
+        return mCurrentMarker;
     }
 
-    public void setChoosedLocation(Marker _choosedLocation) {
-        this.choosedLocation = _choosedLocation;
+    public void setCurrentMarker(Marker currentMarker) {
+        this.mCurrentMarker = currentMarker;
     }
 
     @Override

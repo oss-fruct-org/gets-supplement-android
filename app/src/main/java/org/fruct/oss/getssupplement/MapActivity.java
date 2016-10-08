@@ -12,7 +12,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -97,6 +96,18 @@ public class MapActivity extends Activity {
     ImageButton ibBottomPanelDelete = null;
     ImageButton ibBottomPanelEdit = null;
     View viGradient = null;
+    private com.mapbox.mapboxsdk.location.LocationListener mLocationListener = new com.mapbox.mapboxsdk.location.LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            if (location != null) {
+                // Move the map camera to where the user location is
+                mMapboxMap.setCameraPosition(new CameraPosition.Builder()
+                        .target(new LatLng(location))
+                        .zoom(16)
+                        .build());
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -488,6 +499,8 @@ public class MapActivity extends Activity {
         if (id == R.id.action_add) {
             Intent intent = new Intent(this, AddNewPointActivity.class);
             intent.putExtra("zoomLevel", mCurrentZoom);
+            intent.putExtra("latitude", mMapboxMap.getMyLocation().getLatitude());
+            intent.putExtra("longitude", mMapboxMap.getMyLocation().getLongitude());
             startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
         }
 
@@ -811,18 +824,9 @@ public class MapActivity extends Activity {
 
     private void enableLocation(boolean enabled) {
         if (enabled) {
-            locationServices.addLocationListener(new com.mapbox.mapboxsdk.location.LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    if (location != null) {
-                        // Move the map camera to where the user location is
-                        mMapboxMap.setCameraPosition(new CameraPosition.Builder()
-                                .target(new LatLng(location))
-                                .zoom(16)
-                                .build());
-                    }
-                }
-            });
+            locationServices.addLocationListener(mLocationListener);
+        } else {
+            locationServices.removeLocationListener(mLocationListener);
         }
     }
 
@@ -870,4 +874,3 @@ public class MapActivity extends Activity {
         mMapView.onSaveInstanceState(outState);
     }
 }
-
