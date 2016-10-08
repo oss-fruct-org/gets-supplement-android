@@ -148,20 +148,22 @@ public class MapActivity extends Activity {
         if (mMapboxMap != null) {
             mMapboxMap.getUiSettings().setRotateGesturesEnabled(false);
             mMapboxMap.getUiSettings().setLogoEnabled(false);
+            mMapboxMap.getUiSettings().setTiltGesturesEnabled(false);
             mMapboxMap.setMyLocationEnabled(true);
             mMapboxMap.setMinZoom(14);
             Location location = mMapboxMap.getMyLocation();
 
             CameraPosition position;
+            mCurrentZoom = 17;
             if (location != null) {
                 position = new CameraPosition.Builder()
                         .target(new LatLng(location))
-                        .zoom(17)
+                        .zoom(mCurrentZoom)
                         .build();
             } else {
                 position = new CameraPosition.Builder()
                         .target(new LatLng(61.784626, 34.345600))
-                        .zoom(17)
+                        .zoom(mCurrentZoom)
                         .build();
             }
             mMapboxMap.animateCamera(CameraUpdateFactory
@@ -387,6 +389,9 @@ public class MapActivity extends Activity {
 
 
     private void hideBottomPanel() {
+        if (!isBottomPanelShowed())
+            return;
+
         Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
