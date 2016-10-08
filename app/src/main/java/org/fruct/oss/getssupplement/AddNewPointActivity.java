@@ -38,6 +38,9 @@ import java.io.File;
  */
 public class AddNewPointActivity extends Activity {
 
+    private MapView mMapView;
+    private MapboxMap mMapboxMap;
+
     private boolean isInEdit;
     private String deleteUuid;
     private int deleteCategoryId;
@@ -49,19 +52,11 @@ public class AddNewPointActivity extends Activity {
     private TextView mCategoryDescription;
     private CheckBox cbMagnet;
     private TextView tvMagnet;
-    private MapView mMapView;
-    private MapboxMap mMapboxMap;
 
-    public Marker getChoosedLocation() {
-        return choosedLocation;
-    }
-
-    public void setChoosedLocation(Marker _choosedLocation) { this.choosedLocation = _choosedLocation; }
-
-    private Marker choosedLocation = null;
     private GHUtil gu;
-    private int closestStreetId = -1;
     private GetsDbHelper mDbHelper;
+    private int closestStreetId = -1;
+    private Marker choosedLocation = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,8 +106,6 @@ public class AddNewPointActivity extends Activity {
     }
 
     private void prepareMap() {
-
-//        mMapView.setClickable(true);
         // TODO: was ist das?
 //        mMapView.setUserLocationEnabled(true);
         Intent intent = getIntent();
@@ -152,15 +145,13 @@ public class AddNewPointActivity extends Activity {
             // Set values
             Point_name.setText(pointName);
             rbRating.setRating(ratingValue);
-            if (description != null && !description.equals("{}")) mCategoryDescription.setText(description);
+            if (description != null && !description.equals("{}"))
+                mCategoryDescription.setText(description);
             btCategory.setText(getString(R.string.category) + " " + categoryName);
             setCategory(deleteCategoryId);
-        }
-
-        else if (MapActivity.getLocation() != null) {
-            latitude =  MapActivity.getLocation().getLatitude();
-            longitude =  MapActivity.getLocation().getLongitude();
-
+        } else if (MapActivity.getLocation() != null) {
+            latitude = MapActivity.getLocation().getLatitude();
+            longitude = MapActivity.getLocation().getLongitude();
             myLocation = new LatLng(latitude, longitude);
 //            mMapView.setCenter(myLocation);
             //TODO: maybe fix by new mapbox feature
@@ -222,24 +213,17 @@ public class AddNewPointActivity extends Activity {
                     .position(position)
                     .icon(iconFactory.defaultMarker()));
             setChoosedLocation(marker);
-//                    setChoosedLocation(new Marker(mMapView, "", "", finalPosition));
-//                    getChoosedLocation().setIcon(new Icon(getApplicationContext(), Icon.Size.LARGE, "marker-stroked", "000000"));
-//                    mMapView.addMarker(getChoosedLocation());
-
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         Intent intent = new Intent();
 
-        if (id == R.id.action_done_adding){
-
+        if (id == R.id.action_done_adding) {
             EditText Point_name = (EditText) findViewById(R.id.activity_addpoint_name);
             String pointName = Point_name.getText().toString();
-
             float ratingValue = rbRating.getRating();
 
             if (ratingValue == 0f || getCategory() == -1) {
@@ -247,7 +231,6 @@ public class AddNewPointActivity extends Activity {
                 return false;
             }
 
-            LatLng markerLocation = getChoosedLocation().getPosition();
             if (!pointName.isEmpty())
                 intent.putExtra("name", pointName);
             else {
@@ -255,22 +238,19 @@ public class AddNewPointActivity extends Activity {
                 intent.putExtra("name", name);
             }
 
-
+            LatLng markerLocation = getChoosedLocation().getPosition();
             intent.putExtra("latitude", markerLocation.getLatitude());
             intent.putExtra("longitude", markerLocation.getLongitude());
             intent.putExtra("category", getCategory());
             intent.putExtra("rating", ratingValue);
             intent.putExtra("streetId", closestStreetId);
-
             if (isInEdit) {
                 intent.putExtra("deleteUuid", deleteUuid);
                 intent.putExtra("deleteCategoryId", deleteCategoryId);
             }
-
             setResult(Const.INTENT_RESULT_CODE_OK, intent);
             finish();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -351,13 +331,18 @@ public class AddNewPointActivity extends Activity {
             String description = data.getStringExtra("description");
             setCategory(categoryId);
 
-            if (btCategory != null)
-                if (name != null) btCategory.setText(getString(R.string.category) + " " + name);
-                else btCategory.setText(getString(R.string.category));
-
-            if (mCategoryDescription != null)
-                if (description != null) mCategoryDescription.setText(description);
-                else mCategoryDescription.setText("");
+            if (btCategory != null) {
+                if (name != null)
+                    btCategory.setText(getString(R.string.category) + " " + name);
+                else
+                    btCategory.setText(getString(R.string.category));
+            }
+            if (mCategoryDescription != null) {
+                if (description != null)
+                    mCategoryDescription.setText(description);
+                else
+                    mCategoryDescription.setText("");
+            }
         }
     }
 
@@ -371,12 +356,20 @@ public class AddNewPointActivity extends Activity {
         return point;
     }
 
-
-    public int getCategory(){
+    public int getCategory() {
         return this.category;
     }
+
     public void setCategory(int category) {
         this.category = category;
+    }
+
+    public Marker getChoosedLocation() {
+        return choosedLocation;
+    }
+
+    public void setChoosedLocation(Marker _choosedLocation) {
+        this.choosedLocation = _choosedLocation;
     }
 
     @Override
@@ -401,6 +394,7 @@ public class AddNewPointActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+        mDbHelper.close();
     }
 
     @Override

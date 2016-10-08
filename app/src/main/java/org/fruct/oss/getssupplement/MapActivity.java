@@ -73,97 +73,55 @@ import java.util.concurrent.ExecutionException;
 
 public class MapActivity extends Activity implements LocationListener {
 
-    static Context context;
-
     private Menu menu;
+    private ProgressBar progressBar;
 
     private MapView mMapView;
     private MapboxMap mapboxMap;
 
-    private double mCurrentZoom;
-    private LocationServices locationServices;
-
-    public static Location getLocation() {
-        return sLocation;
-    }
-
-    private static void setLocation(Location sLocation) {
-        MapActivity.sLocation = sLocation;
-    }
-
+    private static Context context;
     private static final int PERMISSIONS_LOCATION = 0;
-
     private static Location sLocation;
 
-    private static LatLng loadCenter;
-
-    private static LatLng getLoadCenter() {
-        return loadCenter;
-    }
-
-    private static void setLoadCenter(LatLng location) {
-        MapActivity.loadCenter = location;
-    }
-
     private boolean followingState;
-
     private boolean succesLoading = false;
-
     private boolean isLocationOn = false;
+    private double mCurrentZoom;
 
-    private ProgressBar progressBar;
-
-    private LocationProvider currentProvider = null;
-
+    private LocationProvider gpsProvider, networkProvider, currentProvider = null;
     private LocationManager locationManager;
-
-    private  LocationProvider gpsProvider;
-
-    private LocationProvider networkProvider;
+    private LocationServices locationServices;
 
     private Timer mapOffset;
-
-    private GetsDbHelper dbHelper;
-    private GetsDbHelper dbHelperSend;
+    private GetsDbHelper dbHelper, dbHelperSend;
 
     private ArrayList<Category> categoryArrayList;
+    private Marker currentSelectedMarker = null;
 
-    private Marker getCurrentSelectedMarker() {
-        return currentSelectedMarker;
-    }
-
-    private void setCurrentSelectedMarker(Marker currentSelectedMarker) {
-        this.currentSelectedMarker = currentSelectedMarker;
-    }
-
-    Marker currentSelectedMarker = null;
-
+    /**
+     * Bottom panel views
+     */
+    RelativeLayout rlBottomPanel = null;
+    TextView tvBottomPanelName = null;
+    TextView tvBottomPanelDescription = null;
+    ImageView ivBottomPanelArrowRight = null;
+    ImageView ivBottomPanelIcon = null;
+    ImageButton ibBottomPanelDelete = null;
+    ImageButton ibBottomPanelEdit = null;
+    View viGradient = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         followingState = false;
-
         dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
 
         checkGraphUpdate();
-
         initBottomPanel();
-
         setUpLocation();
-
-        try {
-            setLoadCenter(new LatLng(sLocation.getLatitude(), sLocation.getLongitude()));
-        }
-        catch(NullPointerException e) {
-            e.printStackTrace();
-        }
-        finally {
-            setLoadCenter(new LatLng(61.784626, 34.345600));
-        }
-
         context = getApplicationContext();
+
         locationServices = LocationServices.getLocationServices(MapActivity.this);
         mMapView = (MapView) findViewById(R.id.activity_map_mapview);
         mMapView.onCreate(savedInstanceState);
@@ -210,17 +168,13 @@ public class MapActivity extends Activity implements LocationListener {
                 }
             }
         });
-
-    }
-
-    public static boolean isAuthorized() {
-        return Settings.getToken(context) != null;
     }
 
     private void setUpMapView() {
         if (mapboxMap != null) {
             mapboxMap.getUiSettings().setRotateGesturesEnabled(false);
             mapboxMap.setMyLocationEnabled(true);
+            mapboxMap.setMinZoom(14);
             if (sLocation != null) {
                 LatLng coords = new LatLng(getLocation().getLatitude(), getLocation().getLongitude());
                 CameraPosition position = new CameraPosition.Builder()
@@ -231,7 +185,6 @@ public class MapActivity extends Activity implements LocationListener {
                         .newCameraPosition(position), 3000);
             }
 
-//                mapboxMap.setMinZoom(14);
             mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
@@ -311,32 +264,32 @@ public class MapActivity extends Activity implements LocationListener {
 
     private void setUpLocation() {
 
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-            gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
-            networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
-            if (gpsProvider != null) {
-                try {
-                    Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
-                    // If gps isn't connected yet, try to obtain network location
-                    if (gpsLocation == null)
-                        setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-                } catch (SecurityException e) {
-                    e.printStackTrace();
-                }
-                if (sLocation != null)
-                    return;
-            }
-
-            if (networkProvider != null) {
-                try {
+        gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+        networkProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+        if (gpsProvider != null) {
+            try {
+                Location gpsLocation = locationManager.getLastKnownLocation(gpsProvider.getName());
+                // If gps isn't connected yet, try to obtain network location
+                if (gpsLocation == null)
                     setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
-                } catch (SecurityException e) {
-                    e.printStackTrace();
-                }
-                if (sLocation != null)
-                    return;
+            } catch (SecurityException e) {
+                e.printStackTrace();
             }
+            if (sLocation != null)
+                return;
+        }
+
+        if (networkProvider != null) {
+            try {
+                setLocation(locationManager.getLastKnownLocation(networkProvider.getName()));
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
+            if (sLocation != null)
+                return;
+        }
 
         // Set Petrozavodsk city if undefined
         sLocation = new Location("Undefined");
@@ -368,43 +321,23 @@ public class MapActivity extends Activity implements LocationListener {
     }
 
     private void loadPoints() {
-
         if (getLocation() == null) {
             return;
         }
-
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
         final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
                 getLocation().getLatitude(), getLocation().getLongitude(),
                 Const.API_POINTS_RADIUS) {
-/*            @Override
-            protected void onProgressUpdate(final Point... point) {
-                super.onProgressUpdate(point);
-                if (Settings.getIsChecked(getApplicationContext(), point[0].categoryId))
-                    mMapView.getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(MapboxMap mapboxMap) {
-//                            addMarker(point[0], mapboxMap);
-                        }
-                    });
-            }*/
-
             @Override
             public void onPostExecute(final PointsResponse response) {
-
                 if (response == null) {
                     return;
                 }
-
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
                 succesLoading = true;
-
-
-//                GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-//                ArrayList<Point> points = dbHelper.getPoints();
                 if (mapboxMap != null) {
                     for (Point point : response.points) {
                         if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
@@ -419,35 +352,26 @@ public class MapActivity extends Activity implements LocationListener {
                     }).start();
                 }
             }
-
         };
-
 
         CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext())) {
             @Override
             public void onPostExecute(CategoriesResponse response) {
                 if (response == null)
                     return;
-
                 categoryArrayList = response.categories;
                 dbHelper.addCategories(response.categories);
-
                 if (menu != null) {
                     MenuItem miActions = menu.findItem(R.id.action_category_actions);
                     if (miActions != null)
                         miActions.setEnabled(true);
                 }
-
                 pointsGet.execute();
             }
         };
-
         categoriesGet.execute();
+    }
 
-    }
-    private void loadFilteredPoints() {
-        //dbHelper.getFilteredPoints();
-    }
     private void checkUserStatus() {
         // Get user info
         String usrToken = Settings.getToken(getApplicationContext());
@@ -455,7 +379,6 @@ public class MapActivity extends Activity implements LocationListener {
             @Override
             protected void onPostExecute(UserInfoResponse userInfoResponse) {
                 super.onPostExecute(userInfoResponse);
-
                 // Save user status
                 if (userInfoResponse == null) {
                     Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
@@ -468,21 +391,10 @@ public class MapActivity extends Activity implements LocationListener {
                 }
             }
         };
-
         if (usrToken == null || usrToken.equals(""))
             Settings.saveBoolean(getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
         else userInfoGet.execute();
     }
-
-    RelativeLayout rlBottomPanel = null;
-    TextView tvBottomPanelName = null;
-    TextView tvBottomPanelDescription = null;
-    ImageView ivBottomPanelArrowRight = null;
-    ImageView ivBottomPanelIcon = null;
-    ImageButton ibBottomPanelDelete = null;
-    ImageButton ibBottomPanelEdit = null;
-    View viGradient = null;
-
 
     private void initBottomPanel() {
         rlBottomPanel = (RelativeLayout) findViewById(R.id.activity_map_bottom_panel);
@@ -496,35 +408,25 @@ public class MapActivity extends Activity implements LocationListener {
     }
 
     private void setBottomPanelData(final Point point) {
-
-//        initBottomPanel();
-
         tvBottomPanelName.setText(point.name);
-
         String descriptionText = "";
 
         if (point.description != null && !point.description.equals("") && !point.description.equals("{}"))
             descriptionText += point.description + "\n";
-
         if (point.rating != 0)
             descriptionText += getString(R.string.rating) + point.rating;
-
         if (!descriptionText.equals("")) {
             tvBottomPanelDescription.setText(descriptionText.trim());
             tvBottomPanelDescription.setVisibility(View.VISIBLE);
         } else {
             tvBottomPanelDescription.setVisibility(View.INVISIBLE);
         }
-
         if (point.access == null || point.access.indexOf("w") != -1) {
             ibBottomPanelDelete.setVisibility(View.VISIBLE);
             ibBottomPanelEdit.setVisibility(View.VISIBLE);
         }
         if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
             ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
-
-        // TODO: browsing arrows
-        // ivBottomPanelArrowRight.setVisibility(View.VISIBLE);
 
         ibBottomPanelDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -536,9 +438,7 @@ public class MapActivity extends Activity implements LocationListener {
         ibBottomPanelEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(MapActivity.this, AddNewPointActivity.class);
-
                 intent.putExtra("latitude", point.latitude);
                 intent.putExtra("longitude", point.longitude);
                 intent.putExtra("name", point.name);
@@ -546,25 +446,19 @@ public class MapActivity extends Activity implements LocationListener {
                 intent.putExtra("description", point.description);
                 intent.putExtra("rating", point.rating);
                 intent.putExtra("uuid", point.uuid);
-
                 intent.putExtra("token", Settings.getToken(getApplicationContext()));
                 intent.putExtra("zoomLevel", mCurrentZoom);
                 intent.putExtra("isInEdit", true);
-
                 startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
-
             }
         });
 
         if (!isBottomPanelShowed())
             showBottomPanel();
-
     }
 
 
     private void hideBottomPanel() {
-//        initBottomPanel();
-
         Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -586,13 +480,9 @@ public class MapActivity extends Activity implements LocationListener {
 
         rlBottomPanel.startAnimation(fadeOut);
         viGradient.startAnimation(fadeOut);
-
     }
 
     private void showBottomPanel() {
-
-//        initBottomPanel();
-
         Animation fadeOut = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
         fadeOut.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -609,21 +499,13 @@ public class MapActivity extends Activity implements LocationListener {
             public void onAnimationRepeat(Animation animation) {
             }
         });
-
         rlBottomPanel.startAnimation(fadeOut);
         viGradient.startAnimation(fadeOut);
         rlBottomPanel.setVisibility(View.VISIBLE);
-
     }
 
     private boolean isBottomPanelShowed() {
         return rlBottomPanel.getVisibility() == View.VISIBLE;
-    }
-
-    private void clearBottomPanelData() {
-        //setBottomPanelData("", "", null);
-//        initBottomPanel();
-        hideBottomPanel();
     }
 
     public static boolean isInternetConnectionAvailable() {
@@ -632,19 +514,15 @@ public class MapActivity extends Activity implements LocationListener {
 
         if (networkInfo != null && networkInfo.isConnected())
             return true;
-
         return false;
     }
 
     private void addMarker(Point point) {
-
         /**
          * https://www.mapbox.com/help/android-markers/
          * Не добавлять title/snippet
          * set point id = marker id
          */
-
-//        Marker marker = new Marker(mMapView, point.name, "", new LatLng(point.latitude, point.longitude));
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
         IconFactory iconFactory = IconFactory.getInstance(this);
@@ -660,9 +538,6 @@ public class MapActivity extends Activity implements LocationListener {
                 .position(new LatLng(point.latitude, point.longitude))
                 .icon(icon));
         point.markerId = marker.getId();
-
-//        marker.setRelatedObject(point);
-//        mMapView.addMarker(marker);
     }
 
 
@@ -671,14 +546,6 @@ public class MapActivity extends Activity implements LocationListener {
         // Inflate the menu; this adds items to the action bar if it is present.
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_map, menu);
-/*
-        selectAvailableProvider();
-        if(currentProvider != null && getLocation() != null) {
-            isLocationOn = true;
-            startFollow();
-        }
-*/
-
         return true;
     }
 
@@ -691,7 +558,6 @@ public class MapActivity extends Activity implements LocationListener {
         } catch (SecurityException e) {
             e.printStackTrace();
         }
-//        mMapView.setMapOrientation(0);
         mapOffset.cancel();
     }
 
@@ -757,8 +623,7 @@ public class MapActivity extends Activity implements LocationListener {
                 }
             }, 0L, 6L * 10);
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -778,6 +643,7 @@ public class MapActivity extends Activity implements LocationListener {
             }
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -787,7 +653,7 @@ public class MapActivity extends Activity implements LocationListener {
 
         if (id == R.id.follow_location) {
             selectAvailableProvider();
-            if(currentProvider != null) {
+            if (currentProvider != null) {
                 if (followingState)
                     stopFollow();
                 else
@@ -802,7 +668,6 @@ public class MapActivity extends Activity implements LocationListener {
         }
 
         if (id == R.id.activity_map_refresh) {
-//            mMapView.clear();
             if (mapboxMap != null)
                 mapboxMap.removeAnnotations();
             setUpLocation();
@@ -895,7 +760,7 @@ public class MapActivity extends Activity implements LocationListener {
                         if (response.code == 0)
                             deleteMarker(getCurrentSelectedMarker());
                         else {
-                            Toast.makeText(getApplicationContext(), R.string.unsuccessful_edit,Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), R.string.unsuccessful_edit, Toast.LENGTH_SHORT).show();
                         }
                     }
                 };
@@ -1053,8 +918,8 @@ public class MapActivity extends Activity implements LocationListener {
                                                         if (success) {
                                                             Toast.makeText(getApplicationContext(), R.string.toast_download_success, Toast.LENGTH_SHORT).show();
                                                             Settings.saveMapHash(getApplicationContext(), newHash);
-                                                        }
-                                                        else Toast.makeText(getApplicationContext(), R.string.toast_download_error, Toast.LENGTH_SHORT).show();
+                                                        } else
+                                                            Toast.makeText(getApplicationContext(), R.string.toast_download_error, Toast.LENGTH_SHORT).show();
                                                     }
                                                 };
                                                 downloadGraphTask.execute();
@@ -1080,6 +945,27 @@ public class MapActivity extends Activity implements LocationListener {
             }
         };
         downloadXmlTask.execute();
+    }
+
+
+    public static Location getLocation() {
+        return sLocation;
+    }
+
+    private static void setLocation(Location sLocation) {
+        MapActivity.sLocation = sLocation;
+    }
+
+    private Marker getCurrentSelectedMarker() {
+        return currentSelectedMarker;
+    }
+
+    private void setCurrentSelectedMarker(Marker currentSelectedMarker) {
+        this.currentSelectedMarker = currentSelectedMarker;
+    }
+
+    public static boolean isAuthorized() {
+        return Settings.getToken(context) != null;
     }
 
     @UiThread
@@ -1170,6 +1056,7 @@ public class MapActivity extends Activity implements LocationListener {
     protected void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
+        dbHelper.close();
     }
 
     @Override
