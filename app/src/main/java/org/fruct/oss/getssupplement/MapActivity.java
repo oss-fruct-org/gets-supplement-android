@@ -73,7 +73,6 @@ public class MapActivity extends Activity {
     private MapView mMapView;
     private MapboxMap mMapboxMap;
 
-    private static Context context;
     private static final int PERMISSIONS_LOCATION = 0;
 
     private boolean mIsFollowingEnabled = false;
@@ -117,7 +116,6 @@ public class MapActivity extends Activity {
 
         checkGraphUpdate();
         initBottomPanel();
-        context = getApplicationContext();
 
         locationServices = LocationServices.getLocationServices(MapActivity.this);
         mMapView = (MapView) findViewById(R.id.activity_map_mapview);
@@ -440,8 +438,8 @@ public class MapActivity extends Activity {
         return rlBottomPanel.getVisibility() == View.VISIBLE;
     }
 
-    public static boolean isInternetConnectionAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    public boolean isInternetConnectionAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected())
             return true;
@@ -795,8 +793,8 @@ public class MapActivity extends Activity {
         this.currentSelectedMarker = currentSelectedMarker;
     }
 
-    public static boolean isAuthorized() {
-        return Settings.getToken(context) != null;
+    public boolean isAuthorized() {
+        return Settings.getToken(getApplicationContext()) != null;
     }
 
     private void setMapPannable(boolean b) {
