@@ -96,13 +96,11 @@
         android:gravity="top"
         android:layout_weight="1">
 
-        <com.mapbox.mapboxsdk.views.MapView
+        <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/activity_addpoint_mapview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clickable="true"
-            mapbox:mapid="@string/mapbox_id_street"
-            mapbox:accessToken="@string/mapbox_token"
+            mapbox:style_url="@string/mapbox_style_url"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true" />

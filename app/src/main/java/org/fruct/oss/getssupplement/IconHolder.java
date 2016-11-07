@@ -44,7 +44,6 @@ public class IconHolder {
 
     public Drawable getDrawableByCategoryId(Resources res, int categoryId) {
         return new BitmapDrawable(res, getBitmapByCategoryId(categoryId));
-
     }
 
 }

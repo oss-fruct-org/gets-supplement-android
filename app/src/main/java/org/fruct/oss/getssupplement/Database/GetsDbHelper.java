@@ -23,7 +23,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     private DatabaseType databaseType;
 
     public GetsDbHelper(Context context, DatabaseType _databaseType) {
-        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 4);
+        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 5);
         this.databaseType = _databaseType;
     }
 
@@ -48,7 +48,8 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                         "latitude real," +
                         "longitude real," +
                         "rating real," +
-                        "uuid text" +
+                        "uuid text," +
+                        "markerId integer" +
                         ");"
         );
 
@@ -82,6 +83,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("drop table if exists " + Const.DB_INTERNAL_POINTS);
         db.execSQL("drop table if exists " + Const.DB_INTERNAL_CATEGORIES);
+        db.execSQL("drop table if exists " + Const.DB_TEMP_POINTS);
         onCreate(db);
     }
 
@@ -125,7 +127,6 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         }
 
         cursor.close();
-
         return categoryName;
     }
 
@@ -174,7 +175,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             cursor.close();
             return list;
         }
-
+        cursor.close();
         return null;
     }
 
@@ -204,15 +205,16 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                 point.latitude,
                 point.longitude,
                 point.rating,
-                point.uuid
+                point.uuid,
+                point.markerId
         );
     }
 
-    public void addPoint(int categoryId, String name, String url, String access, long time, String description, String latitude, String longitude, float rating, String uuid) {
-        addPoint(categoryId, name, url, access, time + "", description, Float.parseFloat(latitude), Float.parseFloat(longitude), rating, uuid);
+    public void addPoint(int categoryId, String name, String url, String access, long time, String description, String latitude, String longitude, float rating, String uuid, long markerId) {
+        addPoint(categoryId, name, url, access, time + "", description, Float.parseFloat(latitude), Float.parseFloat(longitude), rating, uuid, markerId);
     }
 
-    public void addPoint(int categoryId, String name, String url, String access, String time, String description, double latitude, double longitude, float rating, String uuid) {
+    public void addPoint(int categoryId, String name, String url, String access, String time, String description, double latitude, double longitude, float rating, String uuid, long markerId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -226,6 +228,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("longitude", longitude);
         cv.put("rating", rating);
         cv.put("uuid", uuid);
+        cv.put("markerId", markerId);
 
         db.insertWithOnConflict(Const.DB_INTERNAL_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -235,7 +238,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             Point point = points.get(i);
 
             // TODO: convert time
-            this.addPoint(point.categoryId, point.name, point.url, point.access, "0", point.description, point.latitude, point.longitude, point.rating, point.uuid);
+            this.addPoint(point.categoryId, point.name, point.url, point.access, "0", point.description, point.latitude, point.longitude, point.rating, point.uuid, point.markerId);
         }
     }
 
@@ -271,6 +274,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             int indexUrl = cursor.getColumnIndex("url");
             int indexRating = cursor.getColumnIndex("rating");
             int indexUuid = cursor.getColumnIndex("uuid");
+            int indexMarkerId = cursor.getColumnIndex("markerId");
 
             ArrayList<Point> list = new ArrayList<Point>();
             do {
@@ -286,6 +290,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                 point.longitude = cursor.getFloat(indexLongitude);
                 point.rating = cursor.getFloat(indexRating);
                 point.uuid = cursor.getString(indexUuid);
+                point.markerId = cursor.getLong(indexMarkerId);
 
                 list.add(point);
             } while (cursor.moveToNext());
@@ -301,5 +306,46 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         super.onDowngrade(db, oldVersion, newVersion);
+    }
+
+    public Point getPointByMarkerId(long id) {
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "markerId = " + id, null, null, null, null, null);
+
+        int indexId = cursor.getColumnIndex("_id");
+        int indexCategoryId = cursor.getColumnIndex("categoryId");
+        int indexName = cursor.getColumnIndex("name");
+        int indexAccess = cursor.getColumnIndex("access");
+        int indexTime = cursor.getColumnIndex("time");
+        int indexDescription = cursor.getColumnIndex("description");
+        int indexLatitude = cursor.getColumnIndex("latitude");
+        int indexLongitude = cursor.getColumnIndex("longitude");
+        int indexUrl = cursor.getColumnIndex("url");
+        int indexRating = cursor.getColumnIndex("rating");
+        int indexUuid = cursor.getColumnIndex("uuid");
+        int indexMarkerId = cursor.getColumnIndex("markerId");
+
+        if (cursor.moveToFirst()) {
+            Point point = new Point();
+            point.id = cursor.getInt(indexId);
+            point.categoryId = cursor.getInt(indexCategoryId);
+            point.name = cursor.getString(indexName);
+            point.url = cursor.getString(indexUrl);
+            point.access = cursor.getString(indexAccess);
+            point.time = cursor.getString(indexTime);
+            point.description = cursor.getString(indexDescription);
+            point.latitude = cursor.getFloat(indexLatitude);
+            point.longitude = cursor.getFloat(indexLongitude);
+            point.rating = cursor.getFloat(indexRating);
+            point.uuid = cursor.getString(indexUuid);
+            point.markerId = cursor.getLong(indexMarkerId);
+
+            cursor.close();
+            return point;
+        } else {
+            cursor.close();
+            return null;
+        }
     }
 }
