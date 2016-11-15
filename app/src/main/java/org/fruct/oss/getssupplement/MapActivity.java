@@ -67,11 +67,13 @@ import java.util.concurrent.ExecutionException;
 
 public class MapActivity extends Activity {
 
+    /*
     private Menu menu;
     private ProgressBar progressBar;
 
     private MapView mMapView;
     private MapboxMap mMapboxMap;
+
 
     private static final int PERMISSIONS_LOCATION = 0;
 
@@ -84,9 +86,8 @@ public class MapActivity extends Activity {
     private ArrayList<Category> categoryArrayList;
     private Marker currentSelectedMarker = null;
 
-    /**
-     * Bottom panel views
-     */
+    // Bottom panel views
+
     RelativeLayout rlBottomPanel = null;
     TextView tvBottomPanelName = null;
     TextView tvBottomPanelDescription = null;
@@ -113,6 +114,7 @@ public class MapActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        dbHelperSend = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
 
         checkGraphUpdate();
         initBottomPanel();
@@ -447,11 +449,9 @@ public class MapActivity extends Activity {
     }
 
     private void addMarker(Point point) {
-        /**
-         * https://www.mapbox.com/help/android-markers/
-         * Не добавлять title/snippet
-         * set point id = marker id
-         */
+         // https://www.mapbox.com/help/android-markers/
+         // Не добавлять title/snippet
+         // set point id = marker id
 
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
         IconFactory iconFactory = IconFactory.getInstance(this);
@@ -631,7 +631,7 @@ public class MapActivity extends Activity {
                         longitude,
                         rating,
                         "?",
-                        -1);*/
+                        -1);*//*
 
                 point.name = pointName;
                 point.url = pointUrl;
@@ -869,11 +869,12 @@ public class MapActivity extends Activity {
         super.onDestroy();
         mMapView.onDestroy();
         dbHelper.close();
+        dbHelperSend.close();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mMapView.onSaveInstanceState(outState);
-    }
+    }*/
 }

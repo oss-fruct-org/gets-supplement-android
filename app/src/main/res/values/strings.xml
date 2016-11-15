@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="drawer_closed">Closed</string>
+    <string name="drawer_opened">Opened</string>
+
     <string name="refresh">Refresh points</string>
     <string name="app_name" translatable="false">GeTS Supplement</string>
     <string name="action_settings">Settings</string>

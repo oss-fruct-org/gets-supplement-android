@@ -115,7 +115,7 @@ public class PointsGet extends AsyncTask<String, Point, PointsResponse> {
                 NodeList categoryInner = nodeList.item(i).getChildNodes();
 
                 // Go trough all items of every <Placemark>
-                for (int j = 0; j < categoryInner.getLength(); j++) {
+                for (int j = 3; j < categoryInner.getLength(); j++) {
 
                     Element element = (Element) categoryInner.item(j);
 

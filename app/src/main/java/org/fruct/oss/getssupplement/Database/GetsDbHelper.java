@@ -105,6 +105,11 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         //db.execSQL("delete from " + Const.DB_INTERNAL_CATEGORIES);
     }
 
+    /*public void clearUserPoints() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(Const.DB_TEMP_POINTS, "_id = ?", new String[] {tempDataToDelete.get(0)});
+    }*/
+
     /**
      *
      *

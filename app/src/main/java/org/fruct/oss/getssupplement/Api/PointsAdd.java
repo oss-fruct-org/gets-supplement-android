@@ -66,6 +66,7 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
         cv.put("message", "ERROR: NOT SENT");
         db.insertWithOnConflict(Const.DB_TEMP_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 
+        //System.out.println("!!!!!!!!!!!!!!!!!!!!!!CREATED!!!!!!!!!!!!!!!!!!!!!!!\n");
         db.close();
     }
 
@@ -103,6 +104,9 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
 
         pointsResponse = new PointsResponse();
 
+        pointsResponse.code = 404;
+        pointsResponse.message = "Not found";
+
         boolean isSuccessR = false; /* СДЕЛАТЬ УСЛОВИЯ, ЧТОБЫ ПЕРЕМЕННАЯ ПРОВЕРЯЛА УСПЕХ */
 
         try {
@@ -133,9 +137,6 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
 
             nodeList = doc.getElementsByTagName("status");
 
-            pointsResponse.code = 404;
-            pointsResponse.message = "Not found";
-
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
 
@@ -162,6 +163,10 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
         }*/
 
         return isSuccessR;
+    }
+
+    public PointsAdd (GetsDbHelper _dbHelper) {
+        dbHelper = _dbHelper;
     }
 
     @Override
@@ -212,9 +217,12 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
             cursor.close();
             db.close();
 
-            nodeList = doc.getElementsByTagName("Document");
+            if (doc != null)
+                nodeList = doc.getElementsByTagName("Document");
+            else
+                nodeList = null;
 
-            ArrayList<Point> list = new ArrayList<Point>();
+            ArrayList<Point> list = new ArrayList<>();
 
             // Go through all <Placemark>
             for (int i = 0; i < nodeList.getLength(); i++) {
