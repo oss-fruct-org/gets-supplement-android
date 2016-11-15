@@ -93,6 +93,23 @@ public class ListArrayAdapter extends BaseAdapter {
         return box;
     }
 
+    public void reloadDb(ArrayList<BasicContainerForPoints> points) {
+        objects = points;
+    }
+
+    public void deleteFromAdapterList(ArrayList<BasicContainerForPoints> container) {
+        if (container == null || container.size() == 0)
+            return;
+
+        for (int i = 0; i < objects.size(); i++) {
+            int counter = 0;
+            if (objects.get(i).id == container.get(counter).id) {
+                objects.remove(i);
+                counter++;
+            }
+        }
+    }
+
     // обработчик для чекбоксов
     OnCheckedChangeListener myCheckChangeList = new OnCheckedChangeListener() {
         public void onCheckedChanged(CompoundButton buttonView,
