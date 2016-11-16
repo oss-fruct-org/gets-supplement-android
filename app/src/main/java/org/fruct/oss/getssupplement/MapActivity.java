@@ -112,7 +112,8 @@ public class MapActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
 
         checkGraphUpdate();
         initBottomPanel();
@@ -614,7 +615,7 @@ public class MapActivity extends Activity {
                     longitude,
                     streetId,
                     System.currentTimeMillis(),
-                    dbHelperSend
+                    getApplicationContext()
             );
 
             Point point = new Point();
@@ -641,7 +642,8 @@ public class MapActivity extends Activity {
                 point.categoryId = pointCategory;
                 if (mMapboxMap != null) {
                     addMarker(point);
-                    GetsDbHelper dbSaveHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
+                    //GetsDbHelper dbSaveHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
+                    GetsDbHelper dbSaveHelper = GetsDbHelper.getUserHelper(getApplicationContext());
                     dbSaveHelper.addPoint(point);
                 }
 

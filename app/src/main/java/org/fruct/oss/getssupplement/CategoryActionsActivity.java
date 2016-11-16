@@ -9,7 +9,6 @@ import android.widget.ListView;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.Category;
-import org.fruct.oss.getssupplement.Model.DatabaseType;
 
 import java.util.ArrayList;
 
@@ -22,7 +21,8 @@ public class CategoryActionsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_categoryactions);
 
-        GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        GetsDbHelper dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
         final ArrayList<Category> categories = dbHelper.getCategories();
 
         ArrayList<String> names = new ArrayList<String>();

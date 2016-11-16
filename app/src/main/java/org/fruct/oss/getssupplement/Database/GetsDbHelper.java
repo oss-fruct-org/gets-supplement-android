@@ -22,6 +22,21 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     // internal Db for storing temporary data that should be uploaded to remote server
     private DatabaseType databaseType;
 
+    private static GetsDbHelper apiHelper = null;
+    private static GetsDbHelper userHelper = null;
+
+    public static GetsDbHelper getApiHelper(Context context) {
+        if (apiHelper == null)
+            apiHelper = new GetsDbHelper(context, DatabaseType.DATA_FROM_API);
+        return apiHelper;
+    }
+
+    public static GetsDbHelper getUserHelper(Context context) {
+        if (userHelper == null)
+            userHelper = new GetsDbHelper(context, DatabaseType.USER_GENERATED);
+        return userHelper;
+    }
+
     public GetsDbHelper(Context context, DatabaseType _databaseType) {
         super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 5);
         this.databaseType = _databaseType;

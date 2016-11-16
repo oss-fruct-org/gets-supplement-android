@@ -6,15 +6,11 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.Category;
-import org.fruct.oss.getssupplement.Model.DatabaseType;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -26,7 +22,8 @@ public class CategoryActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
 
-        GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        GetsDbHelper dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
         final ArrayList<Category> categories = dbHelper.getCategories();
 
         ArrayList<String> names = new ArrayList<String>();
