@@ -262,12 +262,14 @@ public class GetsDbHelper extends SQLiteOpenHelper{
                     "longitude BETWEEN " + (dLng - 0.03) + " AND " + (dLng + 0.03),
                     null, null, null, null, null);
        */
-        if (categoryId == Const.ALL_CATEGORIES)
+        if (categoryId == Const.ALL_CATEGORIES) {
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, null, null, null, null, null, null);
-        else
+            System.out.println("ALL POINTS");
+        } else
             cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {
+            System.out.println("POINTS EXIST");
             int indexId = cursor.getColumnIndex("_id");
             int indexCategoryId = cursor.getColumnIndex("categoryId");
             int indexName = cursor.getColumnIndex("name");

@@ -123,7 +123,7 @@ public class WaitForLoad extends AsyncTask<Void, Void, Void> {
             if (MainActivity.getCategoryArray() != null) {
                 break;
             }
-            if (coll > 2) {
+            if (coll > 10) {
                 break;
             }
         }
@@ -169,9 +169,11 @@ public class WaitForLoad extends AsyncTask<Void, Void, Void> {
 
         ArrayList<MarkerOptions> markers = new ArrayList<>();
         ArrayList<Point> points = dbHelper.getPoints(-1);
-        for (Point point : points) {
-            if (Settings.getIsChecked(mapActivity.getApplicationContext(), point.categoryId))
-                markers.add(this.addMarker(point));
+        if (points != null) {
+            for (Point point : points) {
+                if (Settings.getIsChecked(mapActivity.getApplicationContext(), point.categoryId))
+                    markers.add(this.addMarker(point));
+            }
         }
 
 

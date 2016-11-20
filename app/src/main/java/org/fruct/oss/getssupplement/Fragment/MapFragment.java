@@ -845,7 +845,10 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
                 ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
                 drawableImage.setColorFilter(filter);
             }
-            Icon icon = iconFactory.fromDrawable(drawableImage);
+
+            Icon icon = null;
+            if (1 == 0)
+                    icon = iconFactory.fromDrawable(drawableImage);
             markers.add(new MarkerOptions()
                     .position(new LatLng(point.latitude, point.longitude))
                     .icon(icon));
