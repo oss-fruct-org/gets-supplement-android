@@ -127,7 +127,9 @@ public class MainActivity extends Activity {//} implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
+
 
         //mMapView = (MapView) findViewById(R.id.activity_map_mapview);
         //mMapView.onCreate(savedInstanceState);
@@ -218,8 +220,10 @@ public class MainActivity extends Activity {//} implements LocationListener {
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-        dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-        dbHelperSend = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
+        //dbHelperSend = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        dbHelperSend = GetsDbHelper.getApiHelper(getApplicationContext());
         //downloadPoints();
 
         PointsAdd p = new PointsAdd(dbHelperSend);

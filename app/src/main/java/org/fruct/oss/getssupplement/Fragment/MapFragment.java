@@ -62,7 +62,7 @@ import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.IconHolder;
 import org.fruct.oss.getssupplement.LoginActivity;
 import org.fruct.oss.getssupplement.MainActivity;
-import org.fruct.oss.getssupplement.MapActivity;
+//import org.fruct.oss.getssupplement.MapActivity;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.Category;
@@ -227,9 +227,13 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
         super.onStart();
         //followingState = false;
 
-        dbHelper = new GetsDbHelper(getActivity().getApplicationContext(), DatabaseType.DATA_FROM_API);
-        dbHelperW = new GetsDbHelper(getActivity().getApplicationContext(), DatabaseType.DATA_FROM_API);
-        dbHelperSend = new GetsDbHelper(getActivity().getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelper = new GetsDbHelper(getActivity().getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelperW = new GetsDbHelper(getActivity().getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //dbHelperSend = new GetsDbHelper(getActivity().getApplicationContext(), DatabaseType.DATA_FROM_API);
+
+        dbHelper = GetsDbHelper.getApiHelper(getActivity().getApplicationContext());
+        dbHelperW = GetsDbHelper.getApiHelper(getActivity().getApplicationContext());
+        dbHelperSend = GetsDbHelper.getApiHelper(getActivity().getApplicationContext());
 
         checkGraphUpdate();
         //setUpLocation();
@@ -1116,7 +1120,7 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
                     longitude,
                     streetId,
                     System.currentTimeMillis(),
-                    dbHelperSend
+                    getActivity().getApplicationContext()
             );
 
             Point point = new Point();

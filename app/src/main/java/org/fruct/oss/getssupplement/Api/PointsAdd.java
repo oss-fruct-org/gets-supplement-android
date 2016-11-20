@@ -1,6 +1,7 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -41,15 +42,16 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
     private PointsResponse pointsResponse = null;
 
     public PointsAdd(String token, int category, String title, float rating,
-                     double latitude, double longitude, int streetId, long unixTime, GetsDbHelper _dbHelper) {
+                     double latitude, double longitude, int streetId, long unixTime, Context context) {
 
-        dbHelper = _dbHelper;
+        dbHelper = GetsDbHelper.getUserHelper(context);
 
         // Convert unixTime to a desirable format 'dd MM yyyy HH:mm:ss.SSS"
         Date date = new Date(unixTime);
         String formatedDate = new SimpleDateFormat("dd MM yyyy HH:mm:s.000").format(date);
 
         /* ДОБАВИТЬ ЗАПИСЬ ПОЛЕЙ В ТАБЛИЦУ (params) */
+        System.out.println("Helper: " + dbHelper);
         SQLiteDatabase db =  dbHelper.getWrData(); // ЗАПИХАТЬ ЭТО В GETSDBHELPER, А ПОТОМ ВЫЗВАТЬ ОТ СЮДА С ПАРАМЕТРАМИ
         ContentValues cv = new ContentValues();
 

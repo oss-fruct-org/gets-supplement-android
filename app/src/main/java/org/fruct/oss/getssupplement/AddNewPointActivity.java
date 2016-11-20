@@ -27,7 +27,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
-import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Utils.GHUtil;
 
 import java.io.File;
@@ -63,7 +62,8 @@ public class AddNewPointActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addnewpoint);
 
-        mDbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        //mDbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+        mDbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
         mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
         rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
         btCategory = (Button) findViewById(R.id.activity_addpoint_category);
