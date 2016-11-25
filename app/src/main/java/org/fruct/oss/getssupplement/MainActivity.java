@@ -290,11 +290,14 @@ public class MainActivity extends Activity {//} implements LocationListener {
             }
         };
 
-        CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext())) {
+        final CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext())) {
             @Override
             public void onPostExecute(CategoriesResponse response) {
-                if (response == null)
+                if (response == null) {
                     return;
+                }
+
+                if (response.categories != null)
 
                 categoryArrayList = response.categories;
                 dbHelper.addCategories(response.categories);
@@ -357,7 +360,7 @@ public class MainActivity extends Activity {//} implements LocationListener {
             android.app.FragmentManager fragmentManager = getFragmentManager();
             android.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.replace(R.id.main_content, fragment);
-            transaction.addToBackStack(null);
+            //transaction.addToBackStack(null);
             transaction.commit();
         }
     }

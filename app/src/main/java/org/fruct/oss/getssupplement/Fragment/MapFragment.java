@@ -479,7 +479,7 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
         /// ЗДЕСЬ БЫЛ КОД ИЗ MainActivity под методом downloadPoints
 
         final WaitForLoad w = new WaitForLoad();
-        w.setParams(mMapboxMap, getResources(), dbHelperW, getActivity());
+        w.setParams(mMapboxMap, getActivity().getResources(), dbHelperW, getActivity());
 
         //ArrayList<Point> points;
         //mMapView.clear();
@@ -603,7 +603,10 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
 
         if (usrToken == null || usrToken.equals(""))
             Settings.saveBoolean(getActivity().getApplicationContext(), Const.PREFS_IS_TRUSTED_USER, false);
-        else userInfoGet.execute();
+        else {
+            userInfoGet.execute();
+            userInfoGet.cancel(true);
+        }
     }
 
 
@@ -660,8 +663,8 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
             ibBottomPanelDelete.setVisibility(View.VISIBLE);
             ibBottomPanelEdit.setVisibility(View.VISIBLE);
         }
-        if (IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId) != null)
-            ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId));
+        if (IconHolder.getInstance().getDrawableByCategoryId(getActivity().getResources(), point.categoryId) != null)
+            ivBottomPanelIcon.setImageDrawable(IconHolder.getInstance().getDrawableByCategoryId(getActivity().getResources(), point.categoryId));
 
         // TODO: browsing arrows
         // ivBottomPanelArrowRight.setVisibility(View.VISIBLE);
@@ -786,7 +789,7 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
          * set point id = marker id
          */
 
-        Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+        Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getActivity().getResources(), point.categoryId);
         IconFactory iconFactory = IconFactory.getInstance(getActivity().getApplicationContext()); //this);
         // TODO: separating based on (un)publishing
         if (point.access == null || point.access.contains("w")) {
@@ -797,11 +800,10 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
         }
 
         Icon icon = null;
-        if (1 == 0)
+        //if (1 == 0)
             icon = iconFactory.fromDrawable(drawableImage);
         Marker marker = mMapboxMap.addMarker(new MarkerOptions()
-                .position(new LatLng(point.latitude, point.longitude))
-                .icon(icon));
+                .position(new LatLng(point.latitude, point.longitude)).icon(icon));
         point.markerId = marker.getId();
 
 
@@ -840,7 +842,7 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
              * set point id = marker id
              */
 
-            Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+            Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getActivity().getResources(), point.categoryId);
             IconFactory iconFactory = IconFactory.getInstance(getActivity().getApplicationContext()); //this);
             // TODO: separating based on (un)publishing
             if (point.access == null || point.access.contains("w")) {
@@ -1314,6 +1316,7 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
             }
         };
         downloadXmlTask.execute();
+        downloadXmlTask.cancel(true);
     }
 
 
@@ -1339,7 +1342,7 @@ public class MapFragment extends Fragment {//implements LocationListener {//, On
                 mIsFollowingEnabled = true;
                 setMapPannable(false);
                 menu.findItem(R.id.follow_location).getIcon().
-                        setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
+                        setColorFilter(getActivity().getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
             }
         } else {
             enableLocation(false);

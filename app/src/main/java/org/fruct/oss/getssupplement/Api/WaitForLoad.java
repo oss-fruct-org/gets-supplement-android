@@ -68,7 +68,7 @@ public class WaitForLoad extends AsyncTask<Void, Void, Void> {
         marker.setRelatedObject(point);
 */
         Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getRes, point.categoryId);
-        IconFactory iconFactory = IconFactory.getInstance(mapActivity.getApplicationContext()); //this);
+        IconFactory iconFactory = IconFactory.getInstance(mapActivity); //this);
         // TODO: separating based on (un)publishing
         if (point.access == null || point.access.contains("w")) {
             ColorMatrix matrix = new ColorMatrix();
@@ -79,7 +79,7 @@ public class WaitForLoad extends AsyncTask<Void, Void, Void> {
 
         Icon icon = null;
 
-        if (1 == 0)//!drawableImage.equals(null))
+        //if (1 == 0)//!drawableImage.equals(null))
             icon = iconFactory.fromDrawable(drawableImage);
 
         //Marker marker = mapBoxMap.addMarker(new MarkerOptions().position(new LatLng(point.latitude, point.longitude)).icon(icon));
@@ -105,7 +105,7 @@ public class WaitForLoad extends AsyncTask<Void, Void, Void> {
             if (MainActivity.getPointsArray() != null) {
                 break;
             }
-            if (coll > 2) {
+            if (coll > 100) {
                 break;
             }
         }
@@ -123,7 +123,7 @@ public class WaitForLoad extends AsyncTask<Void, Void, Void> {
             if (MainActivity.getCategoryArray() != null) {
                 break;
             }
-            if (coll > 10) {
+            if (coll > 100) {
                 break;
             }
         }
