@@ -51,7 +51,6 @@ import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.Category;
-import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
@@ -161,7 +160,7 @@ public class MapActivity extends Activity {
                         .build();
             } else {
                 position = new CameraPosition.Builder()
-                        .target(new LatLng(61.784626, 34.345600))
+                        .target(getDefaultLocation())
                         .zoom(mCurrentZoom)
                         .build();
             }
@@ -225,6 +224,10 @@ public class MapActivity extends Activity {
         });
     }
 
+    private LatLng getDefaultLocation() {
+        return new LatLng(61.784626, 34.345600);
+    }
+
     private void deleteMarker(Marker marker) {
         if (marker != null && mMapboxMap != null) {
             mMapboxMap.removeMarker(marker);
@@ -247,16 +250,21 @@ public class MapActivity extends Activity {
     }
 
     private void loadPoints() {
-        Location location = mMapboxMap.getMyLocation();
-        if (location == null) {
+        if (mMapboxMap == null)
             return;
-        }
+
+        Location location = mMapboxMap.getMyLocation();
+        LatLng center;
+        if (location != null)
+            center = new LatLng(location.getLatitude(), location.getLongitude());
+        else
+            center = getDefaultLocation();
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
         final PointsGet pointsGet = new PointsGet(Settings.getToken(getApplicationContext()),
-                location.getLatitude(), location.getLongitude(),
+                center.getLatitude(), center.getLongitude(),
                 Const.API_POINTS_RADIUS) {
             @Override
             public void onPostExecute(final PointsResponse response) {
@@ -510,7 +518,7 @@ public class MapActivity extends Activity {
 
         if (id == R.id.activity_map_refresh) {
             if (mMapboxMap != null)
-                mMapboxMap.removeAnnotations();
+                mMapboxMap.clear();
             loadPoints();
         }
 
