@@ -1,12 +1,12 @@
 package org.fruct.oss.getssupplement;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.PorterDuff;
@@ -15,9 +15,15 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,7 +70,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
-public class MapActivity extends Activity {
+public class MapActivity extends AppCompatActivity {
 
     private Menu menu;
     private ProgressBar progressBar;
@@ -83,17 +89,20 @@ public class MapActivity extends Activity {
     private ArrayList<Category> categoryArrayList;
     private Marker currentSelectedMarker = null;
 
+    private Toolbar tbMain;
+    private NavigationView nvMain;
+
     /**
      * Bottom panel views
      */
-    RelativeLayout rlBottomPanel = null;
-    TextView tvBottomPanelName = null;
-    TextView tvBottomPanelDescription = null;
-    ImageView ivBottomPanelArrowRight = null;
-    ImageView ivBottomPanelIcon = null;
-    ImageButton ibBottomPanelDelete = null;
-    ImageButton ibBottomPanelEdit = null;
-    View viGradient = null;
+    private RelativeLayout rlBottomPanel;
+    private TextView tvBottomPanelName, tvBottomPanelDescription;
+    private ImageView ivBottomPanelIcon;
+    private ImageButton ibBottomPanelDelete, ibBottomPanelEdit;
+    private View viGradient;
+
+    private ActionBarDrawerToggle mDrawerToggle;
+
     private com.mapbox.mapboxsdk.location.LocationListener mLocationListener = new com.mapbox.mapboxsdk.location.LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -111,8 +120,14 @@ public class MapActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        //dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
+
         dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
+
+        tbMain = (Toolbar) findViewById(R.id.tbMain);
+        setSupportActionBar(tbMain);
+
+        setNavigation();
+        nvMain.getMenu().getItem(0).setChecked(true);
 
         checkGraphUpdate();
         initBottomPanel();
@@ -140,6 +155,45 @@ public class MapActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void setNavigation() {
+        final DrawerLayout dl = (DrawerLayout) findViewById(R.id.dlMain);
+        mDrawerToggle = new ActionBarDrawerToggle(this,
+                dl,
+                tbMain,
+                R.string.drawer_open,
+                R.string.drawer_close);
+
+        dl.addDrawerListener(mDrawerToggle);
+
+        nvMain = (NavigationView) findViewById(R.id.nvMain);
+        nvMain.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                item.setChecked(true);
+
+                switch (item.getItemId()) {
+
+                }
+
+                dl.closeDrawers();
+
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+        super.onPostCreate(savedInstanceState, persistentState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     private void setUpMapView() {
@@ -341,7 +395,6 @@ public class MapActivity extends Activity {
         ibBottomPanelEdit = (ImageButton) findViewById(R.id.activity_map_point_edit);
         ivBottomPanelIcon = (ImageView) findViewById(R.id.activity_map_bottom_panel_icon);
         viGradient = findViewById(R.id.activity_map_bottom_panel_gradient);
-        ivBottomPanelArrowRight = (ImageView) findViewById(R.id.acitivity_map_bottom_panel_arrow_right);
     }
 
     private void setBottomPanelData(final Point point) {
@@ -489,9 +542,6 @@ public class MapActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.follow_location) {
@@ -511,8 +561,13 @@ public class MapActivity extends Activity {
         if (id == R.id.action_add) {
             Intent intent = new Intent(this, AddNewPointActivity.class);
             intent.putExtra("zoomLevel", mCurrentZoom);
-            intent.putExtra("latitude", mMapboxMap.getMyLocation().getLatitude());
-            intent.putExtra("longitude", mMapboxMap.getMyLocation().getLongitude());
+            if (mMapboxMap.getMyLocation() == null) {
+                intent.putExtra("latitude", getDefaultLocation().getLatitude());
+                intent.putExtra("longitude", getDefaultLocation().getLongitude());
+            } else {
+                intent.putExtra("latitude", mMapboxMap.getMyLocation().getLatitude());
+                intent.putExtra("longitude", mMapboxMap.getMyLocation().getLongitude());
+            }
             startActivityForResult(intent, Const.INTENT_RESULT_NEW_POINT);
         }
 

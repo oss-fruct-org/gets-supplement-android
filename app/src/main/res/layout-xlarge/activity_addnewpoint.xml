@@ -25,7 +25,7 @@
             android:inputType="textCapSentences"
             android:maxLength="150"
             android:maxLines="1"
-            android:textColor="@color/black"
+            android:textColor="@android:color/black"
             android:textSize="18sp"
             style="@style/ShortTextEntry"/>
 
@@ -50,7 +50,7 @@
             android:text="@string/activity_addnewpoint_mapview_info"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:textColor="@color/black"
+            android:textColor="@android:color/black"
             android:textSize="12sp"/>
     </LinearLayout>
 

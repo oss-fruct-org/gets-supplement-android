@@ -60,4 +60,12 @@
     <string name="toast_download_start">Идет загрузка графа дорог</string>
     <string name="toast_download_error">Произошла ошибка при установке обновления графа дорог</string>
     <string name="toast_download_success">Граф дорог загружен</string>
+
+    <string name="drawer_open">Открыто</string>
+    <string name="drawer_close">Закрыто</string>
+    <string name="menu_title_map">Карта</string>
+    <string name="menu_title_profile">Профиль</string>
+    <string name="menu_title_queue">Очередь</string>
+    <string name="menu_title_policy">Конфиденциальность</string>
+    <string name="menu_title_info">Информация</string>
 </resources>

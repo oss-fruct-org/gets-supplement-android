@@ -1,165 +1,91 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dlMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapActivity"
-    android:id="@+id/activity_map_layout">
+    android:fitsSystemWindows="true"
+    tools:context=".MapActivity">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/tbMain"
+            style="@style/Widget.Supplement.ActionBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.Supplement.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
 
 
         <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/activity_map_mapview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minHeight="250dp"
+            android:layout_below="@+id/tbMain"
             android:clickable="true"
-            mapbox:style_url="@string/mapbox_style_url"/>
+            android:minHeight="250dp"
+            mapbox:style_url="@string/mapbox_style_url" />
 
         <ImageButton
             android:id="@+id/activity_map_my_location"
             android:layout_width="wrap_content"
-            android:padding="10dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_location"
-            android:background="@null"/>
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/tbMain"
+            android:background="@null"
+            android:padding="10dp"
+            android:src="@drawable/ic_location" />
 
         <ProgressBar
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/progressBar"
             android:layout_alignBottom="@+id/activity_map_my_location"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
+            android:indeterminate="false"
             android:indeterminateDrawable="@drawable/spinner_ring"
-            android:visibility="gone"
-            android:indeterminate="false"/>
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/acitivity_map_app_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_info"
-            android:background="@null"/>
-
-    </RelativeLayout>
-
-
-
-    <View
-        android:id="@+id/activity_map_bottom_panel_gradient"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:background="@drawable/white_gradient"
-        android:layout_above="@+id/activity_map_bottom_panel"
-        android:visibility="gone"
-        tools:visibility="visible"/>
-
-    <RelativeLayout
-        android:id="@+id/activity_map_bottom_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="55dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:padding="10dp"
-        android:background="@color/white"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <ImageView
-            android:id="@+id/acitivity_map_bottom_panel_arrow_right"
-            android:src="@drawable/ic_arrow_right"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
+            android:background="@null"
+            android:padding="10dp"
+            android:src="@drawable/ic_info" />
+
+        <View
+            android:id="@+id/activity_map_bottom_panel_gradient"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:layout_above="@+id/activity_map_bottom_panel"
+            android:background="@drawable/white_gradient"
             android:visibility="gone"/>
 
-        <LinearLayout
+        <include
+            android:id="@+id/activity_map_bottom_panel"
+            layout="@layout/view_bottom_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_centerVertical="true"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/activity_map_bottom_panel_icon"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_margin="4dp"/>
-
-            <LinearLayout
-                android:id="@+id/activity_map_bottom_panel_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/activity_map_bottom_panel_right"
-                android:paddingRight="5dp"
-                android:layout_centerVertical="true">
-
-                <TextView
-                    android:id="@+id/acitivity_map_point_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-                    tools:text="Point name"
-                    android:textColor="@color/black"/>
-
-                <TextView
-                    android:id="@+id/acitivity_map_point_description"
-                    android:visibility="gone"
-                    tools:visibility="visible"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-                    android:textColor="@color/black"
-                    tools:text="Rating"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/activity_map_bottom_panel_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/activity_map_point_edit"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/ic_edit"
-                android:visibility="gone"
-                android:background="@null"/>
-            
-            <ImageButton
-                android:id="@+id/activity_map_point_delete"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_margin="4dp"
-                android:src="@drawable/ic_delete"
-                android:visibility="gone"
-                android:background="@null"/>
-
-        </LinearLayout>
-
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
     </RelativeLayout>
 
-</RelativeLayout>
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nvMain"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:menu="@menu/nav_drawer_menu" />
+
+</android.support.v4.widget.DrawerLayout>
