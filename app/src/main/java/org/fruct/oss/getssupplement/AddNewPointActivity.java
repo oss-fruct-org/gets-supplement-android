@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +36,7 @@ import java.io.File;
 /**
  * Created by Andrey on 18.07.2015.
  */
-public class AddNewPointActivity extends Activity {
+public class AddNewPointActivity extends AppCompatActivity {
 
     private MapView mMapView;
     private MapboxMap mMapboxMap;
@@ -61,6 +63,11 @@ public class AddNewPointActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addnewpoint);
+
+        Toolbar tb = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(tb);
+        getSupportActionBar().setTitle(getString(R.string.action_add_new_point));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //mDbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
         mDbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
@@ -359,11 +366,9 @@ public class AddNewPointActivity extends Activity {
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onMenuItemSelected(featureId, item);
+    public boolean onSupportNavigateUp() {
+        boolean b = super.onSupportNavigateUp();
+        onBackPressed();
+        return b;
     }
 }

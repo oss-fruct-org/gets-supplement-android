@@ -89,7 +89,7 @@ public class MapActivity extends AppCompatActivity {
     private ArrayList<Category> categoryArrayList;
     private Marker currentSelectedMarker = null;
 
-    private Toolbar tbMain;
+    private Toolbar toolbar;
     private NavigationView nvMain;
 
     /**
@@ -123,8 +123,9 @@ public class MapActivity extends AppCompatActivity {
 
         dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
 
-        tbMain = (Toolbar) findViewById(R.id.tbMain);
-        setSupportActionBar(tbMain);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("GeTS");
 
         setNavigation();
         nvMain.getMenu().getItem(0).setChecked(true);
@@ -161,11 +162,13 @@ public class MapActivity extends AppCompatActivity {
         final DrawerLayout dl = (DrawerLayout) findViewById(R.id.dlMain);
         mDrawerToggle = new ActionBarDrawerToggle(this,
                 dl,
-                tbMain,
+                toolbar,
                 R.string.drawer_open,
                 R.string.drawer_close);
 
         dl.addDrawerListener(mDrawerToggle);
+
+        mDrawerToggle.syncState();
 
         nvMain = (NavigationView) findViewById(R.id.nvMain);
         nvMain.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -199,7 +202,6 @@ public class MapActivity extends AppCompatActivity {
     private void setUpMapView() {
         if (mMapboxMap != null) {
             mMapboxMap.getUiSettings().setRotateGesturesEnabled(false);
-            mMapboxMap.getUiSettings().setLogoEnabled(false);
             mMapboxMap.getUiSettings().setTiltGesturesEnabled(false);
             mMapboxMap.setMyLocationEnabled(true);
             mMapboxMap.setMinZoom(14);

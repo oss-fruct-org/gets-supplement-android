@@ -29,7 +29,7 @@
         <item name="elevation">4dp</item>
     </style>
 
-    <style name="ThemeOverlay.Supplement.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+    <style name="ThemeOverlay.Supplement.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Parent theme sets colorControlNormal to textColorPrimary. -->
         <item name="android:textColorPrimary">@android:color/black</item>
     </style>

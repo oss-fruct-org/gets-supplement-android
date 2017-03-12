@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/tbMain"
+            android:id="@+id/toolbar"
             style="@style/Widget.Supplement.ActionBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
             android:id="@+id/activity_map_mapview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/tbMain"
+            android:layout_below="@+id/toolbar"
             android:clickable="true"
             android:minHeight="250dp"
             mapbox:style_url="@string/mapbox_style_url" />
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/tbMain"
+            android:layout_below="@+id/toolbar"
             android:background="@null"
             android:padding="10dp"
             android:src="@drawable/ic_location" />
