@@ -112,4 +112,8 @@
         <item name="android:padding">10dp</item>
     </style>
 
+    <style name="PrimaryTextMedium">
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textSize">@dimen/sp20</item>
+    </style>
 </resources>

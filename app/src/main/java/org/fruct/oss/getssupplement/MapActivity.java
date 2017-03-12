@@ -123,12 +123,8 @@ public class MapActivity extends AppCompatActivity {
 
         dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("GeTS");
-
+        setToolbar();
         setNavigation();
-        nvMain.getMenu().getItem(0).setChecked(true);
 
         checkGraphUpdate();
         initBottomPanel();
@@ -142,20 +138,19 @@ public class MapActivity extends AppCompatActivity {
                 MapActivity.this.mMapboxMap = mapboxMap;
                 setUpMapView();
 
-                if (!isAuthorized()) {
-                    if (isInternetConnectionAvailable()) {
-                        Intent i = new Intent(MapActivity.this, LoginActivity.class);
-                        startActivityForResult(i, Const.INTENT_RESULT_TOKEN);
-                    } else {
-                        Toast.makeText(getApplicationContext(), getString(R.string.network_error_authorization), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                } else {
-                    checkUserStatus();
+                if (isInternetConnectionAvailable()) {
                     loadPoints();
+                } else {
+                    Toast.makeText(getApplicationContext(), getString(R.string.network_error_authorization), Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void setToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(getString(R.string.menu_title_map));
     }
 
     private void setNavigation() {
@@ -176,8 +171,30 @@ public class MapActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(MenuItem item) {
                 item.setChecked(true);
 
-                switch (item.getItemId()) {
+                Intent i = new Intent();
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+                switch (item.getItemId()) {
+                    case R.id.nav_map:
+                        break;
+                    case R.id.nav_profile:
+                        i.setClass(MapActivity.this, LoginActivity.class);
+                        startActivity(i);
+                        break;
+                    case R.id.nav_queue:
+                        i.setClass(MapActivity.this, QueueActivity.class);
+                        startActivity(i);
+                        break;
+                    case R.id.nav_policy:
+                        i.setClass(MapActivity.this, PolicyActivity.class);
+                        startActivity(i);
+                        break;
+                    case R.id.nav_info:
+                        i.setClass(MapActivity.this, AppInfoActivity.class);
+                        startActivity(i);
+                        break;
+                    default:
+                        dl.closeDrawers();
                 }
 
                 dl.closeDrawers();
@@ -185,6 +202,8 @@ public class MapActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        nvMain.getMenu().getItem(0).setChecked(true);
     }
 
     @Override
@@ -269,15 +288,6 @@ public class MapActivity extends AppCompatActivity {
                 }
             }
         });
-
-        ImageButton ibMapInfo = (ImageButton) findViewById(R.id.acitivity_map_app_info);
-        ibMapInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), AppInfoActivity.class);
-                startActivityForResult(intent, Const.INTENT_RESULT_APP_INFO);
-            }
-        });
     }
 
     private LatLng getDefaultLocation() {
@@ -324,11 +334,26 @@ public class MapActivity extends AppCompatActivity {
                 Const.API_POINTS_RADIUS) {
             @Override
             public void onPostExecute(final PointsResponse response) {
+                progressBar.setVisibility(ProgressBar.GONE);
+
                 if (response == null) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.unsuccessful_download), Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                if (response.points == null || response.code != 0) {
+                    if (response.code == 1) {
+                        Toast.makeText(MapActivity.this, getString(R.string.error_auth_reqiured), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Toast.makeText(getApplicationContext(), getString(R.string.unsuccessful_download), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                menu.getItem(1).setVisible(true);
+
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(ProgressBar.INVISIBLE);
+
                 if (mMapboxMap != null) {
                     for (Point point : response.points) {
                         if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
@@ -768,13 +793,6 @@ public class MapActivity extends AppCompatActivity {
                 }
             }
 
-        }
-
-        if (requestCode == Const.INTENT_RESULT_TOKEN) {
-            // Save token
-            Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, data.getStringExtra("token"));
-            checkUserStatus();
-            loadPoints();
         }
     }
 

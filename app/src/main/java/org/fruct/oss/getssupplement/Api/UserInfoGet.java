@@ -76,6 +76,8 @@ public class UserInfoGet extends AsyncTask<String, String, UserInfoResponse> {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
                 userInfoResponse.isTrustedUser = Boolean.parseBoolean(element.getElementsByTagName("isTrustedUser").item(0).getTextContent());
+                userInfoResponse.name = element.getElementsByTagName("name").item(0).getTextContent();
+                userInfoResponse.email = element.getElementsByTagName("email").item(0).getTextContent();
             }
 
             return userInfoResponse;

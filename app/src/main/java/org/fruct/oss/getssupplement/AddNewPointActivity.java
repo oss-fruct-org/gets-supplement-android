@@ -367,8 +367,7 @@ public class AddNewPointActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        boolean b = super.onSupportNavigateUp();
         onBackPressed();
-        return b;
+        return true;
     }
 }

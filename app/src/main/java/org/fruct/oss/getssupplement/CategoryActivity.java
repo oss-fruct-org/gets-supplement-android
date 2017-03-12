@@ -38,7 +38,7 @@ public class CategoryActivity extends Activity {
             e.printStackTrace();
         }
 
-        final CategoryArrayAdapter adapter = new CategoryArrayAdapter(this, names, id, Const.SERVICE_NOT_ACTIONS);
+        final CategoryArrayAdapter adapter = new CategoryArrayAdapter(this, names, id, false);
 
         ListView listView = (ListView) findViewById(R.id.activity_category_listview);
         listView.setAdapter(adapter);

@@ -78,12 +78,6 @@ public class Const {
     public static final int INTENT_RESULT_CODE_NOT_OK = 2;
 
 
-    /**
-     * Service
-     */
-    public static final boolean SERVICE_ACTIONS = true;
-    public static final boolean SERVICE_NOT_ACTIONS = false;
-
     public static final String TYPE_GRAPHOPPER = "graphhopper-map";
     public static final String ID_REGION_KARELIA = "70015d77052905b9c495229209117fb6d969a507";
 

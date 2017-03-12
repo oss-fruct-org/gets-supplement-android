@@ -8,14 +8,9 @@
     android:layout_height="match_parent"
     tools:context="org.fruct.oss.getssupplement.AddNewPointActivity">
 
-    <android.support.v7.widget.Toolbar
+    <include
         android:id="@+id/toolbar"
-        style="@style/Widget.Supplement.ActionBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.Supplement.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        layout="@layout/view_toolbar" />
 
     <LinearLayout
         android:id="@+id/llContainer"

@@ -12,15 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.Toolbar
+        <include
             android:id="@+id/toolbar"
-            style="@style/Widget.Supplement.ActionBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="@style/ThemeOverlay.Supplement.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
-
+            layout="@layout/view_toolbar" />
 
         <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/activity_map_mapview"
@@ -52,17 +46,6 @@
             android:indeterminate="false"
             android:indeterminateDrawable="@drawable/spinner_ring"
             android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/acitivity_map_app_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:background="@null"
-            android:padding="10dp"
-            android:src="@drawable/ic_info" />
 
         <View
             android:id="@+id/activity_map_bottom_panel_gradient"

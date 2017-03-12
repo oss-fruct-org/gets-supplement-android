@@ -41,8 +41,10 @@ public class CategoryArrayAdapter extends ArrayAdapter {
         View rowView;
 
 
-        if (isActions) rowView = inflater.inflate(R.layout.list_categoryactions, parent, false);
-        else rowView = inflater.inflate(R.layout.list_category, parent, false);
+        if (isActions)
+            rowView = inflater.inflate(R.layout.list_categoryactions, parent, false);
+        else
+            rowView = inflater.inflate(R.layout.list_category, parent, false);
 
         TextView textView = (TextView) rowView.findViewById(R.id.list_text);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.list_icon);
@@ -57,10 +59,7 @@ public class CategoryArrayAdapter extends ArrayAdapter {
 
 
         if (isActions) {
-
-            if (Settings.getIsChecked(context, id.get(position)))
-                checkBox.setChecked(true);
-            else checkBox.setChecked(false);
+            checkBox.setChecked(Settings.getIsChecked(context, id.get(position)));
 
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override

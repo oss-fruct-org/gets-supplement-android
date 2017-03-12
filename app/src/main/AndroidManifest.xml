@@ -42,8 +42,7 @@
         </activity>
         <activity
             android:name="org.fruct.oss.getssupplement.LoginActivity"
-            android:label="@string/title_activity_login"
-            android:parentActivityName="org.fruct.oss.getssupplement.MapActivity" >
+            android:label="@string/title_activity_login" >
         </activity>
 
         <activity
@@ -53,10 +52,17 @@
         </activity>
 
         <activity
-            android:name=".AppInfoActivity"
-            android:label="@string/title_activity_appinfo"
-            android:parentActivityName=".MapActivity">
+            android:name=".AppInfoActivity">
         </activity>
+
+        <activity
+            android:name=".PolicyActivity">
+        </activity>
+
+        <activity
+            android:name=".QueueActivity">
+        </activity>
+
         <service android:name="com.mapbox.mapboxsdk.telemetry.TelemetryService" />
     </application>
 
