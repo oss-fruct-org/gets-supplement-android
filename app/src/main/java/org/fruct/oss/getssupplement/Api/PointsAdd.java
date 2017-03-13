@@ -14,7 +14,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.PointsResponse;

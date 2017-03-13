@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.ui.activities;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
@@ -23,12 +22,16 @@ import org.fruct.oss.getssupplement.Api.AuthStepTwo;
 import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Model.LoginResponse;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
+import org.fruct.oss.getssupplement.R;
+import org.fruct.oss.getssupplement.Utils.Const;
+import org.fruct.oss.getssupplement.Utils.Settings;
 
 public class LoginActivity extends AppCompatActivity {
 
     private WebView webView;
     private TextView tvUsername, tvEmail, tvTrusted;
     private LinearLayout llContainer;
+    private NavigationView nvMain;
 
     private String responseId;
 
@@ -172,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mDrawerToggle.syncState();
 
-        NavigationView nvMain = (NavigationView) findViewById(R.id.nvMain);
+        nvMain = (NavigationView) findViewById(R.id.nvMain);
         nvMain.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
@@ -208,10 +211,13 @@ public class LoginActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        nvMain.getMenu().getItem(1).setChecked(true);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        nvMain.getMenu().getItem(1).setChecked(true);
+    }
 
     @Override
     public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {

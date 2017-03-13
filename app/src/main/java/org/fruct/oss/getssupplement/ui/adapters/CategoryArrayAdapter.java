@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.ui.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,6 +14,10 @@ import android.widget.Toast;
 
 import org.fruct.oss.getssupplement.Api.PublishChannel;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
+import org.fruct.oss.getssupplement.R;
+import org.fruct.oss.getssupplement.Utils.Const;
+import org.fruct.oss.getssupplement.Utils.IconHolder;
+import org.fruct.oss.getssupplement.Utils.Settings;
 
 import java.util.ArrayList;
 
@@ -21,13 +25,14 @@ import java.util.ArrayList;
  * Created by Andrey on 28.10.2015.
  */
 public class CategoryArrayAdapter extends ArrayAdapter {
+
     private final Context context;
     private final ArrayList<String> names;
     private final ArrayList<Integer> id;
     private final boolean isActions;
 
     public CategoryArrayAdapter(Context context, ArrayList<String> names, ArrayList<Integer> id, boolean isActions) {
-        super(context, R.layout.list_category, R.id.list_text, names);
+        super(context, R.layout.item_categories_list, R.id.list_text, names);
         this.context = context;
         this.names = names;
         this.id = id;
@@ -42,9 +47,9 @@ public class CategoryArrayAdapter extends ArrayAdapter {
 
 
         if (isActions)
-            rowView = inflater.inflate(R.layout.list_categoryactions, parent, false);
+            rowView = inflater.inflate(R.layout.item_category_actions_list, parent, false);
         else
-            rowView = inflater.inflate(R.layout.list_category, parent, false);
+            rowView = inflater.inflate(R.layout.item_categories_list, parent, false);
 
         TextView textView = (TextView) rowView.findViewById(R.id.list_text);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.list_icon);

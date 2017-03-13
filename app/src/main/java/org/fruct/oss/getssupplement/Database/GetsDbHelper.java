@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.fruct.oss.getssupplement.Model.Category;
 import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Model.Point;
@@ -121,14 +121,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     }
 
     /**
-     *
-     *
-     *
-     *
      * Storing API's categories
-     *
-     *
-     *
      */
     public String getCategoryName(int categoryId) {
         SQLiteDatabase db = getReadableDatabase();
@@ -194,21 +187,8 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         return null;
     }
 
-
-
-
-
-
-
     /**
-     *
-     *
-     *
-     *
      * Storing API's POINT
-     *
-     *
-     *
      */
     public void addPoint(Point point) {
         addPoint(point.categoryId,

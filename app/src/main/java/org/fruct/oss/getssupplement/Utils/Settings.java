@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

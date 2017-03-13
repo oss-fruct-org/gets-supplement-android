@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.ui.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -61,9 +61,13 @@ import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
+import org.fruct.oss.getssupplement.R;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.fruct.oss.getssupplement.Utils.DirUtil;
 import org.fruct.oss.getssupplement.Utils.DownloadGraphTask;
 import org.fruct.oss.getssupplement.Utils.DownloadXmlTask;
+import org.fruct.oss.getssupplement.Utils.IconHolder;
+import org.fruct.oss.getssupplement.Utils.Settings;
 import org.fruct.oss.getssupplement.Utils.XmlUtil;
 
 import java.io.File;
@@ -202,8 +206,6 @@ public class MapActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        nvMain.getMenu().getItem(0).setChecked(true);
     }
 
     @Override
@@ -252,6 +254,7 @@ public class MapActivity extends AppCompatActivity {
                     Point point = dbHelper.getPointByMarkerId(marker.getId());
                     if (point != null)
                         setBottomPanelData(point);
+
                     return false;
                 }
             });
@@ -934,6 +937,7 @@ public class MapActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        nvMain.getMenu().getItem(0).setChecked(true);
         mMapView.onResume();
     }
 

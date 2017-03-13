@@ -1,12 +1,8 @@
 package org.fruct.oss.getssupplement.Utils;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.BikeFlagEncoder;
-import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.DefaultEdgeFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -15,8 +11,6 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.QueryResult;
 import com.graphhopper.util.PointList;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-
-import org.fruct.oss.getssupplement.Settings;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

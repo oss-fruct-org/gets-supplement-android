@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.Utils;
 
 /**
  * Created by Andrey on 18.07.2015.

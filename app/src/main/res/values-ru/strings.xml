@@ -26,7 +26,7 @@
     <string name="successuflly_sent">Успешно отправлено на сервер</string>
     <string name="title_activity_add_new_point">Добавление точки</string>
     <string name="title_activity_category">Категории</string>
-    <string name="title_activity_category_actions">Управление категориями</string>
+    <string name="title_activity_category_actions">Управление</string>
     <string name="title_activity_login">Авторизация</string>
     <string name="title_activity_appinfo">О программе</string>
     <string name="category">Категория: </string>

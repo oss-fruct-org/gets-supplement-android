@@ -44,6 +44,8 @@ dependencies {
         exclude group: 'org.apache.xmlgraphics', module: 'xmlgraphics-commons'
     }
 
+    compile 'com.github.aakira:expandable-layout:1.6.0@aar'
+
     compile 'org.slf4j:slf4j-android:1.7.12'
     compile 'org.slf4j:slf4j-api:1.7.12'
 }

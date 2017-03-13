@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.ui.activities;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -7,4 +7,5 @@ import android.support.v7.app.AppCompatActivity;
  */
 
 public class PolicyActivity extends AppCompatActivity {
+
 }

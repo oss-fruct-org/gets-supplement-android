@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
     android:layout_height="wrap_content">
 
     <ImageView
@@ -12,8 +12,9 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginTop="4dp"
-        android:visibility="gone">
-    </ImageView>
+        tools:visibility="visible"
+        tools:background="@mipmap/ic_launcher"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/list_text"
@@ -21,10 +22,9 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:layout_toRightOf="@+id/list_icon"
+        tools:text="Пандусы"
+        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
         android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-        android:paddingLeft="?android:attr/listPreferredItemPaddingLeft">
-    </TextView>
+        android:textAppearance="?android:attr/textAppearanceListItemSmall" />
 
-</RelativeLayout>
+</LinearLayout>

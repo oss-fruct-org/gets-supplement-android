@@ -3,9 +3,7 @@ package org.fruct.oss.getssupplement.Utils;
 import android.content.Context;
 import android.os.Environment;
 
-import org.fruct.oss.getssupplement.Const;
 import org.fruct.oss.getssupplement.R;
-import org.fruct.oss.getssupplement.Settings;
 
 import java.io.File;
 import java.io.FileInputStream;

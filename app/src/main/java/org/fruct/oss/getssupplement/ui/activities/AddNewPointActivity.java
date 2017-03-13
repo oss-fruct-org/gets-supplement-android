@@ -1,6 +1,5 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.ui.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,7 +28,10 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
+import org.fruct.oss.getssupplement.R;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.fruct.oss.getssupplement.Utils.GHUtil;
+import org.fruct.oss.getssupplement.Utils.Settings;
 
 import java.io.File;
 

@@ -1,4 +1,4 @@
-package org.fruct.oss.getssupplement;
+package org.fruct.oss.getssupplement.ui.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,8 +8,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import org.fruct.oss.getssupplement.ui.adapters.CategoryArrayAdapter;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.Category;
+import org.fruct.oss.getssupplement.R;
+import org.fruct.oss.getssupplement.Utils.Const;
 
 import java.util.ArrayList;
 

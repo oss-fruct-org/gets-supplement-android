@@ -19,7 +19,7 @@ import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.fruct.oss.getssupplement.Const;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.fruct.oss.getssupplement.Model.LoginResponse;
 
 public class AuthStepOne extends AsyncTask<String, String, LoginResponse> {

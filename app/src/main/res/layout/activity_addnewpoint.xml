@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.fruct.oss.getssupplement.AddNewPointActivity">
+    tools:context="org.fruct.oss.getssupplement.ui.activities.AddNewPointActivity">
 
     <include
         android:id="@+id/toolbar"
