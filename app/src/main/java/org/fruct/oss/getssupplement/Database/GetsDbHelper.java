@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import org.fruct.oss.getssupplement.Utils.Const;
 import org.fruct.oss.getssupplement.Model.Category;
-import org.fruct.oss.getssupplement.Model.DatabaseType;
 import org.fruct.oss.getssupplement.Model.Point;
 
 import java.util.ArrayList;
@@ -16,79 +15,68 @@ import java.util.ArrayList;
 /**
  * Created by Andrey on 19.07.2015.
  */
-public class GetsDbHelper extends SQLiteOpenHelper{
+public class GetsDbHelper extends SQLiteOpenHelper {
 
-    // Prefix is used to define Db type: internal Db for storing GeTS data or
-    // internal Db for storing temporary data that should be uploaded to remote server
-    private DatabaseType databaseType;
+    private static final int DB_VERSION = 6;
 
-    private static GetsDbHelper apiHelper = null;
-    private static GetsDbHelper userHelper = null;
+    private static GetsDbHelper sInstance;
 
-    public static GetsDbHelper getApiHelper(Context context) {
-        if (apiHelper == null)
-            apiHelper = new GetsDbHelper(context, DatabaseType.DATA_FROM_API);
-        return apiHelper;
+    public enum SCOPE {
+        INTERNAL,
+        CACHE
     }
 
-    public static GetsDbHelper getUserHelper(Context context) {
-        if (userHelper == null)
-            userHelper = new GetsDbHelper(context, DatabaseType.USER_GENERATED);
-        return userHelper;
+    public static GetsDbHelper getInstance(Context context) {
+        if (sInstance == null)
+            sInstance = new GetsDbHelper(context);
+        return sInstance;
     }
 
-    public GetsDbHelper(Context context, DatabaseType _databaseType) {
-        super(context, getDatabasePrefix(_databaseType) + Const.DB_INTERNAL_NAME, null, 5);
-        this.databaseType = _databaseType;
-    }
 
-    private static String getDatabasePrefix(DatabaseType databaseType) {
-        if (databaseType == DatabaseType.DATA_FROM_API)
-            return "api_";
-
-        return "user_";
+    private GetsDbHelper(Context context) {
+        super(context, Const.DB_NAME, null, DB_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL("create table " + Const.DB_INTERNAL_POINTS + "(" +
-                        "_id integer primary key autoincrement," + // Internal id, not connected with API
-                        "categoryId," +
-                        "name text," +
-                        "description text," +
-                        "url text," +
-                        "access text," +
-                        "time text," +
-                        "latitude real," +
-                        "longitude real," +
-                        "rating real," +
-                        "uuid text," +
-                        "markerId integer" +
-                        ");"
-        );
-
-        db.execSQL("create table " + Const.DB_INTERNAL_CATEGORIES + "(" +
-                        "_id integer primary key," + // Unique id, connected with API
-                        "name text," +
-                        "description text," +
-                        "iconurl text" +
-                        ");"
-        );
-
-        db.execSQL("create table " + Const.DB_TEMP_POINTS + "(" +
+        db.execSQL("create table " + Const.DB_POINTS + "(" +
                 "_id integer primary key autoincrement," + // Internal id, not connected with API
                 "categoryId," +
-                "title text," +
-                "token text," +
+                "name text," +
+                "description text," +
+                "url text," +
+                "access text," +
+                "time text," +
                 "latitude real," +
                 "longitude real," +
                 "rating real," +
-                "streetId text," +
+                "uuid text," +
+                "markerId integer" +
+                ");"
+        );
+
+        db.execSQL("create table " + Const.DB_CATEGORIES + "(" +
+                "_id integer primary key," + // Unique id, connected with API
+                "name text," +
+                "description text," +
+                "iconurl text" +
+                ");"
+        );
+
+        db.execSQL("create table " + Const.DB_CACHED_POINTS + "(" +
+                "_id integer primary key autoincrement," + // Internal id, not connected with API
+                "categoryId," +
+                "name text," +
+                "description text," +
+                "url text," +
+                "access text," +
                 "time text," +
-                "status text," +
-                "code text," +
-                "message text" +
+                "latitude real," +
+                "longitude real," +
+                "rating real," +
+                "uuid text," +
+                "markerId integer" +
                 ");"
         );
 
@@ -96,28 +84,45 @@ public class GetsDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("drop table if exists " + Const.DB_INTERNAL_POINTS);
-        db.execSQL("drop table if exists " + Const.DB_INTERNAL_CATEGORIES);
-        db.execSQL("drop table if exists " + Const.DB_TEMP_POINTS);
+        db.execSQL("drop table if exists " + Const.DB_POINTS);
+        db.execSQL("drop table if exists " + Const.DB_CATEGORIES);
+        db.execSQL("drop table if exists " + Const.DB_CACHED_POINTS);
         onCreate(db);
     }
 
-
-    public SQLiteDatabase getWrData() {
-        SQLiteDatabase dbtemp = getWritableDatabase();
-        return dbtemp;
-    }
-
-    public SQLiteDatabase getRdData() {
-        SQLiteDatabase dbtemp = getReadableDatabase();
-        return dbtemp;
-    }
-
-
     public void clearDatabase() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("delete from " + Const.DB_INTERNAL_POINTS);
-        //db.execSQL("delete from " + Const.DB_INTERNAL_CATEGORIES);
+        db.execSQL("delete from " + Const.DB_POINTS);
+        //db.execSQL("delete from " + Const.DB_CATEGORIES);
+    }
+
+    public void cachePoint(Point point) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put("categoryId", point.categoryId);
+        cv.put("name", point.name);
+        cv.put("url", point.url);
+        cv.put("access", point.access);
+        cv.put("time", point.time);
+        cv.put("description", point.description);
+        cv.put("latitude", point.latitude);
+        cv.put("longitude", point.longitude);
+        cv.put("rating", point.rating);
+        cv.put("uuid", point.uuid);
+        cv.put("markerId", point.markerId);
+
+        db.insertWithOnConflict(Const.DB_CACHED_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public ArrayList<Point> getCachedPoints(int category) {
+        return getPoints(category, SCOPE.CACHE);
+    }
+
+
+    public int deleteCachedPoint(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.delete(Const.DB_CACHED_POINTS, "_id=" + id, null);
     }
 
     /**
@@ -125,7 +130,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
      */
     public String getCategoryName(int categoryId) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(true, Const.DB_INTERNAL_CATEGORIES, null, "_id="+categoryId, null, null, null, null, null);
+        Cursor cursor = db.query(true, Const.DB_CATEGORIES, null, "_id=" + categoryId, null, null, null, null, null);
         String categoryName = null;
 
         if (cursor.moveToNext()) {
@@ -146,7 +151,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("name", name);
         cv.put("description", description);
         cv.put("iconurl", url);
-        db.insertWithOnConflict(Const.DB_INTERNAL_CATEGORIES, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict(Const.DB_CATEGORIES, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public void addCategories(ArrayList<Category> categories) {
@@ -159,7 +164,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
     public ArrayList<Category> getCategories() {
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor cursor = db.query(true, Const.DB_INTERNAL_CATEGORIES, null, null, null, null, null, null, null);
+        Cursor cursor = db.query(true, Const.DB_CATEGORIES, null, null, null, null, null, null, null);
 
 
         if (cursor.moveToFirst()) {
@@ -225,7 +230,7 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         cv.put("uuid", uuid);
         cv.put("markerId", markerId);
 
-        db.insertWithOnConflict(Const.DB_INTERNAL_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict(Const.DB_POINTS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public void addPoints(ArrayList<Point> points) {
@@ -237,7 +242,8 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         }
     }
 
-    public ArrayList<Point> getPoints(int categoryId) {
+
+    public ArrayList<Point> getPoints(int categoryId, SCOPE scope) {
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor;
@@ -247,15 +253,21 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         double dLng = loadCenter.getLongitude();
         // TODO: convert geo coordinates
         if (categoryId == Const.ALL_CATEGORIES)
-            cursor = db.query(true, Const.DB_INTERNAL_POINTS, null,
+            cursor = db.query(true, Const.DB_POINTS, null,
                     "latitude BETWEEN " + (dLat - 0.01) + " AND " + (dLat + 0.01) + " AND " +
                     "longitude BETWEEN " + (dLng - 0.03) + " AND " + (dLng + 0.03),
                     null, null, null, null, null);
        */
-        if (categoryId == Const.ALL_CATEGORIES)
-            cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, null, null, null, null, null, null);
+        String dbName;
+        if (scope == SCOPE.INTERNAL)
+            dbName = Const.DB_POINTS;
         else
-            cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "categoryId = " + categoryId, null, null, null, null, null);
+            dbName = Const.DB_CACHED_POINTS;
+
+        if (categoryId == Const.ALL_CATEGORIES)
+            cursor = db.query(true, dbName, null, null, null, null, null, null, null);
+        else
+            cursor = db.query(true, dbName, null, "categoryId = " + categoryId, null, null, null, null, null);
 
         if (cursor.moveToFirst()) {
             int indexId = cursor.getColumnIndex("_id");
@@ -298,15 +310,10 @@ public class GetsDbHelper extends SQLiteOpenHelper{
         return null;
     }
 
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        super.onDowngrade(db, oldVersion, newVersion);
-    }
-
     public Point getPointByMarkerId(long id) {
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(true, Const.DB_INTERNAL_POINTS, null, "markerId = " + id, null, null, null, null, null);
+        Cursor cursor = db.query(true, Const.DB_POINTS, null, "markerId = " + id, null, null, null, null, null);
 
         int indexId = cursor.getColumnIndex("_id");
         int indexCategoryId = cursor.getColumnIndex("categoryId");
@@ -343,4 +350,5 @@ public class GetsDbHelper extends SQLiteOpenHelper{
             return null;
         }
     }
+
 }

@@ -72,7 +72,7 @@ public class AddNewPointActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //mDbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-        mDbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
+        mDbHelper = GetsDbHelper.getInstance(getApplicationContext());
         mCategoryDescription = (TextView) findViewById(R.id.activity_addpoint_category_description);
         rbRating = (RatingBar) findViewById(R.id.activity_addpoint_ratingbar);
         btCategory = (Button) findViewById(R.id.activity_addpoint_category);

@@ -11,14 +11,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
+import org.fruct.oss.getssupplement.Database.GetsDbHelper;
+import org.fruct.oss.getssupplement.Model.Point;
 import org.fruct.oss.getssupplement.R;
-import org.fruct.oss.getssupplement.ui.adapters.ExpandableCategoriesAdapter;
+import org.fruct.oss.getssupplement.Utils.Const;
+import org.fruct.oss.getssupplement.ui.adapters.PointsListAdapter;
+
+import java.util.ArrayList;
 
 /**
  * Created by Andrey on 12.03.2017.
  */
-
 public class QueueActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
@@ -36,10 +42,19 @@ public class QueueActivity extends AppCompatActivity {
     }
 
     private void setUpRecycler() {
-        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvCategories);
-//        recyclerView.addItemDecoration(new DividerItemDecoration(this));
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvCategories);
+        TextView tvNoCachedPoints = (TextView) findViewById(R.id.tvNoCachedPoints);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ExpandableCategoriesAdapter());
+        ArrayList<Point> points = GetsDbHelper.getInstance(this).getCachedPoints(Const.ALL_CATEGORIES);
+
+        if (points == null || points.isEmpty()) {
+            tvNoCachedPoints.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            recyclerView.setAdapter(new PointsListAdapter(this, points));
+        }
     }
 
     private void setToolbar() {

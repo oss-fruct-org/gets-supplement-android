@@ -46,10 +46,10 @@ public class Const {
     /**
      * Database
      */
-    public static final String DB_INTERNAL_NAME = "internal_db";
-    public static final String DB_INTERNAL_POINTS = "internal_points";
-    public static final String DB_INTERNAL_CATEGORIES = "internal_categories";
-    public static final String DB_TEMP_POINTS = "temp_points";
+    public static final String DB_NAME = "getsDb";
+    public static final String DB_POINTS = "dbPoints";
+    public static final String DB_CATEGORIES = "dbCategories";
+    public static final String DB_CACHED_POINTS = "dbCachedPoints";
 
 
     /**

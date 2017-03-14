@@ -16,6 +16,7 @@ public class Point {
     public float rating;
     public String uuid;
     public long markerId;
+    public int streetId;
 
     public Point() {
     }

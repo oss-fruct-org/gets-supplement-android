@@ -24,6 +24,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -125,7 +126,7 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
+        dbHelper = GetsDbHelper.getInstance(getApplicationContext());
 
         setToolbar();
         setNavigation();
@@ -700,6 +701,21 @@ public class MapActivity extends AppCompatActivity {
                 pointsDelete.execute();
             }
 
+            Point point = new Point();
+            point.name = pointName;
+            point.url = pointUrl;
+            point.latitude = latitude;
+            point.longitude = longitude;
+            point.rating = rating;
+            point.categoryId = pointCategory;
+
+            if (mMapboxMap != null) {
+                addMarker(point);
+                dbHelper.cachePoint(point);
+
+                Toast.makeText(getApplicationContext(), getString(R.string.saved_to_local_db), Toast.LENGTH_SHORT).show();
+            }
+/*
             PointsAdd pointsAdd = new PointsAdd(Settings.getToken(getApplicationContext()),
                     pointCategory,
                     pointName,
@@ -707,37 +723,22 @@ public class MapActivity extends AppCompatActivity {
                     latitude,
                     longitude,
                     streetId,
-                    System.currentTimeMillis(),
-                    getApplicationContext()
-            );
+                    System.currentTimeMillis());
 
             Point point = new Point();
 
             // Save to local database when no Internet connection
             if (!isInternetConnectionAvailable()) {
-/*                dbSaveHelper.addPoint(pointCategory,
-                        pointName,
-                        pointUrl,
-                        "?",
-                        System.currentTimeMillis() + "",
-                        "",
-                        latitude,
-                        longitude,
-                        rating,
-                        "?",
-                        -1);*/
-
                 point.name = pointName;
                 point.url = pointUrl;
                 point.latitude = latitude;
                 point.longitude = longitude;
                 point.rating = rating;
                 point.categoryId = pointCategory;
+
                 if (mMapboxMap != null) {
                     addMarker(point);
-                    //GetsDbHelper dbSaveHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.USER_GENERATED);
-                    GetsDbHelper dbSaveHelper = GetsDbHelper.getUserHelper(getApplicationContext());
-                    dbSaveHelper.addPoint(point);
+                    dbHelper.cachePoint(point);
                 }
 
                 Toast.makeText(getApplicationContext(), getString(R.string.saved_to_local_db), Toast.LENGTH_SHORT).show();
@@ -767,7 +768,7 @@ public class MapActivity extends AppCompatActivity {
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-            }
+            }*/
 
             if (mMapboxMap != null) {
                 LatLng coords = new LatLng(point.latitude, point.longitude);
@@ -783,11 +784,11 @@ public class MapActivity extends AppCompatActivity {
 
         if (requestCode == Const.INTENT_RESULT_CATEGORY_ACTIONS) {
             if (mMapboxMap != null) {
-                mMapboxMap.removeAnnotations();
+                mMapboxMap.clear();
                 ArrayList<Point> points;
                 for (int i = 0; i < categoryArrayList.size(); i++) {
                     if (Settings.getIsChecked(getApplicationContext(), categoryArrayList.get(i).id)) {
-                        points = dbHelper.getPoints(categoryArrayList.get(i).id);
+                        points = dbHelper.getPoints(categoryArrayList.get(i).id, GetsDbHelper.SCOPE.INTERNAL);
                         if (points != null) {
                             for (Point point : points)
                                 addMarker(point);
@@ -798,7 +799,6 @@ public class MapActivity extends AppCompatActivity {
 
         }
     }
-
 
     private void checkGraphUpdate() {
         String dataPath = Settings.getStorageDir(getApplicationContext());

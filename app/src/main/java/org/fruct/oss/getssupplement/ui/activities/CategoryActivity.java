@@ -26,7 +26,7 @@ public class CategoryActivity extends Activity {
         setContentView(R.layout.activity_category);
 
         //GetsDbHelper dbHelper = new GetsDbHelper(getApplicationContext(), DatabaseType.DATA_FROM_API);
-        GetsDbHelper dbHelper = GetsDbHelper.getApiHelper(getApplicationContext());
+        GetsDbHelper dbHelper = GetsDbHelper.getInstance(getApplicationContext());
         final ArrayList<Category> categories = dbHelper.getCategories();
 
         ArrayList<String> names = new ArrayList<String>();
