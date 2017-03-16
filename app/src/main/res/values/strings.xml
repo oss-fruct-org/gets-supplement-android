@@ -70,4 +70,21 @@
     <string name="toast_download_start">Graph is loading</string>
     <string name="toast_download_error">There is an error during the graph loading</string>
     <string name="toast_download_success">Graph has been loaded successfully</string>
+    <string name="unsuccessful_download">Download error</string>
+    <string name="unsuccessuflly_sent">Send error</string>
+    <string name="user_info_email">Email: %s</string>
+    <string name="user_info_name">Name: %s</string>
+    <string name="user_info_trusted">Points publishing allowed: %s</string>
+    <string name="title_logout">Logout</string>
+    <string name="title_privacy_policy">Privacy policy</string>
+    <string name="no_cached_points">No points to send</string>
+    <string name="menu_title_queue">Queue</string>
+    <string name="menu_title_profile">Profile</string>
+    <string name="menu_title_privacy">Privacy</string>
+    <string name="menu_title_map">Map</string>
+    <string name="menu_title_info">Info</string>
+    <string name="internal_error">Internal error</string>
+    <string name="error_auth_reqiured">You should be logged in before loading points</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
 </resources>
