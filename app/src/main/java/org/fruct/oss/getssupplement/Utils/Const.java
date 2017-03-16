@@ -32,6 +32,9 @@ public class Const {
     public static final String URL_CHANNEL_PUBLISH = GETS_SERVER_PREFIX + "publish.php";
     public static final String URL_CHANNEL_UNPUBLISH = GETS_SERVER_PREFIX + "unpublish.php";
 
+    public static final String PRIVACY_POLICY_BASE_URL = "http://etourism.cs.karelia.ru:20204/obstacle/privacy/";
+    public static final String PRIVACY_POLICY_URL_EN = PRIVACY_POLICY_BASE_URL + "policy-en.html";
+    public static final String PRIVACY_POLICY_URL_RU =  PRIVACY_POLICY_BASE_URL + "policy-ru.html";
 
     /**
      * Shared preferences

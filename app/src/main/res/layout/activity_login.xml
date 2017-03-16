@@ -16,7 +16,7 @@
             layout="@layout/view_toolbar" />
 
         <WebView
-            android:id="@+id/login_activity_webview"
+            android:id="@+id/wvPolicy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:visibility="gone"

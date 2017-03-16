@@ -56,7 +56,8 @@
         </activity>
 
         <activity
-            android:name=".ui.activities.PolicyActivity">
+            android:name=".ui.activities.PolicyActivity"
+            android:label="@string/title_privacy_policy">
         </activity>
 
         <activity

@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
         tvTrusted = (TextView) findViewById(R.id.tvTrusted);
         llContainer = (LinearLayout) findViewById(R.id.llContainer);
 
-        webView = (WebView) findViewById(R.id.login_activity_webview);
+        webView = (WebView) findViewById(R.id.wvPolicy);
         webView.setWebViewClient(authWebViewClient);
         webView.getSettings().setJavaScriptEnabled(true);
 
