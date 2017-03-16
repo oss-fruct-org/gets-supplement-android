@@ -35,6 +35,8 @@
     <string name="error_deleting_point">Ошибка при удалении точки</string>
     <string name="network_error_authorization">Для продолжения работы подключите интернет и перезапустите приложение</string>
 
+    <string name="internal_error">Ошибка сервера</string>
+
     <string name="action_publish">Опубликовать точки</string>
     <string name="action_unpublish">Извлечь точки из общего доступа</string>
     <string name="action_gps">Включение/отключение отслеживания местоположения пользователя</string>
@@ -78,4 +80,5 @@
 
     <string name="no_cached_points">Точки для отправки отсутствуют</string>
     <string name="title_privacy_policy">Политика конфиденциальности</string>
+    <string name="title_logout">Выйти</string>
 </resources>

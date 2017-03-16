@@ -22,7 +22,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
     private static GetsDbHelper sInstance;
 
     public enum SCOPE {
-        INTERNAL,
+        TEMPORARY,
         CACHE
     }
 
@@ -100,6 +100,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
+        cv.put("_id", point.id);
         cv.put("categoryId", point.categoryId);
         cv.put("name", point.name);
         cv.put("url", point.url);
@@ -119,12 +120,30 @@ public class GetsDbHelper extends SQLiteOpenHelper {
         return getPoints(category, SCOPE.CACHE);
     }
 
+    public int deletePointByMarkerId(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        int n = db.delete(Const.DB_POINTS, "markerId=" + id, null);
+        if (n > 0)
+            return n;
+        else
+            return db.delete(Const.DB_CACHED_POINTS, "markerId=" + id, null);
+    }
 
     public int deleteCachedPoint(int id) {
         SQLiteDatabase db = getReadableDatabase();
         return db.delete(Const.DB_CACHED_POINTS, "_id=" + id, null);
     }
 
+    public int deletePoint(int id) {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.delete(Const.DB_POINTS, "_id=" + id, null);
+    }
+
+
+    public void deleteAllPoints() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(Const.DB_POINTS, null, null);
+    }
     /**
      * Storing API's categories
      */
@@ -210,11 +229,13 @@ public class GetsDbHelper extends SQLiteOpenHelper {
         );
     }
 
-    public void addPoint(int categoryId, String name, String url, String access, long time, String description, String latitude, String longitude, float rating, String uuid, long markerId) {
+    public void addPoint(int categoryId, String name, String url, String access, long time, String description,
+                         String latitude, String longitude, float rating, String uuid, long markerId) {
         addPoint(categoryId, name, url, access, time + "", description, Float.parseFloat(latitude), Float.parseFloat(longitude), rating, uuid, markerId);
     }
 
-    public void addPoint(int categoryId, String name, String url, String access, String time, String description, double latitude, double longitude, float rating, String uuid, long markerId) {
+    public void addPoint(int categoryId, String name, String url, String access, String time, String description,
+                         double latitude, double longitude, float rating, String uuid, long markerId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
@@ -238,28 +259,36 @@ public class GetsDbHelper extends SQLiteOpenHelper {
             Point point = points.get(i);
 
             // TODO: convert time
-            this.addPoint(point.categoryId, point.name, point.url, point.access, "0", point.description, point.latitude, point.longitude, point.rating, point.uuid, point.markerId);
+            this.addPoint(point.categoryId, point.name, point.url, point.access, "0",
+                    point.description, point.latitude, point.longitude, point.rating,
+                    point.uuid, point.markerId);
         }
     }
 
 
-    public ArrayList<Point> getPoints(int categoryId, SCOPE scope) {
+    public ArrayList<Point> getAllPoints(int categoryId) {
+        ArrayList<Point> points1 = getPoints(categoryId, SCOPE.TEMPORARY);
+        ArrayList<Point> points2 = getPoints(categoryId, SCOPE.CACHE);
+        if (points1 != null && points2 != null) {
+            points1.addAll(points2);
+            return points1;
+        } else {
+            if (points1 == null && points2 == null)
+                return null;
+            else
+                if (points1 == null)
+                    return points2;
+                else
+                    return points1;
+        }
+    }
 
+    public ArrayList<Point> getPoints(int categoryId, SCOPE scope) {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor;
-
-        /*
-        double dLat = loadCenter.getLatitude();
-        double dLng = loadCenter.getLongitude();
-        // TODO: convert geo coordinates
-        if (categoryId == Const.ALL_CATEGORIES)
-            cursor = db.query(true, Const.DB_POINTS, null,
-                    "latitude BETWEEN " + (dLat - 0.01) + " AND " + (dLat + 0.01) + " AND " +
-                    "longitude BETWEEN " + (dLng - 0.03) + " AND " + (dLng + 0.03),
-                    null, null, null, null, null);
-       */
         String dbName;
-        if (scope == SCOPE.INTERNAL)
+
+        if (scope == SCOPE.TEMPORARY)
             dbName = Const.DB_POINTS;
         else
             dbName = Const.DB_CACHED_POINTS;
@@ -311,9 +340,22 @@ public class GetsDbHelper extends SQLiteOpenHelper {
     }
 
     public Point getPointByMarkerId(long id) {
+        Point point = getPointByMarkerIdInScope(id, SCOPE.TEMPORARY);
+        if (point != null)
+            return point;
+        else
+            return getPointByMarkerIdInScope(id, SCOPE.CACHE);
+    }
 
+    private Point getPointByMarkerIdInScope(long id, SCOPE scope) {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(true, Const.DB_POINTS, null, "markerId = " + id, null, null, null, null, null);
+        String dbName;
+        if (scope == SCOPE.TEMPORARY)
+            dbName = Const.DB_POINTS;
+        else
+            dbName = Const.DB_CACHED_POINTS;
+
+        Cursor cursor = db.query(true, dbName, null, "markerId = " + id, null, null, null, null, null);
 
         int indexId = cursor.getColumnIndex("_id");
         int indexCategoryId = cursor.getColumnIndex("categoryId");

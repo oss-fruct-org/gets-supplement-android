@@ -24,7 +24,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,7 +49,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
-import org.fruct.oss.getssupplement.Api.PointsAdd;
 import org.fruct.oss.getssupplement.Api.PointsDelete;
 import org.fruct.oss.getssupplement.Api.PublishChannel;
 import org.fruct.oss.getssupplement.Api.UserInfoGet;
@@ -73,7 +71,6 @@ import org.fruct.oss.getssupplement.Utils.XmlUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -288,6 +285,14 @@ public class MapActivity extends AppCompatActivity {
                                 .build();
                         mMapboxMap.animateCamera(CameraUpdateFactory
                                 .newCameraPosition(position), 2000);
+                    } else {
+                        requestGps();
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(getDefaultLocation())
+                                .zoom(16)
+                                .build();
+                        mMapboxMap.animateCamera(CameraUpdateFactory
+                                .newCameraPosition(position), 2000);
                     }
                 }
             }
@@ -305,13 +310,14 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    private void deletePoint(Point point) {
-        PointsDelete pointsDelete = new PointsDelete(Settings.getToken(getApplicationContext()), point) {
+    private void deletePoint(final Point point) {
+        PointsDelete pointsDelete = new PointsDelete(Settings.getToken(this), point) {
             @Override
             protected void onPostExecute(BasicResponse response) {
                 super.onPostExecute(response);
-                if (response.code == 0)
+                if (response.code == 0) {
                     deleteMarker(getCurrentSelectedMarker());
+                }
                 else
                     Toast.makeText(getApplicationContext(), getString(R.string.error_deleting_point), Toast.LENGTH_SHORT).show();
             }
@@ -322,6 +328,8 @@ public class MapActivity extends AppCompatActivity {
     private void loadPoints() {
         if (mMapboxMap == null)
             return;
+
+        dbHelper.deleteAllPoints();
 
         Location location = mMapboxMap.getMyLocation();
         LatLng center;
@@ -358,19 +366,22 @@ public class MapActivity extends AppCompatActivity {
 
                 Toast.makeText(getApplicationContext(), getString(R.string.successful_download), Toast.LENGTH_SHORT).show();
 
-                if (mMapboxMap != null) {
-                    for (Point point : response.points) {
-                        if (Settings.getIsChecked(getApplicationContext(), point.categoryId))
-                            addMarker(point);
+                final ArrayList<Point> points = new ArrayList<>();
+                for (Point point : response.points) {
+                    if (Settings.getIsChecked(getApplicationContext(), point.categoryId)) {
+                        point.markerId = addMarker(point).getId();
+                        points.add(point);
+                    } else {
+                        points.add(point);
                     }
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dbHelper.clearDatabase();
-                            dbHelper.addPoints(response.points);
-                        }
-                    }).start();
                 }
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dbHelper.addPoints(points);
+                    }
+                }).start();
             }
         };
 
@@ -387,9 +398,23 @@ public class MapActivity extends AppCompatActivity {
                     if (miActions != null)
                         miActions.setEnabled(true);
                 }
+
                 pointsGet.execute();
+
+                ArrayList<Point> points = dbHelper.getCachedPoints(Const.ALL_CATEGORIES);
+                if (points != null)
+                    for (Point point : points) {
+                        dbHelper.deleteCachedPoint(point.id);
+                        if (Settings.getIsChecked(getApplicationContext(), point.categoryId)) {
+                            point.markerId = addMarker(point).getId();
+                            dbHelper.cachePoint(point);
+                        } else {
+                            dbHelper.cachePoint(point);
+                        }
+                    }
             }
         };
+
         categoriesGet.execute();
     }
 
@@ -452,7 +477,10 @@ public class MapActivity extends AppCompatActivity {
         ibBottomPanelDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deletePoint(point);
+                if (point.id < 0)
+                    dbHelper.deletePointByMarkerId(point.markerId);
+                else
+                    deletePoint(point);
             }
         });
 
@@ -539,7 +567,10 @@ public class MapActivity extends AppCompatActivity {
         return false;
     }
 
-    private void addMarker(Point point) {
+    /**
+     * @return markerId
+     */
+    private synchronized Marker addMarker(Point point) {
         /**
          * https://www.mapbox.com/help/android-markers/
          * Не добавлять title/snippet
@@ -556,10 +587,9 @@ public class MapActivity extends AppCompatActivity {
             drawableImage.setColorFilter(filter);
         }
         Icon icon = iconFactory.fromDrawable(drawableImage);
-        Marker marker = mMapboxMap.addMarker(new MarkerOptions()
+        return mMapboxMap.addMarker(new MarkerOptions()
                 .position(new LatLng(point.latitude, point.longitude))
                 .icon(icon));
-        point.markerId = marker.getId();
     }
 
 
@@ -576,17 +606,22 @@ public class MapActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.follow_location) {
-            toggleGps(!mIsFollowingEnabled);
             Location location = mMapboxMap.getMyLocation();
-            if (location != null) {
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(new LatLng(location))
-                        .zoom(16)
-                        .build();
-
-                mMapboxMap.animateCamera(CameraUpdateFactory
-                        .newCameraPosition(position), 2000);
+            if (location == null) {
+                requestGps();
+                return true;
             }
+
+            mIsFollowingEnabled = !mIsFollowingEnabled;
+            toggleLocationFollowing(mIsFollowingEnabled);
+
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(location))
+                    .zoom(16)
+                    .build();
+
+            mMapboxMap.animateCamera(CameraUpdateFactory
+                    .newCameraPosition(position), 2000);
         }
 
         if (id == R.id.action_add) {
@@ -683,7 +718,7 @@ public class MapActivity extends AppCompatActivity {
             // Delete old point if there was point editing
             if (deleteUuid != null) {
 
-                Point point = new Point();
+                final Point point = new Point();
                 point.uuid = deleteUuid;
                 point.categoryId = deleteCategoryId;
 
@@ -691,8 +726,10 @@ public class MapActivity extends AppCompatActivity {
                     @Override
                     protected void onPostExecute(BasicResponse response) {
                         super.onPostExecute(response);
-                        if (response.code == 0)
+                        if (response.code == 0) {
                             deleteMarker(getCurrentSelectedMarker());
+                            dbHelper.deletePointByMarkerId(getCurrentSelectedMarker().getId());
+                        }
                         else {
                             Toast.makeText(getApplicationContext(), R.string.unsuccessful_edit, Toast.LENGTH_SHORT).show();
                         }
@@ -702,6 +739,7 @@ public class MapActivity extends AppCompatActivity {
             }
 
             Point point = new Point();
+            point.id = Settings.generateId(this);
             point.name = pointName;
             point.url = pointUrl;
             point.latitude = latitude;
@@ -710,7 +748,7 @@ public class MapActivity extends AppCompatActivity {
             point.categoryId = pointCategory;
 
             if (mMapboxMap != null) {
-                addMarker(point);
+                point.markerId = addMarker(point).getId();
                 dbHelper.cachePoint(point);
 
                 Toast.makeText(getApplicationContext(), getString(R.string.saved_to_local_db), Toast.LENGTH_SHORT).show();
@@ -788,10 +826,14 @@ public class MapActivity extends AppCompatActivity {
                 ArrayList<Point> points;
                 for (int i = 0; i < categoryArrayList.size(); i++) {
                     if (Settings.getIsChecked(getApplicationContext(), categoryArrayList.get(i).id)) {
-                        points = dbHelper.getPoints(categoryArrayList.get(i).id, GetsDbHelper.SCOPE.INTERNAL);
+                        points = dbHelper.getAllPoints(categoryArrayList.get(i).id);
                         if (points != null) {
-                            for (Point point : points)
-                                addMarker(point);
+                            for (Point point : points) {
+                                Marker marker = addMarker(point);
+                                if (point.markerId != -1) {
+                                    marker.setId(point.markerId);
+                                }
+                            }
                         }
                     }
                 }
@@ -891,32 +933,24 @@ public class MapActivity extends AppCompatActivity {
     }
 
     @UiThread
-    public void toggleGps(boolean enableGps) {
-        if (enableGps) {
-            // Check if user has granted location permission
-            if (!locationServices.areLocationPermissionsGranted()) {
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_LOCATION);
-            } else {
-                enableLocation(true);
-                mIsFollowingEnabled = true;
-                setMapPannable(false);
-                menu.findItem(R.id.follow_location).getIcon().
-                        setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
-            }
-        } else {
-            enableLocation(false);
-            mIsFollowingEnabled = false;
-            setMapPannable(true);
-            menu.findItem(R.id.follow_location).getIcon().setColorFilter(null);
+    public void requestGps() {
+        // Check if user has granted location permission
+        if (!locationServices.areLocationPermissionsGranted()) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_LOCATION);
         }
     }
 
-    private void enableLocation(boolean enabled) {
+    private void toggleLocationFollowing(boolean enabled) {
+        setMapPannable(!enabled);
         if (enabled) {
+            menu.findItem(R.id.follow_location).getIcon().
+                    setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
             locationServices.addLocationListener(mLocationListener);
         } else {
+            menu.findItem(R.id.follow_location).getIcon().
+                    setColorFilter(null);
             locationServices.removeLocationListener(mLocationListener);
         }
     }
@@ -928,7 +962,15 @@ public class MapActivity extends AppCompatActivity {
             case PERMISSIONS_LOCATION: {
                 if (grantResults.length > 0 &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    enableLocation(true);
+                    Location lastLocation = locationServices.getLastLocation();
+                    if (lastLocation != null) {
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(lastLocation))
+                                .zoom(16)
+                                .build();
+                        mMapboxMap.animateCamera(CameraUpdateFactory
+                                .newCameraPosition(position), 2000);
+                    }
                 }
             }
         }

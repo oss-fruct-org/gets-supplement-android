@@ -13,7 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,8 @@ public class LoginActivity extends AppCompatActivity {
     private WebView webView;
     private TextView tvUsername, tvEmail, tvTrusted;
     private LinearLayout llContainer;
+    private Button btnLogout;
+    private ProgressBar pbLoadInfo;
     private NavigationView nvMain;
 
     private String responseId;
@@ -51,19 +55,35 @@ public class LoginActivity extends AppCompatActivity {
         tvEmail = (TextView) findViewById(R.id.tvEmail);
         tvTrusted = (TextView) findViewById(R.id.tvTrusted);
         llContainer = (LinearLayout) findViewById(R.id.llContainer);
+        pbLoadInfo = (ProgressBar) findViewById(R.id.pbLoadInfo);
+        btnLogout = (Button) findViewById(R.id.btnLogout);
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Settings.saveToken(LoginActivity.this, null);
+                checkIsLoggedInAndLoad();
+            }
+        });
 
         webView = (WebView) findViewById(R.id.wvPolicy);
         webView.setWebViewClient(authWebViewClient);
         webView.getSettings().setJavaScriptEnabled(true);
 
+        checkIsLoggedInAndLoad();
+    }
+
+    private void checkIsLoggedInAndLoad() {
         String token = Settings.getToken(this);
         if (token == null || token.equals("")) {
+            webView.setVisibility(View.VISIBLE);
+            llContainer.setVisibility(View.GONE);
+            btnLogout.setVisibility(View.GONE);
             AuthStepOne authStepOne = new AuthStepOne() {
                 @Override
                 public void onPostExecute(LoginResponse loginResponse) {
                     if (loginResponse == null) {
                         Toast.makeText(getApplicationContext(), getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
-                        recreate();
+                        checkIsLoggedInAndLoad();
                         return;
                     }
 
@@ -75,14 +95,13 @@ public class LoginActivity extends AppCompatActivity {
 
             authStepOne.execute();
         } else {
-
             loadUserInfo(token);
         }
     }
 
     private void loadUserInfo(String token) {
         webView.setVisibility(View.GONE);
-        llContainer.setVisibility(View.VISIBLE);
+        pbLoadInfo.setVisibility(View.VISIBLE);
 
         UserInfoGet userInfoGet = new UserInfoGet(token) {
             @Override
@@ -102,6 +121,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setUserInfoViews(UserInfoResponse user) {
+        btnLogout.setVisibility(View.VISIBLE);
+        llContainer.setVisibility(View.VISIBLE);
+        pbLoadInfo.setVisibility(View.GONE);
+
+        if (user == null) {
+            Toast.makeText(this, getString(R.string.internal_error), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (user.name != null)
             tvUsername.setText(String.format(getString(R.string.user_info_name), user.name));
         else
@@ -127,8 +155,8 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onPostExecute(LoginResponse loginResponse) {
                     if (loginResponse == null) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
-                        recreate();
+                        Toast.makeText(LoginActivity.this, getString(R.string.error_authorization), Toast.LENGTH_SHORT).show();
+                        checkIsLoggedInAndLoad();
                         return;
                     }
 
@@ -137,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     // Save token
-                    Settings.saveString(getApplicationContext(), Const.PREFS_AUTH_TOKEN, loginResponse.token);
+                    Settings.saveToken(LoginActivity.this, loginResponse.token);
                     // Close activity after obtaining token
                     Intent intent = new Intent();
                     intent.putExtra("token", loginResponse.token);

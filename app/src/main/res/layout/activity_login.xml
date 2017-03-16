@@ -22,6 +22,14 @@
             tools:visibility="gone"
             android:layout_below="@+id/toolbar" />
 
+        <ProgressBar
+            android:id="@+id/pbLoadInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            style="@style/Theme.GetsTheme"
+            android:layout_centerInParent="true"/>
+
         <LinearLayout
             android:id="@+id/llContainer"
             android:layout_below="@+id/toolbar"
@@ -56,6 +64,17 @@
                 tools:text="@string/user_info_trusted" />
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_logout"
+            android:layout_margin="@dimen/dp16"
+            android:background="@color/accent"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_alignParentBottom="true"/>
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

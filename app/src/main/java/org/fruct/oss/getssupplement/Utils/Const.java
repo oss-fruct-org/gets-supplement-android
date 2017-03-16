@@ -46,6 +46,8 @@ public class Const {
     public static final String PREFS_CATEGORY = "category_";
     public static final String PREF_STORAGE_PATH = "pref_storage_path";
     public static final String PREFS_MAP_HASH = "pref_map_hash";
+    public static final String PREFS_GENERATOR = "generator";
+    public static final String PREFS_LAST_GEN = "prefsLastGen";
     /**
      * Database
      */

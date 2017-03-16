@@ -15,7 +15,7 @@ public class Point {
     public double longitude;
     public float rating;
     public String uuid;
-    public long markerId;
+    public long markerId = -1;
     public int streetId;
 
     public Point() {
