@@ -1,6 +1,7 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -55,6 +56,7 @@ public class UserInfoGet extends AsyncTask<String, String, UserInfoResponse> {
 
             // Parse
             String strResponse = EntityUtils.toString(responseEntity);
+            Log.d(getClass().getSimpleName(), strResponse);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

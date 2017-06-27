@@ -1,6 +1,7 @@
 package org.fruct.oss.getssupplement.Api;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -9,6 +10,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fruct.oss.getssupplement.Model.LoginResponse;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,9 +21,6 @@ import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.fruct.oss.getssupplement.Utils.Const;
-import org.fruct.oss.getssupplement.Model.LoginResponse;
 
 public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
 
@@ -52,7 +52,7 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost(Const.URL_AUTH);
 
-            String postData = "<request><params><id>" + id + "</id></params></request>";
+            String postData = "<request><params><exchange_token>" + id + "</exchange_token></params></request>";
             // Server can't work this fast
             for (int attempts = 0; attempts  < 5; attempts++) {
 
@@ -63,6 +63,7 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
 
                 // Parse
                 String strResponse = EntityUtils.toString(responseEntity);
+                Log.d(getClass().getSimpleName(), "Got response: " + strResponse);
 
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -79,6 +80,9 @@ public class AuthStepTwo extends AsyncTask<String, String, LoginResponse> {
                     loginResponse.code = Integer.parseInt(element.getElementsByTagName("code").item(0).getTextContent());
                     loginResponse.message = element.getElementsByTagName("message").item(0).getTextContent();
                 }
+
+                if (loginResponse.code != 0)
+                    return loginResponse;
 
                 nodeList = doc.getElementsByTagName("content");
 

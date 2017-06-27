@@ -87,4 +87,10 @@
     <string name="error_auth_reqiured">You should be logged in before loading points</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
+
+    <string name="signed_in_fmt">Signed in as: %s</string>
+    <string name="loading">Loading…</string>
+    <string name="signed_out">Signed out</string>
+    <string name="signed_in">Signed in</string>
+
 </resources>

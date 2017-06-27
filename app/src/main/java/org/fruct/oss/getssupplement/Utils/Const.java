@@ -17,7 +17,7 @@ public class Const {
      */
     private static final String GETS_SERVER_PREFIX = "http://gets.cs.petrsu.ru/obstacle/service/";
 
-    public static final String URL_AUTH = GETS_SERVER_PREFIX + "userLogin.php";
+    public static final String URL_AUTH = GETS_SERVER_PREFIX + "/auth/exchangeToken.php";
     public static final String URL_INFO = GETS_SERVER_PREFIX + "userInfo.php";
 
     public static final String URL_POINTS_LOAD = GETS_SERVER_PREFIX + "loadPoints.php";
@@ -35,6 +35,8 @@ public class Const {
     public static final String PRIVACY_POLICY_BASE_URL = "http://etourism.cs.karelia.ru:20204/obstacle/privacy/";
     public static final String PRIVACY_POLICY_URL_EN = PRIVACY_POLICY_BASE_URL + "policy-en.html";
     public static final String PRIVACY_POLICY_URL_RU =  PRIVACY_POLICY_BASE_URL + "policy-ru.html";
+
+    public static final String URL_GET_AUTH_PARAMS = GETS_SERVER_PREFIX + "auth/getAuthParameters.php";
 
     /**
      * Shared preferences

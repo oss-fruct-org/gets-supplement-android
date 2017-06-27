@@ -6,7 +6,7 @@ repositories {
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '25.0.0'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "org.fruct.oss.getssupplement"
@@ -44,4 +44,11 @@ dependencies {
 
     compile 'org.slf4j:slf4j-android:1.7.12'
     compile 'org.slf4j:slf4j-api:1.7.12'
+
+    compile 'com.google.android.gms:play-services-base:11.0.1'
+    compile 'com.google.android.gms:play-services-auth:11.0.1'
+
+    compile 'com.android.support:multidex:1.0.1'
+
 }
+apply plugin: 'com.google.gms.google-services'
