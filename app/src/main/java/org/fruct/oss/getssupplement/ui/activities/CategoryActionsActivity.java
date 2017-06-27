@@ -39,7 +39,7 @@ public class CategoryActionsActivity extends AppCompatActivity {
 
         try {
             for (Category category : categories) {
-                names.add(category.name);
+                names.add(category.getName());
                 id.add(category.id);
             }
         } catch (Exception e) {

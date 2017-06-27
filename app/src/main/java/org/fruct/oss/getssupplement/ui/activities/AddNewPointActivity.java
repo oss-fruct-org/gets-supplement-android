@@ -27,6 +27,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 
+import org.fruct.oss.SocialNetwork;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.R;
 import org.fruct.oss.getssupplement.Utils.Const;
@@ -217,6 +218,11 @@ public class AddNewPointActivity extends AppCompatActivity {
             setResult(Const.INTENT_RESULT_CODE_OK, intent);
             finish();
         }
+
+        if (item.getItemId() == R.id.action_screenshot) {
+            SocialNetwork.sendImage("GeTS Supplement application", getBaseContext());
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

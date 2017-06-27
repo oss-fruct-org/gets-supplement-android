@@ -164,6 +164,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void signIn() {
         Log.d(getLocalClassName(), "Try to get auth for client ID: " + getResponseId());
+        if (getResponseId() == null)
+            return;
+
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions
                 .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 //                .requestEmail()

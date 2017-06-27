@@ -34,7 +34,7 @@ public class CategoryActivity extends Activity {
 
         try {
             for (Category category : categories) {
-                names.add(category.name);
+                names.add(category.getName());
                 id.add(category.id);
             }
         } catch (Exception e) {
@@ -53,9 +53,9 @@ public class CategoryActivity extends Activity {
                 Category category = categories.get(position);
 
                 Intent i = new Intent();
-                i.putExtra("name", category.name);
+                i.putExtra("name", category.getName());
                 i.putExtra("category", category.id);
-                i.putExtra("description", category.description);
+                i.putExtra("description", category.getDescription());
                 setResult(Const.INTENT_RESULT_CODE_OK, i);
 
                 finish();

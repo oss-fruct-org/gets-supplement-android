@@ -50,5 +50,10 @@ dependencies {
 
     compile 'com.android.support:multidex:1.0.1'
 
+    compile 'com.jraska:falcon:1.0.4'
+    compile 'com.facebook.android:facebook-android-sdk:4.23.0'
+    compile 'com.vk:androidsdk:1.6.8'
+
+
 }
 apply plugin: 'com.google.gms.google-services'

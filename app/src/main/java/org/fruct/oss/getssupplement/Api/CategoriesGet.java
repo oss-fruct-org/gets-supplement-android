@@ -3,6 +3,7 @@ package org.fruct.oss.getssupplement.Api;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -11,10 +12,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.fruct.oss.getssupplement.Utils.Const;
-import org.fruct.oss.getssupplement.Utils.IconHolder;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.Category;
+import org.fruct.oss.getssupplement.Utils.Const;
+import org.fruct.oss.getssupplement.Utils.IconHolder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
@@ -62,7 +63,8 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
             HttpEntity responseEntity = httpResponse.getEntity();
 
             // Parse
-            String strResponse = EntityUtils.toString(responseEntity);
+            String strResponse = EntityUtils.toString(responseEntity, "UTF-8");
+            Log.d(getClass().getSimpleName(), "Server output: " + strResponse);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -95,9 +97,11 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
 
                     Category category = new Category();
                     category.id = Integer.parseInt(element.getElementsByTagName("id").item(0).getTextContent());
-                    category.name = element.getElementsByTagName("name").item(0).getTextContent();
-                    category.description = getDescription(element.getElementsByTagName("description").item(0).getTextContent());
+                    category.setName(element.getElementsByTagName("name").item(0).getTextContent());
+                    category.setDescription(getDescription(element.getElementsByTagName("description").item(0).getTextContent()));
                     category.urlIcon = getIcon(element.getElementsByTagName("url").item(0).getTextContent());
+
+                    Log.d(getClass().getSimpleName(), "Category: " + category.getName());
 
                     // Download and save bitmap for later usage
                     if (category.urlIcon != null && !category.urlIcon.equals("")) {

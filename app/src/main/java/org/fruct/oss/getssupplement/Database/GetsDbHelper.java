@@ -176,7 +176,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
     public void addCategories(ArrayList<Category> categories) {
         for (int i = 0; i < categories.size(); i++) {
             Category category = categories.get(i);
-            this.addCategory(category.id, category.name, category.description, category.urlIcon);
+            this.addCategory(category.id, category.getAllNames(), category.getAllDescriptions(), category.urlIcon);
         }
     }
 
@@ -196,8 +196,8 @@ public class GetsDbHelper extends SQLiteOpenHelper {
             do {
                 Category category = new Category();
                 category.id = cursor.getInt(indexId);
-                category.name = cursor.getString(indexName);
-                category.description = cursor.getString(indexDescription);
+                category.setName(cursor.getString(indexName));
+                category.setDescription(cursor.getString(indexDescription));
                 category.urlIcon = cursor.getString(indexUrl);
 
                 list.add(category);

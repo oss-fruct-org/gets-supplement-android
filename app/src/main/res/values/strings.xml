@@ -92,5 +92,6 @@
     <string name="loading">Loading…</string>
     <string name="signed_out">Signed out</string>
     <string name="signed_in">Signed in</string>
+    <string name="make_screenshot">Send screenshot</string>
 
 </resources>
