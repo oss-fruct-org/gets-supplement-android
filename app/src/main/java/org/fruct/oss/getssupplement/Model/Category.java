@@ -1,5 +1,7 @@
 package org.fruct.oss.getssupplement.Model;
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -11,10 +13,11 @@ import java.util.Map;
  * Created by Andrey on 19.07.2015.
  */
 public class Category {
+    private static String TAG = "Category";
 
     public int id;
     private String name;
-    private Map<String, String> localNames;
+    private Map<String, String> localNames = null;
 
     private String description;
     private Map<String, String> localDescriptions;
@@ -28,7 +31,7 @@ public class Category {
 
     public String getName() {
         if (localNames != null) {
-            //log.debug("Point key = " + "name_" + Locale.getDefault().getLanguage());
+            Log.d(TAG,"Point key = " + "name_" + Locale.getDefault().getLanguage());
             if (localNames.containsKey("name_" + Locale.getDefault().getLanguage()))
                 return localNames.get("name_" + Locale.getDefault().getLanguage());
             else
@@ -36,7 +39,7 @@ public class Category {
         }
 
         // если не распарсено, то парсим и в хеш
-        localNames = new HashMap();
+        localNames = new HashMap<String, String>();
         try {
             JSONObject json = new JSONObject(name);
             Iterator<String> temp = json.keys();
@@ -45,10 +48,13 @@ public class Category {
                 localNames.put(key, json.get(key).toString());
             }
         } catch (Exception e) {
-            //log.debug("Catch exception: " + e.getMessage());
+            Log.d(TAG, "Name: " + name + " not parsed: " + e.getMessage());
             localNames.put("name", name);
         }
-        return name;
+        if (localNames.containsKey("name_" + Locale.getDefault().getLanguage()))
+            return localNames.get("name_" + Locale.getDefault().getLanguage());
+        else
+            return localNames.get("name");
     }
 
     public String getAllNames() {
@@ -70,7 +76,7 @@ public class Category {
         }
 
         // если не распарсено, то парсим и в хеш
-        localDescriptions = new HashMap();
+        localDescriptions = new HashMap<String, String>();
         try {
             JSONObject json = new JSONObject(description);
             Iterator<String> temp = json.keys();
@@ -82,7 +88,10 @@ public class Category {
             //log.debug("Catch exception: " + e.getMessage());
             localDescriptions.put("description", description);
         }
-        return description;
+        if (localDescriptions.containsKey("name_" + Locale.getDefault().getLanguage()))
+            return localDescriptions.get("name_" + Locale.getDefault().getLanguage());
+        else
+            return localDescriptions.get("name");
     }
 
     public String getAllDescriptions() {

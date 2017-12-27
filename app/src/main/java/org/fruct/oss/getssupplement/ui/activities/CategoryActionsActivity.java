@@ -8,11 +8,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import org.fruct.oss.getssupplement.ui.adapters.CategoryArrayAdapter;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.Category;
 import org.fruct.oss.getssupplement.R;
 import org.fruct.oss.getssupplement.Utils.Const;
+import org.fruct.oss.getssupplement.ui.adapters.CategoryArrayAdapter;
 
 import java.util.ArrayList;
 
@@ -20,6 +20,8 @@ import java.util.ArrayList;
  * Created by Andrey on 28.10.2015.
  */
 public class CategoryActionsActivity extends AppCompatActivity {
+
+    private static String TAG = "CategoryActionsActivity";
 
     private Toolbar toolbar;
 
@@ -34,11 +36,14 @@ public class CategoryActionsActivity extends AppCompatActivity {
         GetsDbHelper dbHelper = GetsDbHelper.getInstance(getApplicationContext());
         final ArrayList<Category> categories = dbHelper.getCategories();
 
+        //Log.d(TAG, "Got categories size=" + (categories == null ? categories : categories.size()));
+
         ArrayList<String> names = new ArrayList<String>();
         ArrayList<Integer> id = new ArrayList<Integer>();
 
         try {
             for (Category category : categories) {
+                //Log.d(TAG, "Added name = " + category.getName());
                 names.add(category.getName());
                 id.add(category.id);
             }

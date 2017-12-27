@@ -1,6 +1,7 @@
 package org.fruct.oss.getssupplement.ui.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
  * Created by Andrey on 28.10.2015.
  */
 public class CategoryArrayAdapter extends ArrayAdapter {
+    private static String TAG = "CategoryArrayAdapter";
 
     private final Context context;
     private final ArrayList<String> names;
@@ -57,6 +59,7 @@ public class CategoryArrayAdapter extends ArrayAdapter {
 
         imageView.setVisibility(View.VISIBLE);
         textView.setText(names.get(position));
+        Log.d(TAG, "Show name: " + names.get(position));
 
 
         if (IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), id.get(position)) != null)

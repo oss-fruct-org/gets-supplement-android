@@ -10,6 +10,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.fruct.oss.getssupplement.Model.Point;
+import org.fruct.oss.getssupplement.Model.PointsResponse;
+import org.fruct.oss.getssupplement.Utils.Const;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -20,10 +23,6 @@ import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.fruct.oss.getssupplement.Utils.Const;
-import org.fruct.oss.getssupplement.Model.Point;
-import org.fruct.oss.getssupplement.Model.PointsResponse;
 
 public class PointsGet extends AsyncTask<String, Point, PointsResponse> {
 
@@ -68,7 +67,9 @@ public class PointsGet extends AsyncTask<String, Point, PointsResponse> {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost(Const.URL_POINTS_LOAD);
 
-            String postData = "<request><params><auth_token>" + authToken + "</auth_token>"; //</params></request>";
+            String postData = "<request><params>";
+            if (authToken != null && ! authToken.isEmpty())
+                    postData += "<auth_token>" + authToken + "</auth_token>"; //</params></request>";
 
             if (categoryId != 0)
                 postData += "<category_id>" + categoryId + "</category_id>";

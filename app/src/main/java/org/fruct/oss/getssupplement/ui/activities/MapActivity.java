@@ -24,6 +24,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,6 +74,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class MapActivity extends AppCompatActivity {
+    private static String TAG = "MapActivity";
 
     private Menu menu;
     private ProgressBar progressBar;
@@ -391,6 +393,7 @@ public class MapActivity extends AppCompatActivity {
                 if (response == null)
                     return;
 
+                Log.d(TAG, "Download categories size=" + (response.categories == null ? response.categories : response.categories.size()));
                 categoryArrayList = response.categories;
                 dbHelper.addCategories(response.categories);
                 if (menu != null) {

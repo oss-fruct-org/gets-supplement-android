@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * Created by Andrey on 19.07.2015.
  */
 public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
+    private static String TAG = "CategoriesGet";
 
     private String authToken;
 
@@ -54,7 +55,9 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost(Const.URL_CATEGORIES_GET);
 
-            String postData = "<request><params><auth_token>" + authToken + "</auth_token></params></request>";
+            String postData = "<request><params></params></request>";
+            if (authToken != null && !authToken.isEmpty())
+                postData = "<request><params><auth_token>" + authToken + "</auth_token></params></request>";
 
             // Server can't work this fast
             httppost.setEntity(new StringEntity(postData));
@@ -64,7 +67,7 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
 
             // Parse
             String strResponse = EntityUtils.toString(responseEntity, "UTF-8");
-            Log.d(getClass().getSimpleName(), "Server output: " + strResponse);
+            Log.d(TAG, "Server output: " + strResponse);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
