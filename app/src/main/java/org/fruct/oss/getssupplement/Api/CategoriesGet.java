@@ -1,5 +1,6 @@
 package org.fruct.oss.getssupplement.Api;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -37,8 +38,11 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
 
     private String authToken;
 
-    public CategoriesGet(String token) {
+    private Context context;
+
+    public CategoriesGet(String token, Context context) {
         authToken = token;
+        this.context = context;
     }
 
     @Override
@@ -108,7 +112,7 @@ public class CategoriesGet extends AsyncTask<Void, Void, CategoriesResponse> {
 
                     // Download and save bitmap for later usage
                     if (category.urlIcon != null && !category.urlIcon.equals("")) {
-                        IconHolder.getInstance().addBitmap(category.id, downloadBitmap(category.urlIcon));
+                        IconHolder.getInstance().addBitmap(context, category.id, downloadBitmap(category.urlIcon));
                     }
 
                     list.add(category);

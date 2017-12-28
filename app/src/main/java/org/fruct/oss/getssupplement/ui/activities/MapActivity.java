@@ -7,10 +7,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,23 +46,25 @@ import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.location.LocationServices;
-import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.services.android.telemetry.location.AndroidLocationEngine;
+import com.mapbox.services.android.telemetry.location.LocationEngine;
+import com.mapbox.services.android.telemetry.location.LocationEngineListener;
 
 import org.fruct.oss.getssupplement.Api.CategoriesGet;
 import org.fruct.oss.getssupplement.Api.PointsDelete;
+import org.fruct.oss.getssupplement.Api.PointsGet;
 import org.fruct.oss.getssupplement.Api.PublishChannel;
 import org.fruct.oss.getssupplement.Api.UserInfoGet;
 import org.fruct.oss.getssupplement.Database.GetsDbHelper;
 import org.fruct.oss.getssupplement.Model.BasicResponse;
 import org.fruct.oss.getssupplement.Model.CategoriesResponse;
 import org.fruct.oss.getssupplement.Model.Category;
-import org.fruct.oss.getssupplement.Api.PointsGet;
-import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.Point;
+import org.fruct.oss.getssupplement.Model.PointsResponse;
 import org.fruct.oss.getssupplement.Model.UserInfoResponse;
 import org.fruct.oss.getssupplement.R;
 import org.fruct.oss.getssupplement.Utils.Const;
@@ -87,7 +92,7 @@ public class MapActivity extends AppCompatActivity {
     private boolean mIsFollowingEnabled = false;
     private double mCurrentZoom;
 
-    private LocationServices locationServices;
+    private LocationEngine locationEngine;
     private GetsDbHelper dbHelper, dbHelperSend;
 
     private ArrayList<Category> categoryArrayList;
@@ -107,7 +112,12 @@ public class MapActivity extends AppCompatActivity {
 
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private com.mapbox.mapboxsdk.location.LocationListener mLocationListener = new com.mapbox.mapboxsdk.location.LocationListener() {
+    private LocationEngineListener mLocationListener = new LocationEngineListener() {
+        @Override
+        public void onConnected() {
+
+        }
+
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
@@ -133,7 +143,7 @@ public class MapActivity extends AppCompatActivity {
         checkGraphUpdate();
         initBottomPanel();
 
-        locationServices = LocationServices.getLocationServices(MapActivity.this);
+        locationEngine = AndroidLocationEngine.getLocationEngine(MapActivity.this);
         mMapView = (MapView) findViewById(R.id.activity_map_mapview);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -225,7 +235,7 @@ public class MapActivity extends AppCompatActivity {
             mMapboxMap.getUiSettings().setRotateGesturesEnabled(false);
             mMapboxMap.getUiSettings().setTiltGesturesEnabled(false);
             mMapboxMap.setMyLocationEnabled(true);
-            mMapboxMap.setMinZoom(14);
+            mMapboxMap.setMinZoomPreference(12);
             Location location = mMapboxMap.getMyLocation();
 
             CameraPosition position;
@@ -247,6 +257,7 @@ public class MapActivity extends AppCompatActivity {
             mMapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
+                    Log.d(TAG, "Marker " + marker.getId() + " was pressed");
                     setCurrentSelectedMarker(marker);
                     ibBottomPanelDelete.setVisibility(View.INVISIBLE);
                     ibBottomPanelEdit.setVisibility(View.INVISIBLE);
@@ -387,7 +398,7 @@ public class MapActivity extends AppCompatActivity {
             }
         };
 
-        CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext())) {
+        CategoriesGet categoriesGet = new CategoriesGet(Settings.getToken(getApplicationContext()), getBaseContext()) {
             @Override
             public void onPostExecute(CategoriesResponse response) {
                 if (response == null)
@@ -457,7 +468,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void setBottomPanelData(final Point point) {
-        tvBottomPanelName.setText(point.name);
+        tvBottomPanelName.setText(point.getName());
         String descriptionText = "";
 
         if (point.description != null && !point.description.equals("") && !point.description.equals("{}"))
@@ -493,7 +504,7 @@ public class MapActivity extends AppCompatActivity {
                 Intent intent = new Intent(MapActivity.this, AddNewPointActivity.class);
                 intent.putExtra("latitude", point.latitude);
                 intent.putExtra("longitude", point.longitude);
-                intent.putExtra("name", point.name);
+                intent.putExtra("name", point.getName());
                 intent.putExtra("categoryId", point.categoryId);
                 intent.putExtra("description", point.description);
                 intent.putExtra("rating", point.rating);
@@ -580,16 +591,21 @@ public class MapActivity extends AppCompatActivity {
          * set point id = marker id
          */
 
-        Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+        //Drawable drawableImage = IconHolder.getInstance().getDrawableByCategoryId(getResources(), point.categoryId);
+        Bitmap mutableBitmap = IconHolder.getInstance().getBitmapByCategoryId(point.categoryId);
         IconFactory iconFactory = IconFactory.getInstance(this);
         // TODO: separating based on (un)publishing
         if (point.access == null || point.access.contains("w")) {
             ColorMatrix matrix = new ColorMatrix();
             matrix.setSaturation((float) 0.3);
             ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-            drawableImage.setColorFilter(filter);
+            //drawableImage.setColorFilter(filter);
+            Canvas canvasResult = new Canvas(mutableBitmap);
+            Paint paint = new Paint();
+            paint.setColorFilter(filter);
+            canvasResult.drawBitmap(mutableBitmap, 0, 0, paint);
         }
-        Icon icon = iconFactory.fromDrawable(drawableImage);
+        Icon icon = iconFactory.fromBitmap(mutableBitmap);
         return mMapboxMap.addMarker(new MarkerOptions()
                 .position(new LatLng(point.latitude, point.longitude))
                 .icon(icon));
@@ -743,7 +759,7 @@ public class MapActivity extends AppCompatActivity {
 
             Point point = new Point();
             point.id = Settings.generateId(this);
-            point.name = pointName;
+            point.setName(pointName);
             point.url = pointUrl;
             point.latitude = latitude;
             point.longitude = longitude;
@@ -938,7 +954,10 @@ public class MapActivity extends AppCompatActivity {
     @UiThread
     public void requestGps() {
         // Check if user has granted location permission
-        if (!locationServices.areLocationPermissionsGranted()) {
+        if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) ||
+                (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_LOCATION);
@@ -950,11 +969,11 @@ public class MapActivity extends AppCompatActivity {
         if (enabled) {
             menu.findItem(R.id.follow_location).getIcon().
                     setColorFilter(getResources().getColor(R.color.blue), PorterDuff.Mode.SRC_ATOP);
-            locationServices.addLocationListener(mLocationListener);
+            locationEngine.addLocationEngineListener(mLocationListener);
         } else {
             menu.findItem(R.id.follow_location).getIcon().
                     setColorFilter(null);
-            locationServices.removeLocationListener(mLocationListener);
+            locationEngine.removeLocationEngineListener(mLocationListener);
         }
     }
 
@@ -965,7 +984,7 @@ public class MapActivity extends AppCompatActivity {
             case PERMISSIONS_LOCATION: {
                 if (grantResults.length > 0 &&
                         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Location lastLocation = locationServices.getLastLocation();
+                    Location lastLocation = locationEngine.getLastLocation();
                     if (lastLocation != null) {
                         CameraPosition position = new CameraPosition.Builder()
                                 .target(new LatLng(lastLocation))

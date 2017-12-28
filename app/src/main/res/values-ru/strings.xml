@@ -86,4 +86,5 @@
     <string name="signed_out">Выход</string>
     <string name="signed_in">Вход</string>
     <string name="make_screenshot">Отправка фотографии</string>
+    <string name="app_name">Сборщик препятствий</string>
 </resources>

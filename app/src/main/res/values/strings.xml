@@ -2,7 +2,7 @@
 <resources>
 
     <string name="refresh">Refresh points</string>
-    <string name="app_name" translatable="false">GeTS Supplement</string>
+    <string name="app_name">Obstacle collector</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">Authorization</string>
     <string name="error_authorization">Authorization error</string>

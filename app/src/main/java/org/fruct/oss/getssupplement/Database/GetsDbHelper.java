@@ -102,7 +102,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
 
         cv.put("_id", point.id);
         cv.put("categoryId", point.categoryId);
-        cv.put("name", point.name);
+        cv.put("name", point.getName());
         cv.put("url", point.url);
         cv.put("access", point.access);
         cv.put("time", point.time);
@@ -216,7 +216,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
      */
     public void addPoint(Point point) {
         addPoint(point.categoryId,
-                point.name,
+                point.getName(),
                 point.url,
                 point.access,
                 point.time,
@@ -259,7 +259,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
             Point point = points.get(i);
 
             // TODO: convert time
-            this.addPoint(point.categoryId, point.name, point.url, point.access, "0",
+            this.addPoint(point.categoryId, point.getName(), point.url, point.access, "0",
                     point.description, point.latitude, point.longitude, point.rating,
                     point.uuid, point.markerId);
         }
@@ -317,7 +317,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
                 Point point = new Point();
                 point.id = cursor.getInt(indexId);
                 point.categoryId = cursor.getInt(indexCategoryId);
-                point.name = cursor.getString(indexName);
+                point.setName(cursor.getString(indexName));
                 point.url = cursor.getString(indexUrl);
                 point.access = cursor.getString(indexAccess);
                 point.time = cursor.getString(indexTime);
@@ -374,7 +374,7 @@ public class GetsDbHelper extends SQLiteOpenHelper {
             Point point = new Point();
             point.id = cursor.getInt(indexId);
             point.categoryId = cursor.getInt(indexCategoryId);
-            point.name = cursor.getString(indexName);
+            point.setName(cursor.getString(indexName));
             point.url = cursor.getString(indexUrl);
             point.access = cursor.getString(indexAccess);
             point.time = cursor.getString(indexTime);

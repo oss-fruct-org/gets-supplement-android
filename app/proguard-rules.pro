@@ -1,17 +1,14 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in Y:\Program Files\android-sdks/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+#-dontobfuscate
+-verbose
 
-# Add any project specific keep options here:
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-dontwarn javax.xml.stream.XMLStreamReader
+-dontwarn javax.xml.stream.XMLStreamConstants
+-dontwarn javax.xml.stream.XMLStreamException
+-dontwarn javax.xml.stream.XMLInputFactory
+-dontwarn com.graphhopper.reader.dem.*
+-dontwarn com.graphhopper.util.Helper7
+-dontwarn org.slf4j.*
+-dontwarn com.mapbox.services.android.telemetry.location.GoogleLocationEngine
+-dontwarn com.mapbox.mapboxsdk.location.LocationSource
+-dontwarn com.mapbox.services.android.telemetry.location.LostLocationEngine
+-dontwarn org.osmdroid.tileprovider.modules.NetworkAvailabliltyCheck

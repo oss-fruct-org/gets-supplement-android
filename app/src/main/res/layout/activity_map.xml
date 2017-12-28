@@ -23,7 +23,7 @@
             android:layout_below="@+id/toolbar"
             android:clickable="true"
             android:minHeight="250dp"
-            mapbox:style_url="@string/mapbox_style_url" />
+            mapbox_styleUrl="@string/mapbox_style_url" />
 
         <ImageButton
             android:id="@+id/activity_map_my_location"

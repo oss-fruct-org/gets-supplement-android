@@ -124,7 +124,7 @@ public class PointsGet extends AsyncTask<String, Point, PointsResponse> {
                     try {
                         Point point = new Point();
 
-                        point.name = element.getElementsByTagName("name").item(0).getTextContent();
+                        point.setName(element.getElementsByTagName("name").item(0).getTextContent());
                         point.description = element.getElementsByTagName("description").item(0).getTextContent();
 
                         NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();

@@ -34,7 +34,7 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
     String params = "";
 
     public PointsAdd(Point point, String token) {
-        this(token, point.categoryId, point.name,  point.rating,
+        this(token, point.categoryId, point.getName(),  point.rating,
                 point.latitude,  point.longitude,  point.streetId);
     }
 
@@ -127,7 +127,7 @@ public class PointsAdd extends AsyncTask<String, String, PointsResponse> {
                     try {
                         Point point = new Point();
 
-                        point.name = element.getElementsByTagName("name").item(0).getTextContent();
+                        point.setName(element.getElementsByTagName("name").item(0).getTextContent());
                         point.description = element.getElementsByTagName("description").item(0).getTextContent();
 
                         NodeList extendedData = element.getElementsByTagName("ExtendedData").item(0).getChildNodes();

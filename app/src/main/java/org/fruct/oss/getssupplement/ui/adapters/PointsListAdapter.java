@@ -46,7 +46,7 @@ public class PointsListAdapter extends RecyclerView.Adapter<PointsListAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, final int position) {
         Drawable icon = IconHolder.getInstance().getDrawableByCategoryId(context.getResources(), data.get(position).categoryId);
         holder.ivCategoryIcon.setImageDrawable(icon);
-        holder.tvPointName.setText(data.get(position).name);
+        holder.tvPointName.setText(data.get(position).getName());
         holder.ibSendPoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
