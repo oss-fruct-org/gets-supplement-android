@@ -3,6 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="marker_iconsize_normal">60dp</dimen>
     <dimen name="dp8">8dp</dimen>
     <dimen name="sp20">20sp</dimen>
     <dimen name="dp16">16dp</dimen>

@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import org.fruct.oss.getssupplement.R;
 
@@ -46,10 +47,12 @@ public class IconHolder {
         if (callout == null) {
             callout = BitmapFactory.decodeResource(context.getResources(), R.drawable.callout);
         }
-        Bitmap fixedBitmap = Bitmap.createBitmap(80, 80, Bitmap.Config.ARGB_8888);
+        int size = context.getResources().getDimensionPixelSize(R.dimen.marker_iconsize_normal);
+        Log.d(TAG, "Icon size = " + size);
+        Bitmap fixedBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(fixedBitmap);
-        canvas.drawBitmap(callout, null, new RectF(0,0,80,80), null);
-        canvas.drawBitmap(bitmap, null, new RectF(15, 10, 60, 55), null);
+        canvas.drawBitmap(callout, null, new RectF(0,0,size,size), null);
+        canvas.drawBitmap(bitmap, null, new RectF(size *15 / 80, size * 10 / 80, size * 60 / 80, size * 55 / 80), null);
         bitmaps.put(categoryId, fixedBitmap);
         cleanBitmaps.put(categoryId, bitmap);
     }
