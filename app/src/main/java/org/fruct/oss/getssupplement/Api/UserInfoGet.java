@@ -18,6 +18,8 @@ import org.w3c.dom.NodeList;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -78,7 +80,7 @@ public class UserInfoGet extends AsyncTask<String, String, UserInfoResponse> {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
                 userInfoResponse.isTrustedUser = Boolean.parseBoolean(element.getElementsByTagName("isTrustedUser").item(0).getTextContent());
-                userInfoResponse.name = element.getElementsByTagName("name").item(0).getTextContent();
+                userInfoResponse.name = new String(element.getElementsByTagName("name").item(0).getTextContent().getBytes("ISO-8859-1"));
                 userInfoResponse.email = element.getElementsByTagName("email").item(0).getTextContent();
             }
 

@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
@@ -54,6 +55,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+    private static String TAG = "LoginActivity";
 
     private TextView tvUsername, tvEmail, tvTrusted;
     private LinearLayout llContainer;
@@ -100,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void checkIsLoggedInAndLoad() {
         String token = Settings.getToken(this);
-        Log.d(getLocalClassName(), "Saved token=" + token);
+        Log.d(TAG, "Saved token=" + token);
         if (token == null || token.equals("")) {
 //            llContainer.setVisibility(View.GONE);
             btnLogout.setVisibility(View.GONE);
@@ -111,7 +113,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 protected String doInBackground(Void... params2) {
                     try {
                         String strResponse = Utils.downloadUrl(Const.URL_GET_AUTH_PARAMS, "<request><params/></request>");
-                        Log.d(getLocalClassName(), "Server answer: " + strResponse);
+                        Log.d(TAG, "Server answer: " + strResponse);
                         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                         InputStream is = new ByteArrayInputStream(strResponse.getBytes("UTF-8"));
@@ -148,7 +150,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 @Override
                 protected void onPostExecute(String s) {
                     super.onPostExecute(s);
-                    Log.d(getClass().getSimpleName(), "Client ID: " + s);
+                    Log.d(TAG, "Client ID: " + s);
                     if (s != null && !s.isEmpty()) {
                         setResponseId(s);
                         signIn();
@@ -163,7 +165,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void signIn() {
-        Log.d(getLocalClassName(), "Try to get auth for client ID: " + getResponseId());
+        Log.d(TAG, "Try to get auth for client ID: " + getResponseId());
         if (getResponseId() == null)
             return;
 
@@ -185,6 +187,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
+        Log.d(TAG, "Start activity (" + RC_SIGN_IN + ")");
     }
 
     private void signOut() {
@@ -427,6 +430,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "Activity finished with code=" + resultCode + "(" + RC_SIGN_IN+")");
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
@@ -434,7 +438,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(getLocalClassName(), "handleSignInResult:" + result.isSuccess());
+        Log.d(getLocalClassName(), "handleSignInResult:" + result.isSuccess() + "; " + GoogleSignInStatusCodes.getStatusCodeString(result.getStatus().getStatusCode()));
         if (result.isSuccess()) {
             GoogleSignInAccount account = result.getSignInAccount();
             Toast.makeText(this,R.string.signed_in, Toast.LENGTH_LONG).show();
